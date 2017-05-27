@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  MainWCtrl.h
 //  OSX
 //
 //  Created by 李振彪 on 2017/5/24.
@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ViewController : NSViewController
-
+@interface MainWCtrl : NSWindowController
 
 @end
-

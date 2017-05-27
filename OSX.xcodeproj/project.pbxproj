@@ -9,9 +9,13 @@
 /* Begin PBXBuildFile section */
 		0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8301ED587CE00D4671F /* AppDelegate.m */; };
 		0522D8341ED587CE00D4671F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8331ED587CE00D4671F /* main.m */; };
-		0522D8371ED587CE00D4671F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8361ED587CE00D4671F /* ViewController.m */; };
-		0522D8391ED587CE00D4671F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8381ED587CE00D4671F /* Assets.xcassets */; };
-		0522D83C1ED587CF00D4671F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0522D83A1ED587CF00D4671F /* Main.storyboard */; };
+		0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8451ED589FF00D4671F /* MainMenu.xib */; };
+		0522D84A1ED58AF700D4671F /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
+		0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8491ED58AF700D4671F /* MainWCtrl.xib */; };
+		0589401D1ED81F42004464E4 /* screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 0589401C1ED81F42004464E4 /* screen.png */; };
+		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
+		058940231ED82033004464E4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058940221ED82033004464E4 /* Images.xcassets */; };
+		05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,11 +23,17 @@
 		0522D82F1ED587CE00D4671F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0522D8301ED587CE00D4671F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		0522D8331ED587CE00D4671F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		0522D8351ED587CE00D4671F /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		0522D8361ED587CE00D4671F /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		0522D8381ED587CE00D4671F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0522D83B1ED587CF00D4671F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		0522D83D1ED587CF00D4671F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0522D8451ED589FF00D4671F /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		0522D8471ED58AF700D4671F /* MainWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWCtrl.h; sourceTree = "<group>"; };
+		0522D8481ED58AF700D4671F /* MainWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainWCtrl.m; sourceTree = "<group>"; };
+		0522D8491ED58AF700D4671F /* MainWCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWCtrl.xib; sourceTree = "<group>"; };
+		0589401C1ED81F42004464E4 /* screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen.png; sourceTree = "<group>"; };
+		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
+		058940221ED82033004464E4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		05B516121ED67F2500A3820F /* OSX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OSX.entitlements; sourceTree = "<group>"; };
+		05B516191ED6DFC800A3820F /* ZBMacOSObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBMacOSObject.h; sourceTree = "<group>"; };
+		05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBMacOSObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,13 +66,17 @@
 		0522D82E1ED587CE00D4671F /* OSX */ = {
 			isa = PBXGroup;
 			children = (
+				0589401B1ED81F36004464E4 /* images */,
+				05B516121ED67F2500A3820F /* OSX.entitlements */,
+				05B516131ED6DF7900A3820F /* object */,
 				0522D82F1ED587CE00D4671F /* AppDelegate.h */,
 				0522D8301ED587CE00D4671F /* AppDelegate.m */,
-				0522D8351ED587CE00D4671F /* ViewController.h */,
-				0522D8361ED587CE00D4671F /* ViewController.m */,
-				0522D8381ED587CE00D4671F /* Assets.xcassets */,
-				0522D83A1ED587CF00D4671F /* Main.storyboard */,
+				0522D8451ED589FF00D4671F /* MainMenu.xib */,
+				0522D8471ED58AF700D4671F /* MainWCtrl.h */,
+				0522D8481ED58AF700D4671F /* MainWCtrl.m */,
+				0522D8491ED58AF700D4671F /* MainWCtrl.xib */,
 				0522D83D1ED587CF00D4671F /* Info.plist */,
+				058940221ED82033004464E4 /* Images.xcassets */,
 				0522D8321ED587CE00D4671F /* Supporting Files */,
 			);
 			path = OSX;
@@ -74,6 +88,24 @@
 				0522D8331ED587CE00D4671F /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0589401B1ED81F36004464E4 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				0589401C1ED81F42004464E4 /* screen.png */,
+				058940201ED81F74004464E4 /* titleBar.png */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
+		05B516131ED6DF7900A3820F /* object */ = {
+			isa = PBXGroup;
+			children = (
+				05B516191ED6DFC800A3820F /* ZBMacOSObject.h */,
+				05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */,
+			);
+			path = object;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -108,6 +140,11 @@
 					0522D82B1ED587CE00D4671F = {
 						CreatedOnToolsVersion = 8.3.2;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -134,8 +171,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0522D8391ED587CE00D4671F /* Assets.xcassets in Resources */,
-				0522D83C1ED587CF00D4671F /* Main.storyboard in Resources */,
+				0589401D1ED81F42004464E4 /* screen.png in Resources */,
+				058940211ED81F74004464E4 /* titleBar.png in Resources */,
+				058940231ED82033004464E4 /* Images.xcassets in Resources */,
+				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
+				0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,24 +186,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0522D8371ED587CE00D4671F /* ViewController.m in Sources */,
+				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
+				0522D84A1ED58AF700D4671F /* MainWCtrl.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		0522D83A1ED587CF00D4671F /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0522D83B1ED587CF00D4671F /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		0522D83E1ED587CF00D4671F /* Debug */ = {
@@ -259,6 +289,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OSX/OSX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = OSX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -271,6 +302,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OSX/OSX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = OSX/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -298,6 +330,7 @@
 				0522D8421ED587CF00D4671F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

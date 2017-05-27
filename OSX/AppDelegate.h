@@ -11,5 +11,8 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 
+/** <#Description#> */
+@property (weak) IBOutlet NSWindow *window;
+
 @end
 
