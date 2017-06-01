@@ -10,7 +10,7 @@
 
 
 
-@interface MainWCtrl ()<NSApplicationDelegate>
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate>
 
 @end
 
@@ -148,6 +148,9 @@
 #pragma mark - 添加窗口控件
 -(void)addViewToWindow{
     
+//    NSCell *cell = [[NSCell alloc]init];
+//    NSControl *con = [[NSControl alloc]init];
+    
     //NSScrollView
     NSScrollView *scrollView =  [[NSScrollView alloc]initWithFrame:[self.window.contentView bounds]];
     NSImage *image =  [NSImage imageNamed:@"screen.png"];
@@ -172,10 +175,33 @@
     
     //NSTextField
     CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
-    NSTextField *TextField = [[NSTextField alloc]initWithFrame:CGRectMake(x, 120, 200, 100)];
-    TextField.wantsLayer = YES;
-    TextField.layer.backgroundColor = [NSColor yellowColor].CGColor;
-    [self.window.contentView addSubview:TextField];
+    NSTextField *textField = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
+    textField.wantsLayer = YES;
+    textField.layer.backgroundColor = [NSColor yellowColor].CGColor;
+    textField.textColor = [NSColor greenColor];
+    textField.delegate  = self;
+    [self.window.contentView addSubview:textField];
+    
+    //
+    NSTextView *textV = [[NSTextView alloc]initWithFrame:CGRectMake(x, 80, 200, 50)];
+    //textV.wantsLayer = YES;//YES 的时候显示在窗口上面，
+    //textV.layer.backgroundColor = [NSColor blueColor].CGColor;
+    textV.backgroundColor = [NSColor greenColor];
+    textV.delegate = self;
+    [self.window.contentView addSubview:textV];
+    
+    //
+    NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:CGRectMake(x, 140, 150, 20)];
+    searchF.textColor = [NSColor blueColor];
+    searchF.backgroundColor = [NSColor redColor];
+    searchF.placeholderString = @"NSSearchField";
+    [self.window.contentView addSubview:searchF];
+    NSActionCell *searchButtonCell = [[searchF cell] searchButtonCell];
+    NSActionCell *cancelButtonCell = [[searchF cell] cancelButtonCell];
+    searchButtonCell.target = self;
+    searchButtonCell.action = @selector(searchButtonClicked:);
+    cancelButtonCell.target = self;
+    cancelButtonCell.action = @selector(cancelButtonClicked:);
     
 }
 
@@ -186,7 +212,7 @@
     [self.window.contentView unlockFocus];
     NSData *imageData = image.TIFFRepresentation;
     
-    //创建文件
+    //创建文件v
     NSFileManager *fm = [NSFileManager defaultManager];
     NSString *path = @"/Users/vae/Documents/myCapture.png";
     [fm createFileAtPath:path contents:imageData attributes:nil];
@@ -195,5 +221,73 @@
     NSURL *fileURL = [NSURL fileURLWithPath: path];
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
 }
+
+#pragma mark - NSTextFieldDelegate
+//“光标进入输入框第一次输入得到事件通知。”
+-(void)controlTextDidBeginEditing:(NSNotification *)obj{
+    id textf = obj.object;
+    if ([textf isKindOfClass:[NSTextField class]]){
+        NSTextField *tw = (NSTextField *)textf;
+        NSLog(@"controlTextDidBeginEditing_%@",tw.stringValue);
+
+    }
+    
+    
+}
+
+//“光标离开输入框时得到事件通知。”
+-(void)controlTextDidEndEditing:(NSNotification *)obj{
+    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
+}
+
+//“文本框正在输入，内容变化时得到事件通知。”
+-(void)controlTextDidChange:(NSNotification *)obj{
+    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
+    id textf = obj.object;
+    if ([textf isKindOfClass:[NSTextField class]]){
+        NSTextField *tw = (NSTextField *)textf;
+        NSLog(@"controlTextDidChange_text_%@",tw.stringValue);
+        
+    }
+}
+
+
+#pragma mark - NSTextDelegate//nstextView
+
+/**
+ “注意 NSTextView 的 实际代理类为 NSTextViewDelegate 类型， 它继承自 NSTextDelegate 。”
+ 
+ 摘录来自: @剑指人心. “MacDev”。 iBooks.
+ */
+-(void)textDidBeginEditing:(NSNotification *)notification{
+    
+}
+-(void)textDidEndEditing:(NSNotification *)notification{
+    
+}
+-(void)textDidChange:(NSNotification *)notification{
+    
+}
+-(BOOL)textShouldEndEditing:(NSText *)textObject{
+    return YES;
+}
+
+
+#pragma mark - NSSearchField
+-(void)searchButtonClicked:(NSSearchField *)sender{
+    
+    NSSearchField *searchField = sender;
+    NSString *content = searchField.stringValue;
+    NSLog(@"content %@",content);
+}
+
+-(void)cancelButtonClicked:(NSSearchField *)sender{
+   
+    NSSearchField *searchField = sender;
+    NSString *content = searchField.stringValue;
+    NSLog(@"content %@",content);
+ }
+
+
 
 @end
