@@ -10,7 +10,9 @@
 
 
 
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate>
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource>{
+    NSArray *comboBoxItemValue;
+}
 
 @end
 
@@ -34,7 +36,6 @@
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
     [self addViewToWindow];
-    [self saveSelfAsImage];
 }
 
 
@@ -150,8 +151,45 @@
     
 //    NSCell *cell = [[NSCell alloc]init];
 //    NSControl *con = [[NSControl alloc]init];
-    
+   
     //NSScrollView-----------------
+    NSScrollView *scrollView = [self scrollView];
+
+    //NSView-----------------------
+    [self view];
+    
+    CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
+    //NSTextField------------------
+    [self textFied:x];
+    
+    //NSTextView-------------------
+    [self textView:x];
+    
+    //NSSearchField----------------
+    [self searchField:x];
+    
+    //label------------------------
+    [self label];
+    
+    //NSButton---------------------
+    //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
+    [self button:150 superView:self.window.contentView tag:1];
+    [self button:200 superView:self.window.contentView tag:2];
+    
+    //NSSegmentedControl-----------
+    [self segmentControll];
+    
+    //NSComboBox-------------------
+    [self comboBox];
+    
+    //NSPopUpButton----------------
+    [self popUpButton];
+    
+}
+
+#pragma mark - NSScrollView
+
+-(NSScrollView *)scrollView{
     NSScrollView *scrollView =  [[NSScrollView alloc]initWithFrame:[self.window.contentView bounds]];
     NSImage *image =  [NSImage imageNamed:@"screen.png"];
     
@@ -160,53 +198,118 @@
     [imageView setFrameSize:image.size];
     imageView.image = image;
     scrollView.documentView = imageView;
-
+    
     //“分别用来控制是否显示纵向和横向的滚动条。如果设置它们为 NO，只是不显示出来，并不是禁止了滚动的行为。 如果要禁止一个方向的滚动，需要子类化 NSScrollView，重载它的 scrollWheel 方法，判断 Y 轴方向的偏移量满足一定条件返回即可。”
     scrollView.hasVerticalScroller = YES;
     scrollView.hasHorizontalScroller = YES;
     //scrollView.borderType = NSNoBorder;//“滚动条显示的样式风格”
     [self.window.contentView addSubview:scrollView];
+    
+    [self saveSelfAsImage];
+    
+    return scrollView;
 
-    //NSView-----------------
+}
+
+- (void)saveSelfAsImage {
+    [self.window.contentView lockFocus];
+    NSImage *image = [[NSImage alloc]initWithData:[self.window.contentView dataWithPDFInsideRect:self.window.contentView.bounds]];
+    [self.window.contentView unlockFocus];
+    NSData *imageData = image.TIFFRepresentation;
+    
+    //创建文件v
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSString *path = @"/Users/vae/Documents/myCapture.png";
+    [fm createFileAtPath:path contents:imageData attributes:nil];
+    
+    //保存结束后 Finder 中自动定位到文件路径
+    NSURL *fileURL = [NSURL fileURLWithPath: path];
+    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
+}
+#pragma mark - NSView
+-(void)view{
+    
     NSView *view = [[NSView alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
     view.wantsLayer = YES;//设置layer属性时必须先设置为YES
     view.layer.backgroundColor = [NSColor redColor].CGColor;
     [self.window.contentView addSubview:view];
-    
-    //NSTextField-----------------
-    CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
+}
+
+#pragma mark - NSTextField
+- (void)textFied:(CGFloat)x{
     NSTextField *textField = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
     textField.wantsLayer = YES;
     textField.layer.backgroundColor = [NSColor yellowColor].CGColor;
     textField.textColor = [NSColor greenColor];
     textField.delegate  = self;
     [self.window.contentView addSubview:textField];
+}
+
+
+#pragma mark NSTextFieldDelegate
+//“光标进入输入框第一次输入得到事件通知。”
+-(void)controlTextDidBeginEditing:(NSNotification *)obj{
+    id textf = obj.object;
+    if ([textf isKindOfClass:[NSTextField class]]){
+        NSTextField *tw = (NSTextField *)textf;
+        NSLog(@"controlTextDidBeginEditing_%@",tw.stringValue);
+        
+    }
     
-    //NSTextView-----------------
+}
+
+//“光标离开输入框时得到事件通知。”
+-(void)controlTextDidEndEditing:(NSNotification *)obj{
+    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
+}
+
+//“文本框正在输入，内容变化时得到事件通知。”
+-(void)controlTextDidChange:(NSNotification *)obj{
+    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
+    id textf = obj.object;
+    if ([textf isKindOfClass:[NSTextField class]]){
+        NSTextField *tf = (NSTextField *)textf;
+        NSLog(@"controlTextDidChange_text_%@",tf.stringValue);
+        
+    }
+    if ([textf isKindOfClass:[NSComboBox class]]){
+        NSComboBox *cb = (NSComboBox *)textf;
+        [cb setCompletes:YES];//这个函数可以实现自动匹配功能
+    }
+}
+
+
+#pragma mark - NSTextView
+-(void)textView:(CGFloat)x{
     NSTextView *textV = [[NSTextView alloc]initWithFrame:CGRectMake(x, 80, 200, 50)];
     //textV.wantsLayer = YES;//YES 的时候显示在窗口上面，
     //textV.layer.backgroundColor = [NSColor blueColor].CGColor;
     textV.backgroundColor = [NSColor greenColor];
     textV.delegate = self;
     [self.window.contentView addSubview:textV];
+}
+
+#pragma mark NSTextDelegate//nstextView
+
+/**
+ “注意 NSTextView 的 实际代理类为 NSTextViewDelegate 类型， 它继承自 NSTextDelegate 。”
+ 
+ 摘录来自: @剑指人心. “MacDev”。 iBooks.
+ */
+-(void)textDidBeginEditing:(NSNotification *)notification{
     
-    //NSSearchField-----------------
-    NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:CGRectMake(x, 140, 150, 20)];
-    searchF.textColor = [NSColor blueColor];
-    searchF.backgroundColor = [NSColor redColor];
-    searchF.placeholderString = @"NSSearchField";
-    [self.window.contentView addSubview:searchF];
-    //点击左侧放大镜 执行任务
-    NSActionCell *searchButtonCell = [[searchF cell] searchButtonCell];
-    searchButtonCell.target = self;
-    searchButtonCell.action = @selector(searchButtonClicked:);
-    //点击右侧删除 执行任务
-    NSActionCell *cancelButtonCell = [[searchF cell] cancelButtonCell];
-    cancelButtonCell.target = self;
-    cancelButtonCell.action = @selector(cancelButtonClicked:);
+}
+-(void)textDidEndEditing:(NSNotification *)notification{
     
+}
+-(void)textDidChange:(NSNotification *)notification{
     
-    //label-----------------
+}
+-(BOOL)textShouldEndEditing:(NSText *)textObject{
+    return YES;
+}
+#pragma mark - label
+-(void)label{
     //“Label本质上是NSTextField类型的，去掉边框和背景，设置为不可编辑，不可以选择即可。”
     NSTextField *label = [[NSTextField alloc]initWithFrame:CGRectMake(0, 100, 200, 30)];
     [label setBezeled:NO];
@@ -216,7 +319,7 @@
     
     //普通label
     //label.stringValue = @"Label";
-
+    
     
     //富文本label
     NSString *text = @"please visit http://www.apple.com";
@@ -236,114 +339,27 @@
     [astr endEditing];
     
     label.attributedStringValue = astr;
-
-    //NSButton-----------------
-    NSButton *btn = [[NSButton alloc]init];
-    btn.frame = CGRectMake(0, 150, 100, 100);//NSRectMake
-    btn.alignment = NSTextAlignmentCenter;
-    btn.toolTip = @"这是一个按钮";
-    btn.bezelStyle = NSBezelStyleRounded;
-    btn.target = self;
-    btn.action = @selector(btnAction:);
-    [self.window.contentView addSubview:btn];
-
-    //以下设置中，随着title和image的代码位置不同，在界面上的显示效果也不同
-    btn.bordered = YES;//是否带边框
-    btn.title = @"NSButton哦";
-    //button中显示的图象。如果去掉button的边框和文字，设置完图象属性后，按钮就变成了一个图标按钮。”
-    btn.image = [NSImage imageNamed:@"docx"];
-
-    //设置按钮类型，风格，强大
-    //1.以下5种类型只有在点击的时候背景颜色发生变化,其他无明显区别
-//    [btn setButtonType:NSButtonTypeMomentaryLight];//    = 0,
-//    [btn setButtonType:NSButtonTypeToggle];//            = 2,
-//    [btn setButtonType:NSButtonTypeMomentaryPushIn];//   = 7,
-//    [btn setButtonType:NSButtonTypeAccelerator];//       = 8,
-//    [btn setButtonType:NSButtonTypeMultiLevelAccelerator];// = 9,
-    //2.默认的时候是（左复选框+右文字）的按钮，当设置了image之后，复选框变成了image
-//    [btn setButtonType:NSButtonTypeSwitch];//            = 3,
-    //3.默认的时候是（左单选框+右文字）的按钮，当设置了image之后，复选框变成了image
-//    [btn setButtonType:NSButtonTypeRadio];//            = 4,
-    //4.点击的时候，title会变化（消失）
-//    [btn setButtonType:NSButtonTypeMomentaryChange];//   = 5,
-    //5.以下2种类型，stringValue=1有默认选中颜色，stringValue=0没选中无、颜色，
-//    [btn setButtonType:NSButtonTypePushOnPushOff];//     = 1,
-    [btn setButtonType:NSButtonTypeOnOff];//             = 6,
-    //设置按钮初始选中状态，1：选中
-    btn.state = 1;
-    
-    
-    
 }
-
-
-- (void)saveSelfAsImage {
-    [self.window.contentView lockFocus];
-    NSImage *image = [[NSImage alloc]initWithData:[self.window.contentView dataWithPDFInsideRect:self.window.contentView.bounds]];
-    [self.window.contentView unlockFocus];
-    NSData *imageData = image.TIFFRepresentation;
-    
-    //创建文件v
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *path = @"/Users/vae/Documents/myCapture.png";
-    [fm createFileAtPath:path contents:imageData attributes:nil];
-    
-    //保存结束后 Finder 中自动定位到文件路径
-    NSURL *fileURL = [NSURL fileURLWithPath: path];
-    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
-}
-
-#pragma mark - NSTextFieldDelegate
-//“光标进入输入框第一次输入得到事件通知。”
--(void)controlTextDidBeginEditing:(NSNotification *)obj{
-    id textf = obj.object;
-    if ([textf isKindOfClass:[NSTextField class]]){
-        NSTextField *tw = (NSTextField *)textf;
-        NSLog(@"controlTextDidBeginEditing_%@",tw.stringValue);
-
-    }
-
-}
-
-//“光标离开输入框时得到事件通知。”
--(void)controlTextDidEndEditing:(NSNotification *)obj{
-    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
-}
-
-//“文本框正在输入，内容变化时得到事件通知。”
--(void)controlTextDidChange:(NSNotification *)obj{
-    NSLog(@"controlTextDidEndEditing_%@",obj.userInfo);
-    id textf = obj.object;
-    if ([textf isKindOfClass:[NSTextField class]]){
-        NSTextField *tw = (NSTextField *)textf;
-        NSLog(@"controlTextDidChange_text_%@",tw.stringValue);
-        
-    }
-}
-
-
-#pragma mark - NSTextDelegate//nstextView
-
-/**
- “注意 NSTextView 的 实际代理类为 NSTextViewDelegate 类型， 它继承自 NSTextDelegate 。”
- 
- 摘录来自: @剑指人心. “MacDev”。 iBooks.
- */
--(void)textDidBeginEditing:(NSNotification *)notification{
-    
-}
--(void)textDidEndEditing:(NSNotification *)notification{
-    
-}
--(void)textDidChange:(NSNotification *)notification{
-    
-}
--(BOOL)textShouldEndEditing:(NSText *)textObject{
-    return YES;
-}
-
 
 #pragma mark - NSSearchField
+- (void)searchField:(CGFloat)x{
+    NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:CGRectMake(x, 140, 150, 20)];
+    searchF.textColor = [NSColor blueColor];
+    searchF.backgroundColor = [NSColor redColor];
+    searchF.placeholderString = @"NSSearchField";
+    [self.window.contentView addSubview:searchF];
+    //点击左侧放大镜 执行任务
+    NSActionCell *searchButtonCell = [[searchF cell] searchButtonCell];
+    searchButtonCell.target = self;
+    searchButtonCell.action = @selector(searchButtonClicked:);
+    //点击右侧删除 执行任务
+    NSActionCell *cancelButtonCell = [[searchF cell] cancelButtonCell];
+    cancelButtonCell.target = self;
+    cancelButtonCell.action = @selector(cancelButtonClicked:);
+}
+
+
+#pragma mark NSSearchField action
 -(void)searchButtonClicked:(NSSearchField *)sender{
     
     NSSearchField *searchField = sender;
@@ -352,16 +368,181 @@
 }
 
 -(void)cancelButtonClicked:(NSSearchField *)sender{
-   
+    
     NSSearchField *searchField = sender;
     NSString *content = searchField.stringValue;
     NSLog(@"content %@",content);
 }
 
+
+
 #pragma mark - NSButton
--(void)btnAction:(NSButton *)sender{
-    NSLog(@"点击了按钮_%@,%@",sender.title,sender.stringValue);
+- (void)button:(CGFloat)y superView:(NSView *)superView tag:(NSInteger)tag{
+    NSButton *btn = [[NSButton alloc]init];
+    btn.frame = CGRectMake(0, y, 100, 50);//NSRectMake
+    btn.alignment = NSTextAlignmentCenter;
+    btn.toolTip = @"这是一个按钮";
+    btn.bezelStyle = NSBezelStyleRounded;
+    btn.tag = tag;
+    btn.target = self;
+    btn.action = @selector(btnAction:);
+    [superView addSubview:btn];
+    
+    //以下设置中，随着title和image的代码位置不同，在界面上的显示效果也不同
+    btn.bordered = YES;//是否带边框
+    btn.title = @"NSButton哦";
+    //button中显示的图象。如果去掉button的边框和文字，设置完图象属性后，按钮就变成了一个图标按钮。”
+//    btn.image = [NSImage imageNamed:@"docx"];
+    
+    //设置按钮类型，风格，强大
+    //1.以下5种类型只有在点击的时候背景颜色发生变化,其他无明显区别
+//    [btn setButtonType:NSButtonTypeMomentaryLight];//    = 0,
+//    [btn setButtonType:NSButtonTypeToggle];//            = 2,
+//    [btn setButtonType:NSButtonTypeMomentaryPushIn];//   = 7,
+//    [btn setButtonType:NSButtonTypeAccelerator];//       = 8,
+//    [btn setButtonType:NSButtonTypeMultiLevelAccelerator];// = 9,
+    
+    //2.默认的时候是（左复选框+右文字）的按钮，当设置了image之后，复选框变成了image
+//    [btn setButtonType:NSButtonTypeSwitch];//            = 3,
+    
+    //3.默认的时候是（左单选框+右文字）的按钮，当设置了image之后，复选框变成了image
+    //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
+//    [btn setButtonType:NSButtonTypeRadio];//            = 4,
+    
+    //4.点击的时候，title会变化（消失）
+//    [btn setButtonType:NSButtonTypeMomentaryChange];//   = 5,
+   
+    //5.以下2种类型，stringValue=1有默认选中颜色，stringValue=0没选中无、颜色，
+//    [btn setButtonType:NSButtonTypePushOnPushOff];//     = 1,
+    [btn setButtonType:NSButtonTypeRadio];//             = 6,
+    //设置按钮初始选中状态，1：选中
+//    btn.state = 1;
 }
+
+#pragma mark NSButton action
+-(void)btnAction:(NSButton *)sender{
+    NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
+  
+}
+
+
+#pragma mark - NSSegmentedControl
+-(void)segmentControll{
+    NSSegmentedControl *seg = [[NSSegmentedControl alloc]init];
+    seg = [NSSegmentedControl segmentedControlWithLabels:@[@"232",@"423",@"432",@"3422"] trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(segmentAction:)];
+    seg.frame = CGRectMake(0, 240, 200, 30);
+    seg.wantsLayer = YES;
+    seg.layer.backgroundColor = [NSColor redColor].CGColor;
+//    seg.segmentCount = 3;//seg的item数量
+//    seg.segmentStyle = NSSegmentStyleRounded;
+//    seg.trackingMode = NSSegmentSwitchTrackingSelectOne;
+//    seg.target = self;
+//    seg.action = @selector(segmentAction:);
+    [self.window.contentView addSubview:seg];
+ 
+}
+
+- (void)segmentAction:(NSSegmentedControl *)seg{
+    
+    NSLog(@"NSSegmentedControl_%ld",seg.selectedSegment);
+    
+}
+
+
+#pragma mark - NSComboBox 组合框
+-(void)comboBox{
+    comboBoxItemValue = @[@"1",@"e",@"3",@"4",@"23",@"1",@"9",@"rqw",@"e3",@"323"];
+    NSComboBox *comBox = [[NSComboBox alloc]initWithFrame:CGRectMake(0, 280, 200, 25)];
+//    comBox.backgroundColor = [NSColor yellowColor];
+    //在代理前设置usesDataSource，否则无效
+    comBox.usesDataSource = YES;
+    comBox.delegate = self;
+    comBox.dataSource = self;//动态设置item的值
+//    comBox.completes = true;//设置这个为true来启用comboBox的自动补全功能
+    //设置固定的item的值，usesDataSource=YES时失效
+//    [comBox addItemsWithObjectValues:comboBoxItemValue];
+    [comBox selectItemAtIndex:0];
+    [self.window.contentView addSubview:comBox];
+//    [comBox reloadData];
+
+}
+
+#pragma mark comBox.dataSource
+//返回item的个数
+-(NSInteger)numberOfItemsInComboBox:(NSComboBox *)comboBox{
+    return comboBoxItemValue.count;
+}
+//每个index对应的item
+-(id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index{
+    return comboBoxItemValue[index];
+}
+//选择右侧下拉标时，默认选中的item的index位置
+-(NSUInteger)comboBox:(NSComboBox *)comboBox indexOfItemWithStringValue:(NSString *)string{
+    
+    //方法1. 不足：当数据源中出现相同的数据，默认取第一个数据的index
+    //NSInteger ind = [comboBoxItemValue indexOfObject:string];
+    
+    //方法2. 推荐
+    return comboBox.indexOfSelectedItem;
+}
+
+#warning 20170605
+//自动补全，未实现
+//controlTextDidChange:代理执行的时候设置 comBox.completes = true时执行
+-(NSString *)comboBox:(NSComboBox *)comboBox completedString:(NSString *)string{
+    //找出数据源中包含当前输入框中的字符的数据，提示自动补全
+    NSLog(@"completedString_%@",string);
+    
+//    NSString *str = comboBoxItemValue[comboBox.indexOfSelectedItem];
+//    if ([string hasPrefix:str]) {
+//        return str;
+//    }else{
+//        return string;//comboBoxItemValue[comboBox.indexOfSelectedItem];
+//
+//    }
+
+    return string;
+}
+#pragma mark comBox.delegate
+
+-(void)comboBoxWillPopUp:(NSNotification *)notification{
+    
+    
+}
+-(void)comboBoxWillDismiss:(NSNotification *)notification{
+    
+}
+
+-(void)comboBoxSelectionDidChange:(NSNotification *)notification{
+    NSComboBox *comboBox = notification.object;
+    NSInteger selectedIndex = comboBox.indexOfSelectedItem;
+    
+    NSLog(@"comboBoxSelectionDidChange selected item %@",comboBoxItemValue[selectedIndex]);
+}
+-(void)comboBoxSelectionIsChanging:(NSNotification *)notification{
+    NSComboBox *comboBox = notification.object;
+    NSInteger selectedIndex = comboBox.indexOfSelectedItem;
+    NSLog(@"comboBoxSelectionIsChanging selected item %@",comboBoxItemValue[selectedIndex]);
+}
+
+
+#pragma mark - NSPopUpButton
+- (void)popUpButton{
+    //pullsDown = YES,选中item不能同步值到输入框
+    NSPopUpButton *popUpBtn = [[NSPopUpButton alloc]initWithFrame:CGRectMake(0, 310, 200, 30) pullsDown:NO];
+    popUpBtn.wantsLayer = YES;
+    popUpBtn.layer.backgroundColor = [NSColor greenColor].CGColor;
+    [popUpBtn addItemsWithTitles:@[@"1",@"32",@"ASDF",@"FA"]];
+    //[popUpBtn setButtonType:NSButtonTypePushOnPushOff];
+//    [popUpBtn.cell setArrowPosition:NSPopUpNoArrow];//无箭头
+//    [popUpBtn.cell setArrowPosition:NSPopUpArrowAtBottom];
+    [popUpBtn.cell setArrowPosition:NSPopUpArrowAtCenter];
+    [self.window.contentView addSubview:popUpBtn];
+    
+//    NSPopUpButtonCell *cel = [[NSPopUpButtonCell alloc]init];
+    
+}
+
 
 
 @end
