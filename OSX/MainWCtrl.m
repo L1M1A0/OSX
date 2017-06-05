@@ -74,7 +74,7 @@
     [self.window setOpaque:NO];
     
     //窗口背景颜色
-    NSColor *windowBackgroundColor = [NSColor cyanColor];//[NSColor colorWithRed:30/255.0 green:30/255.0 blue:30/255.0 alpha:1.0];
+    NSColor *windowBackgroundColor = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.5];//[NSColor colorWithRed:30/255.0 green:30/255.0 blue:30/255.0 alpha:1.0];
     [self.window setBackgroundColor: windowBackgroundColor];
     
     //可移动的窗口背景
@@ -151,11 +151,11 @@
 //    NSCell *cell = [[NSCell alloc]init];
 //    NSControl *con = [[NSControl alloc]init];
     
-    //NSScrollView
+    //NSScrollView-----------------
     NSScrollView *scrollView =  [[NSScrollView alloc]initWithFrame:[self.window.contentView bounds]];
     NSImage *image =  [NSImage imageNamed:@"screen.png"];
     
-    //NSImageView
+    //NSImageView-----------------
     NSImageView *imageView = [[NSImageView alloc]initWithFrame:scrollView.bounds];
     [imageView setFrameSize:image.size];
     imageView.image = image;
@@ -167,13 +167,13 @@
     //scrollView.borderType = NSNoBorder;//“滚动条显示的样式风格”
     [self.window.contentView addSubview:scrollView];
 
-    //NSView
+    //NSView-----------------
     NSView *view = [[NSView alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
     view.wantsLayer = YES;//设置layer属性时必须先设置为YES
     view.layer.backgroundColor = [NSColor redColor].CGColor;
     [self.window.contentView addSubview:view];
     
-    //NSTextField
+    //NSTextField-----------------
     CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
     NSTextField *textField = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
     textField.wantsLayer = YES;
@@ -182,7 +182,7 @@
     textField.delegate  = self;
     [self.window.contentView addSubview:textField];
     
-    //
+    //NSTextView-----------------
     NSTextView *textV = [[NSTextView alloc]initWithFrame:CGRectMake(x, 80, 200, 50)];
     //textV.wantsLayer = YES;//YES 的时候显示在窗口上面，
     //textV.layer.backgroundColor = [NSColor blueColor].CGColor;
@@ -190,18 +190,89 @@
     textV.delegate = self;
     [self.window.contentView addSubview:textV];
     
-    //
+    //NSSearchField-----------------
     NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:CGRectMake(x, 140, 150, 20)];
     searchF.textColor = [NSColor blueColor];
     searchF.backgroundColor = [NSColor redColor];
     searchF.placeholderString = @"NSSearchField";
     [self.window.contentView addSubview:searchF];
+    //点击左侧放大镜 执行任务
     NSActionCell *searchButtonCell = [[searchF cell] searchButtonCell];
-    NSActionCell *cancelButtonCell = [[searchF cell] cancelButtonCell];
     searchButtonCell.target = self;
     searchButtonCell.action = @selector(searchButtonClicked:);
+    //点击右侧删除 执行任务
+    NSActionCell *cancelButtonCell = [[searchF cell] cancelButtonCell];
     cancelButtonCell.target = self;
     cancelButtonCell.action = @selector(cancelButtonClicked:);
+    
+    
+    //label-----------------
+    //“Label本质上是NSTextField类型的，去掉边框和背景，设置为不可编辑，不可以选择即可。”
+    NSTextField *label = [[NSTextField alloc]initWithFrame:CGRectMake(0, 100, 200, 30)];
+    [label setBezeled:NO];
+    [label setDrawsBackground:NO];
+    [label setEditable:NO];
+    [self.window.contentView addSubview:label];
+    
+    //普通label
+    //label.stringValue = @"Label";
+
+    
+    //富文本label
+    NSString *text = @"please visit http://www.apple.com";
+    NSMutableAttributedString *astr = [[NSMutableAttributedString alloc]initWithString:text];
+    NSString *linkURLText = @"http://www.apple.com";
+    NSURL *linkURL = [NSURL URLWithString:linkURLText];
+    //“查找字符串的范围”
+    NSRange selectRange = [text rangeOfString:linkURLText];
+    
+    [astr beginEditing];
+    //设置链接属性
+    [astr addAttribute:NSLinkAttributeName value:linkURL range:selectRange];
+    //设置文字颜色
+    [astr addAttribute:NSForegroundColorAttributeName  value:[NSColor blueColor] range:selectRange];
+    //设置文本下拉线
+    [astr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:selectRange];
+    [astr endEditing];
+    
+    label.attributedStringValue = astr;
+
+    //NSButton-----------------
+    NSButton *btn = [[NSButton alloc]init];
+    btn.frame = CGRectMake(0, 150, 100, 100);//NSRectMake
+    btn.alignment = NSTextAlignmentCenter;
+    btn.toolTip = @"这是一个按钮";
+    btn.bezelStyle = NSBezelStyleRounded;
+    btn.target = self;
+    btn.action = @selector(btnAction:);
+    [self.window.contentView addSubview:btn];
+
+    //以下设置中，随着title和image的代码位置不同，在界面上的显示效果也不同
+    btn.bordered = YES;//是否带边框
+    btn.title = @"NSButton哦";
+    //button中显示的图象。如果去掉button的边框和文字，设置完图象属性后，按钮就变成了一个图标按钮。”
+    btn.image = [NSImage imageNamed:@"docx"];
+
+    //设置按钮类型，风格，强大
+    //1.以下5种类型只有在点击的时候背景颜色发生变化,其他无明显区别
+//    [btn setButtonType:NSButtonTypeMomentaryLight];//    = 0,
+//    [btn setButtonType:NSButtonTypeToggle];//            = 2,
+//    [btn setButtonType:NSButtonTypeMomentaryPushIn];//   = 7,
+//    [btn setButtonType:NSButtonTypeAccelerator];//       = 8,
+//    [btn setButtonType:NSButtonTypeMultiLevelAccelerator];// = 9,
+    //2.默认的时候是（左复选框+右文字）的按钮，当设置了image之后，复选框变成了image
+//    [btn setButtonType:NSButtonTypeSwitch];//            = 3,
+    //3.默认的时候是（左单选框+右文字）的按钮，当设置了image之后，复选框变成了image
+//    [btn setButtonType:NSButtonTypeRadio];//            = 4,
+    //4.点击的时候，title会变化（消失）
+//    [btn setButtonType:NSButtonTypeMomentaryChange];//   = 5,
+    //5.以下2种类型，stringValue=1有默认选中颜色，stringValue=0没选中无、颜色，
+//    [btn setButtonType:NSButtonTypePushOnPushOff];//     = 1,
+    [btn setButtonType:NSButtonTypeOnOff];//             = 6,
+    //设置按钮初始选中状态，1：选中
+    btn.state = 1;
+    
+    
     
 }
 
@@ -231,8 +302,7 @@
         NSLog(@"controlTextDidBeginEditing_%@",tw.stringValue);
 
     }
-    
-    
+
 }
 
 //“光标离开输入框时得到事件通知。”
@@ -286,8 +356,12 @@
     NSSearchField *searchField = sender;
     NSString *content = searchField.stringValue;
     NSLog(@"content %@",content);
- }
+}
 
+#pragma mark - NSButton
+-(void)btnAction:(NSButton *)sender{
+    NSLog(@"点击了按钮_%@,%@",sender.title,sender.stringValue);
+}
 
 
 @end
