@@ -10,12 +10,12 @@
 		0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8301ED587CE00D4671F /* AppDelegate.m */; };
 		0522D8341ED587CE00D4671F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8331ED587CE00D4671F /* main.m */; };
 		0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8451ED589FF00D4671F /* MainMenu.xib */; };
-		0522D84A1ED58AF700D4671F /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8491ED58AF700D4671F /* MainWCtrl.xib */; };
 		0589401D1ED81F42004464E4 /* screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 0589401C1ED81F42004464E4 /* screen.png */; };
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		058940231ED82033004464E4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058940221ED82033004464E4 /* Images.xcassets */; };
 		05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */; };
+		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 /* End PBXBuildFile section */
 
@@ -192,8 +192,8 @@
 			files = (
 				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
-				0522D84A1ED58AF700D4671F /* MainWCtrl.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
+				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

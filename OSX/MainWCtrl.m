@@ -12,6 +12,7 @@
 
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource>{
     NSArray *comboBoxItemValue;
+    NSTextField *textField;
 }
 
 @end
@@ -54,6 +55,12 @@
     //3、设置窗口标题
     self.window.title = @"窗口的标题";
     
+    //如果设置minSize后拉动窗口有明显的大小变化，需要在MainWCtrl.xib中勾选Mininum content size
+    //self.window.minSize = NSMakeSize(700, 600);
+    self.window.maxSize = NSMakeSize(800, 700);
+    //self.window.contentMinSize = NSMakeSize(700, 600);
+
+    
     //4、窗口的图标
     NSImage *titleBarImage = [NSImage imageNamed:@"titleBar.png"];
     [[self.window standardWindowButton:NSWindowDocumentIconButton] setHidden:NO];
@@ -67,7 +74,6 @@
     //    NSWindowStyleMaskResizable = 1 << 3，//恢复按钮
     //    NSWindowStyleMaskTexturedBackground = 1 << 8 //带纹理背景的window”
     self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
-    
     
     //---------------2、window
 
@@ -153,14 +159,14 @@
 //    NSControl *con = [[NSControl alloc]init];
    
     //NSScrollView-----------------
-    NSScrollView *scrollView = [self scrollView];
+    [self scrollView];
 
     //NSView-----------------------
     [self view];
     
     CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
     //NSTextField------------------
-    [self textFied:x];
+    textField = [self textFied:x];
     
     //NSTextView-------------------
     [self textView:x];
@@ -185,6 +191,15 @@
     //NSPopUpButton----------------
     [self popUpButton];
     
+    //NSSlider---------------------
+    [self slider:NSSliderTypeLinear frame:CGRectMake(230, 0, 150, 30)];
+    [self slider:NSSliderTypeCircular frame:CGRectMake(230, 35, 50, 50)];
+    
+    //NSDatePicker-----------------
+    [self datePicker];
+    
+    //NSStepper--------------------
+    [self stepper];
 }
 
 #pragma mark - NSScrollView
@@ -236,13 +251,15 @@
 }
 
 #pragma mark - NSTextField
-- (void)textFied:(CGFloat)x{
-    NSTextField *textField = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
-    textField.wantsLayer = YES;
-    textField.layer.backgroundColor = [NSColor yellowColor].CGColor;
-    textField.textColor = [NSColor greenColor];
-    textField.delegate  = self;
-    [self.window.contentView addSubview:textField];
+- (NSTextField *)textFied:(CGFloat)x{
+    NSTextField *textf = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
+    textf.wantsLayer = YES;
+    textf.layer.backgroundColor = [NSColor yellowColor].CGColor;
+    textf.textColor = [NSColor redColor];
+    textf.font = [NSFont systemFontOfSize:30];
+    textf.delegate  = self;
+    [self.window.contentView addSubview:textf];
+    return textf;
 }
 
 
@@ -526,23 +543,120 @@
 }
 
 
-#pragma mark - NSPopUpButton
+#pragma mark - NSPopUpButton:BS
 - (void)popUpButton{
     //pullsDown = YES,选中item不能同步值到输入框
     NSPopUpButton *popUpBtn = [[NSPopUpButton alloc]initWithFrame:CGRectMake(0, 310, 200, 30) pullsDown:NO];
     popUpBtn.wantsLayer = YES;
     popUpBtn.layer.backgroundColor = [NSColor greenColor].CGColor;
     [popUpBtn addItemsWithTitles:@[@"1",@"32",@"ASDF",@"FA"]];
-    //[popUpBtn setButtonType:NSButtonTypePushOnPushOff];
+    [popUpBtn removeItemAtIndex:1];
+    [popUpBtn insertItemWithTitle:@"er" atIndex:2];
+//    [popUpBtn setButtonType:NSButtonTypeRadio];
 //    [popUpBtn.cell setArrowPosition:NSPopUpNoArrow];//无箭头
 //    [popUpBtn.cell setArrowPosition:NSPopUpArrowAtBottom];
     [popUpBtn.cell setArrowPosition:NSPopUpArrowAtCenter];
+    
+    popUpBtn.target = self;
+    popUpBtn.action = @selector(popUpBtnAction:);
     [self.window.contentView addSubview:popUpBtn];
+
     
 //    NSPopUpButtonCell *cel = [[NSPopUpButtonCell alloc]init];
     
 }
 
+-(void)popUpBtnAction:(NSPopUpButton *)sender{
+    
+    NSLog(@"popUpBtnAction_%ld,%@,%@",sender.indexOfSelectedItem,sender.itemTitles[sender.indexOfSelectedItem],sender.itemTitles);
+}
+
+#pragma mark - NSSlider
+
+-(void)slider:(NSSliderType)sliderType frame:(CGRect)frame{
+    
+    NSSlider *slider = [[NSSlider alloc]initWithFrame:frame];
+    slider.wantsLayer = YES;
+    slider.layer.backgroundColor = [NSColor yellowColor].CGColor;
+    slider.sliderType = sliderType;//线型 或者 圆钮型
+    if (sliderType == NSSliderTypeLinear) {
+        slider.vertical = NO;//是否是垂直的
+    }
+    //设置数值
+    slider.minValue = 0;
+    slider.maxValue = 100;
+    //当前数值位置
+    slider.integerValue = 58;
+    //slider.floatValue = 29.22;
+    //slider.stringValue = @"40";
+    
+    slider.numberOfTickMarks = 10;//标尺分节段数量，将无法设置线条颜色
+    slider.appearance = [NSAppearance currentAppearance];
+    slider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
+
+    slider.target = self;
+    slider.action = @selector(sliderAction:);
+    [self.window.contentView addSubview:slider];
+    
+
+}
+-(void)sliderAction:(NSSlider *)sender{
+
+    NSLog(@"sliderValue_%ld,%f,%@",sender.integerValue,sender.floatValue,sender.stringValue);
+    textField.stringValue = sender.stringValue;
+    
+}
+
+#pragma mark - NSDatePicker
+- (void)datePicker{
+    NSDatePicker *datePicker = [[NSDatePicker alloc]initWithFrame:CGRectMake(230, 200, 300, 300)];
+    //设置当前日期为初始值
+    datePicker.dateValue = [NSDate date];
+    //界面类型，以下style默认显示日历和时钟
+    datePicker.datePickerStyle = NSClockAndCalendarDatePickerStyle;
+    //显示日历
+    //datePicker.datePickerElements = NSYearMonthDayDatePickerElementFlag;
+    //显示时钟
+    //datePicker.datePickerElements = NSHourMinuteSecondDatePickerElementFlag;
+
+
+    //背景色仅对 Graphical 样式的 NSDatePicker 有效
+    datePicker.wantsLayer = YES;
+    datePicker.backgroundColor = [NSColor cyanColor];
+    //文字颜色仅仅对 Textual,Textual With Stepper 2种 UI 样式的 NSDatePicker 有效。
+    datePicker.textColor = [NSColor blueColor];
+
+    datePicker.target = self;
+    datePicker.action = @selector(datePickerAction:);
+    [self.window.contentView addSubview:datePicker];
+}
+
+-(void)datePickerAction:(NSDatePicker *)sender{
+    
+    NSLog(@"datePicker_%@",sender.dateValue);
+//    textField.stringValue = ]
+    
+}
+
+
+#pragma mark - NSStepper
+- (void)stepper{
+    NSStepper *stepper = [[NSStepper alloc]initWithFrame:CGRectMake(300, 50, 50, 30)];
+    stepper.stringValue = @"10";
+    stepper.minValue = 10;
+    stepper.maxValue = 100;
+    stepper.increment = 10;//步进增长量
+    stepper.wantsLayer = YES;
+    stepper.layer.backgroundColor = [NSColor purpleColor].CGColor;
+    stepper.target = self;
+    stepper.action = @selector(stepperAction:);
+    [self.window.contentView addSubview:stepper];
+}
+
+- (void)stepperAction:(NSStepper *)sender{
+    textField.stringValue = sender.stringValue;
+    
+}
 
 
 @end
