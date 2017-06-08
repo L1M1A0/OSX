@@ -15,6 +15,9 @@
     NSTextField *textField;
 }
 
+/** <#Description#> */
+@property (nonatomic, assign) CGFloat x;
+
 @end
 
 @implementation MainWCtrl
@@ -57,7 +60,7 @@
     
     //如果设置minSize后拉动窗口有明显的大小变化，需要在MainWCtrl.xib中勾选Mininum content size
     //self.window.minSize = NSMakeSize(700, 600);
-    self.window.maxSize = NSMakeSize(800, 700);
+    self.window.maxSize = NSMakeSize(900, 700);
     //self.window.contentMinSize = NSMakeSize(700, 600);
 
     
@@ -164,15 +167,15 @@
     //NSView-----------------------
     [self view];
     
-    CGFloat x = CGRectGetMaxX(self.window.contentView.frame)-200;
+    self.x = CGRectGetMaxX(self.window.contentView.frame)-200;
     //NSTextField------------------
-    textField = [self textFied:x];
+    textField = [self textFied:self.x];
     
     //NSTextView-------------------
-    [self textView:x];
+    [self textView:self.x];
     
     //NSSearchField----------------
-    [self searchField:x];
+    [self searchField:self.x];
     
     //label------------------------
     [self label];
@@ -192,14 +195,30 @@
     [self popUpButton];
     
     //NSSlider---------------------
-    [self slider:NSSliderTypeLinear frame:CGRectMake(230, 0, 150, 30)];
-    [self slider:NSSliderTypeCircular frame:CGRectMake(230, 35, 50, 50)];
+    [self slider:NSSliderTypeLinear frame:CGRectMake(230, 0, 150, 30) superView:self.window.contentView];
+    [self slider:NSSliderTypeCircular frame:CGRectMake(230, 35, 50, 50) superView:self.window.contentView];
     
     //NSDatePicker-----------------
     [self datePicker];
     
     //NSStepper--------------------
     [self stepper];
+    
+    //NSProgressIndicator----------
+    [self progressIndicator:NSProgressIndicatorSpinningStyle x:230 w:50];
+    [self progressIndicator:NSProgressIndicatorBarStyle x:290 w:150];
+    
+    //NSBox------------------------
+    [self box];
+    
+    //NSSplitView------------------
+    [self splitView];
+    
+    //NSCollectionView-------------未实现
+    [self collectionView];
+    
+    //NSTabView--------------------
+    [self tabView];
 }
 
 #pragma mark - NSScrollView
@@ -573,7 +592,7 @@
 
 #pragma mark - NSSlider
 
--(void)slider:(NSSliderType)sliderType frame:(CGRect)frame{
+-(void)slider:(NSSliderType)sliderType frame:(CGRect)frame superView:(NSView *)superView{
     
     NSSlider *slider = [[NSSlider alloc]initWithFrame:frame];
     slider.wantsLayer = YES;
@@ -596,7 +615,7 @@
 
     slider.target = self;
     slider.action = @selector(sliderAction:);
-    [self.window.contentView addSubview:slider];
+    [superView addSubview:slider];
     
 
 }
@@ -605,6 +624,18 @@
     NSLog(@"sliderValue_%ld,%f,%@",sender.integerValue,sender.floatValue,sender.stringValue);
     textField.stringValue = sender.stringValue;
     
+    for (id control in self.window.contentView.subviews) {
+        if ([control isKindOfClass:[NSProgressIndicator class]]){
+            NSProgressIndicator *c = (NSProgressIndicator*)control;
+            c.doubleValue = [sender.stringValue doubleValue];
+        }
+        if ([control isKindOfClass:[NSSlider class]]){
+            if (![control isEqualTo:sender]) {
+                NSSlider *sli = (NSSlider *)control;
+                sli.stringValue = sender.stringValue;
+            }
+        }
+    }
 }
 
 #pragma mark - NSDatePicker
@@ -657,6 +688,127 @@
     textField.stringValue = sender.stringValue;
     
 }
+
+#pragma mark - NSProgressIndicator
+- (void)progressIndicator:(NSProgressIndicatorStyle)style x:(CGFloat)x w:(CGFloat)w{
+    NSProgressIndicator *proIndicator = [[NSProgressIndicator alloc]initWithFrame:CGRectMake(x, 90, w, 45)];
+    //类型：圆圈NSProgressIndicatorSpinningStyle
+    proIndicator.style = style;//默认，bar
+    proIndicator.controlSize = NSControlSizeMini;
+    proIndicator.controlTint = NSGraphiteControlTint;
+    proIndicator.usesThreadedAnimation = YES;
+    
+    proIndicator.minValue = 0;//默认
+    proIndicator.maxValue = 100;//默认
+    proIndicator.doubleValue = 25.0;//需要设置indeterminate==NO
+    proIndicator.indeterminate = NO;
+    [proIndicator incrementBy:1];
+    
+    proIndicator.wantsLayer = YES;
+    proIndicator.layer.backgroundColor = [NSColor brownColor].CGColor;
+    [self.window.contentView addSubview:proIndicator];
+    [proIndicator startAnimation:proIndicator];
+    
+}
+
+
+#pragma mark - NSBox
+
+-(void)box{
+    
+    NSBox *box = [[NSBox alloc]initWithFrame:CGRectMake(self.x, 200, 150, 150)];
+    box.title = @"NSBox";
+    box.titlePosition = NSAtTop;//标题位置
+    box.boxType = NSBoxPrimary;
+
+    //设置背景色无效
+//    box.wantsLayer = YES;
+//    box.layer.backgroundColor  = [NSColor greenColor].CGColor;
+    box.contentView.wantsLayer = YES;
+    box.contentView.layer.backgroundColor = [NSColor orangeColor].CGColor;
+    [self.window.contentView addSubview:box];
+  
+    //设置边距margin,contentView中子视图到边线的距离
+    NSSize margin = NSMakeSize(20, 30);
+    box.contentViewMargins = margin;
+    [self slider:NSSliderTypeCircular frame:CGRectMake(0, 0, 50, 50) superView:box.contentView];
+}
+
+#pragma mark - NSSplitView
+- (void)splitView{
+    NSSplitView *splitView = [[NSSplitView alloc]initWithFrame:CGRectMake(0, 350, 200, 100)];
+    splitView.dividerStyle = NSSplitViewDividerStyleThick;
+    splitView.vertical   = YES;//水平分割 or 垂直分割
+    splitView.wantsLayer = YES;
+    splitView.layer.backgroundColor = [NSColor redColor].CGColor;
+    
+    //view1.frame.size.width-20
+    NSRect rect1 = CGRectMake(30, 30,100 , 50);
+    NSRect rect2 = CGRectMake(30, 30,100 , 50);
+    NSView *view1 = [self viewForSplitView:[NSColor greenColor] frame:rect1];
+    NSView *view2 = [self viewForSplitView:[NSColor blueColor]  frame:rect2];
+    
+    //增加左右视图
+    [splitView addSubview:view1];
+    [splitView addSubview:view2];
+//    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
+    
+//    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
+//    [splitView setPosition:80 ofDividerAtIndex:0];
+    [self.window.contentView addSubview:splitView];
+}
+
+- (NSView *)viewForSplitView:(NSColor *)color frame:(NSRect)frame{
+    NSView *leftView = [[NSView alloc]initWithFrame:NSZeroRect];
+    leftView.autoresizingMask = NSViewMinXMargin;
+    leftView.wantsLayer = YES;
+    leftView.layer.backgroundColor = color.CGColor;
+    [leftView setAutoresizesSubviews:YES];
+    [self slider:NSSliderTypeLinear frame:frame superView:leftView];
+
+    return leftView;
+}
+
+#pragma mark - NSCollectionView
+
+- (void)collectionView{
+//    NSCollectionView *collectionView = [[NSCollectionView alloc]initWithFrame:CGRectMake(230, 350, 250, 200)];
+//    collectionView.backgroundView.wantsLayer = YES;
+//    collectionView.backgroundView.layer.backgroundColor = [NSColor greenColor].CGColor;
+//    
+//    [self.window.contentView addSubview:collectionView];
+}
+
+#pragma mark - NSTabView
+
+-(void)tabView{
+    NSTabView *tabView = [[NSTabView alloc]initWithFrame:CGRectMake(0, 440, 200, 120)];
+    tabView.tabViewType = NSTopTabsBezelBorder;//tab的位置
+//    tabView.tabViewItems = @[@"2",@"wew",@"re"]; 
+    [tabView addTabViewItem:[self tabViewItemTitle:@"1" bColor:[NSColor redColor]]];
+    [tabView addTabViewItem:[self tabViewItemTitle:@"2" bColor:[NSColor greenColor]]];
+    [tabView addTabViewItem:[self tabViewItemTitle:@"3" bColor:[NSColor blueColor]]];
+    
+    [self.window.contentView addSubview:tabView];
+}
+
+- (NSTabViewItem *)tabViewItemTitle:(NSString *)title bColor:(NSColor *)color{
+    NSTabViewItem *tabViewItem = [[NSTabViewItem alloc]initWithIdentifier:@"Untitled"];
+    tabViewItem.label = title;
+    
+    NSView *view = [[NSView alloc]initWithFrame:NSZeroRect];
+    [view setAutoresizesSubviews:YES];
+    [view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable ];
+    view.wantsLayer = YES;
+    view.layer.backgroundColor = color.CGColor;
+    tabViewItem.view = view;
+    
+    return tabViewItem;
+}
+
+
+
+
 
 
 @end
