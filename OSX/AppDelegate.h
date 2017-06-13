@@ -14,5 +14,6 @@
 /** <#Description#> */
 @property (weak) IBOutlet NSWindow *window;
 
+
 @end
 

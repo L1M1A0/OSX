@@ -7,16 +7,20 @@
 //
 
 #import "MainWCtrl.h"
+#import "PopoverViewController.h"
+#import "PopoverVCtrl.h"
 
-
-
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource>{
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
 
 /** <#Description#> */
 @property (nonatomic, assign) CGFloat x;
+/** <#Description#> */
+@property (nonatomic, strong) NSPopover *popover;
+/** <#Description#> */
+@property (nonatomic, strong) NSPanel *panel;
 
 @end
 
@@ -118,9 +122,16 @@
     float x = self.window.contentView.frame.size.width  - 100;
     button.frame = NSMakeRect(x,0,80,24);
     button.bezelStyle = NSBezelStyleRounded;
+    button.target = self;
+    button.action = @selector(registerBtnAction:);
     [titleView addSubview:button];
 }
 
+-(void)registerBtnAction:(NSButton *)sender{
+    [self.window beginSheet:self.panel completionHandler:^(NSModalResponse returnCode) {
+        NSLog(@"nspanel__show");
+    }];
+}
 
 /**
  监听窗口的状态发生改变
@@ -219,6 +230,9 @@
     
     //NSTabView--------------------
     [self tabView];
+    
+    //NSPanel
+    [self pannel];
 }
 
 #pragma mark - NSScrollView
@@ -413,7 +427,7 @@
 
 
 #pragma mark - NSButton
-- (void)button:(CGFloat)y superView:(NSView *)superView tag:(NSInteger)tag{
+- (NSButton *)button:(CGFloat)y superView:(NSView *)superView tag:(NSInteger)tag{
     NSButton *btn = [[NSButton alloc]init];
     btn.frame = CGRectMake(0, y, 100, 50);//NSRectMake
     btn.alignment = NSTextAlignmentCenter;
@@ -453,11 +467,23 @@
     [btn setButtonType:NSButtonTypeRadio];//             = 6,
     //设置按钮初始选中状态，1：选中
 //    btn.state = 1;
+    
+    
+    return btn;
 }
 
 #pragma mark NSButton action
 -(void)btnAction:(NSButton *)sender{
-    NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
+  
+    
+    if (sender.tag == 1) {
+        [self pannel];
+    }else{
+        [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
+        NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
+    }
+    
+    
   
 }
 
@@ -788,10 +814,12 @@
     [tabView addTabViewItem:[self tabViewItemTitle:@"1" bColor:[NSColor redColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"2" bColor:[NSColor greenColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"3" bColor:[NSColor blueColor]]];
-    
+    tabView.delegate = self;
+//    tabView.selectedTabViewItem = tabView.tabViewItems[1];
     [self.window.contentView addSubview:tabView];
 }
 
+#pragma mark NSTabViewItem
 - (NSTabViewItem *)tabViewItemTitle:(NSString *)title bColor:(NSColor *)color{
     NSTabViewItem *tabViewItem = [[NSTabViewItem alloc]initWithIdentifier:@"Untitled"];
     tabViewItem.label = title;
@@ -806,9 +834,73 @@
     return tabViewItem;
 }
 
+#pragma mark delegate
+-(void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem{
+    
+    NSLog(@"tabView_%@",tabViewItem.label);
+    
+}
 
 
+#pragma mark - NSPopover
+
+-(NSPopover *)popover{
+    if(!_popover){
+        //NSPopoverBehaviorApplicationDefined:NSPopover的关闭需要App自己负责控制
+        //NSPopoverBehaviorTransient:只要点击到NSPopover显示的窗口之外就自动关闭
+        //NSPopoverBehaviorSemitransient:,只要点击到NSPopover显示的窗口之外就自动关闭,但是点击到当前App 窗口之外不会关闭。
+        //xib
+        //PopoverVCtrl *vc = [[PopoverVCtrl alloc]initWithNibName:@"PopoverVCtrl" bundle:nil];
+        //纯代码
+        PopoverViewController *vc = [[PopoverViewController alloc]initWithNibName:nil bundle:nil];
+        _popover = [[NSPopover alloc]init];
+        _popover.contentViewController = vc;
+        _popover.behavior = NSPopoverBehaviorTransient;
+        _popover.animates = YES;
+        _popover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+        //[_popover close];
+    }
+    return _popover;
+}
 
 
+#pragma mark - NSPanel
+
+- (void)pannel{
+    NSPanel *panel = [[NSPanel alloc]initWithContentRect:NSMakeRect(0, 0, 300, 200) styleMask:NSWindowStyleMaskHUDWindow backing:NSBackingStoreRetained defer:YES];
+    panel.title = @"nspanel";
+    NSButton *btn = [self button:30 superView:panel.contentView tag:30];
+    btn.target =self;
+    btn.action = @selector(panelBtnAction:);
+    
+    self.panel = panel;
+}
+
+-(void)panelBtnAction:(NSButton *)sender{
+    [self.window endSheet:self.panel];
+}
+
+#pragma mark - 打开文件
+- (void)openPanel{
+    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
+    openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
+    openDlg.canChooseDirectories = YES;//-----“是否允许选择目录”
+    openDlg.allowsMultipleSelection = YES;//--“是否允许多选”
+    openDlg.allowedFileTypes = @[@"txt"];//---“允许的文件名后缀”
+    //openDlg.URL = @"";////“保存用户选择的文件/文件夹路径path”
+    [openDlg beginWithCompletionHandler: ^(NSInteger result){
+        if(result==NSFileHandlingPanelOKButton){
+            NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
+            for(NSURL *url in fileURLs) {
+                NSError *error;
+                NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
+                if(!error){
+                    textField.stringValue = string;
+                }
+            }
+        }
+    }];
+
+}
 
 @end

@@ -11,6 +11,9 @@
 		0522D8341ED587CE00D4671F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8331ED587CE00D4671F /* main.m */; };
 		0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8451ED589FF00D4671F /* MainMenu.xib */; };
 		0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8491ED58AF700D4671F /* MainWCtrl.xib */; };
+		052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E31EEA7956005FDDCD /* PopoverViewController.m */; };
+		052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */; };
+		052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */; };
 		0589401D1ED81F42004464E4 /* screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 0589401C1ED81F42004464E4 /* screen.png */; };
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		058940231ED82033004464E4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058940221ED82033004464E4 /* Images.xcassets */; };
@@ -29,6 +32,11 @@
 		0522D8471ED58AF700D4671F /* MainWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainWCtrl.h; sourceTree = "<group>"; };
 		0522D8481ED58AF700D4671F /* MainWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainWCtrl.m; sourceTree = "<group>"; };
 		0522D8491ED58AF700D4671F /* MainWCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWCtrl.xib; sourceTree = "<group>"; };
+		052954E21EEA7956005FDDCD /* PopoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopoverViewController.h; sourceTree = "<group>"; };
+		052954E31EEA7956005FDDCD /* PopoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopoverViewController.m; sourceTree = "<group>"; };
+		052954E51EEA7C40005FDDCD /* PopoverVCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopoverVCtrl.h; sourceTree = "<group>"; };
+		052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopoverVCtrl.m; sourceTree = "<group>"; };
+		052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopoverVCtrl.xib; sourceTree = "<group>"; };
 		0589401C1ED81F42004464E4 /* screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen.png; sourceTree = "<group>"; };
 		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
 		058940221ED82033004464E4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -77,6 +85,11 @@
 				0522D8471ED58AF700D4671F /* MainWCtrl.h */,
 				0522D8481ED58AF700D4671F /* MainWCtrl.m */,
 				0522D8491ED58AF700D4671F /* MainWCtrl.xib */,
+				052954E21EEA7956005FDDCD /* PopoverViewController.h */,
+				052954E31EEA7956005FDDCD /* PopoverViewController.m */,
+				052954E51EEA7C40005FDDCD /* PopoverVCtrl.h */,
+				052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */,
+				052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */,
 				0522D83D1ED587CF00D4671F /* Info.plist */,
 				058940221ED82033004464E4 /* Images.xcassets */,
 				0522D8321ED587CE00D4671F /* Supporting Files */,
@@ -178,6 +191,7 @@
 				058940211ED81F74004464E4 /* titleBar.png in Resources */,
 				058940231ED82033004464E4 /* Images.xcassets in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
+				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
 				0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */,
 				05D904151EE017A700239BB7 /* docx.png in Resources */,
 			);
@@ -191,8 +205,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
+				052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
+				052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */,
 				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
