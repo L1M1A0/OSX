@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050EFCDE1EF10EEC00172269 /* SecondWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCDD1EF10EEC00172269 /* SecondWindow.m */; };
+		050EFCE11EF1160700172269 /* SecondWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* SecondWCtrl.m */; };
+		050EFCE41EF12C0900172269 /* Save.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE21EF12C0900172269 /* Save.png */; };
+		050EFCE51EF12C0900172269 /* FontSetting.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE31EF12C0900172269 /* FontSetting.png */; };
 		0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8301ED587CE00D4671F /* AppDelegate.m */; };
 		0522D8341ED587CE00D4671F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8331ED587CE00D4671F /* main.m */; };
 		0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8451ED589FF00D4671F /* MainMenu.xib */; };
@@ -23,6 +27,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		050EFCDC1EF10EEC00172269 /* SecondWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondWindow.h; sourceTree = "<group>"; };
+		050EFCDD1EF10EEC00172269 /* SecondWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondWindow.m; sourceTree = "<group>"; };
+		050EFCDF1EF1160700172269 /* SecondWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondWCtrl.h; sourceTree = "<group>"; };
+		050EFCE01EF1160700172269 /* SecondWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondWCtrl.m; sourceTree = "<group>"; };
+		050EFCE21EF12C0900172269 /* Save.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Save.png; sourceTree = "<group>"; };
+		050EFCE31EF12C0900172269 /* FontSetting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FontSetting.png; sourceTree = "<group>"; };
 		0522D82C1ED587CE00D4671F /* OSX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OSX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0522D82F1ED587CE00D4671F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0522D8301ED587CE00D4671F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -90,6 +100,10 @@
 				052954E51EEA7C40005FDDCD /* PopoverVCtrl.h */,
 				052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */,
 				052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */,
+				050EFCDF1EF1160700172269 /* SecondWCtrl.h */,
+				050EFCE01EF1160700172269 /* SecondWCtrl.m */,
+				050EFCDC1EF10EEC00172269 /* SecondWindow.h */,
+				050EFCDD1EF10EEC00172269 /* SecondWindow.m */,
 				0522D83D1ED587CF00D4671F /* Info.plist */,
 				058940221ED82033004464E4 /* Images.xcassets */,
 				0522D8321ED587CE00D4671F /* Supporting Files */,
@@ -108,6 +122,8 @@
 		0589401B1ED81F36004464E4 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				050EFCE21EF12C0900172269 /* Save.png */,
+				050EFCE31EF12C0900172269 /* FontSetting.png */,
 				0589401C1ED81F42004464E4 /* screen.png */,
 				058940201ED81F74004464E4 /* titleBar.png */,
 				05D904141EE017A700239BB7 /* docx.png */,
@@ -188,7 +204,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0589401D1ED81F42004464E4 /* screen.png in Resources */,
+				050EFCE51EF12C0900172269 /* FontSetting.png in Resources */,
 				058940211ED81F74004464E4 /* titleBar.png in Resources */,
+				050EFCE41EF12C0900172269 /* Save.png in Resources */,
 				058940231ED82033004464E4 /* Images.xcassets in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
 				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
@@ -204,11 +222,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				050EFCE11EF1160700172269 /* SecondWCtrl.m in Sources */,
 				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
 				052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
 				052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */,
+				050EFCDE1EF10EEC00172269 /* SecondWindow.m in Sources */,
 				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

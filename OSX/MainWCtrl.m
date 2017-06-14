@@ -9,8 +9,10 @@
 #import "MainWCtrl.h"
 #import "PopoverViewController.h"
 #import "PopoverVCtrl.h"
+#import "SecondWCtrl.h"
+#import "SecondWindow.h"
 
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate>{
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
@@ -21,6 +23,10 @@
 @property (nonatomic, strong) NSPopover *popover;
 /** <#Description#> */
 @property (nonatomic, strong) NSPanel *panel;
+/** <#Description#> */
+@property (nonatomic, strong) NSAlert *alert;
+/** <#Description#> */
+@property (nonatomic, strong) SecondWCtrl *secondWindow;
 
 @end
 
@@ -129,7 +135,7 @@
 
 -(void)registerBtnAction:(NSButton *)sender{
     [self.window beginSheet:self.panel completionHandler:^(NSModalResponse returnCode) {
-        NSLog(@"nspanel__show");
+        NSLog(@"nspanel__show,%ld",returnCode);
     }];
 }
 
@@ -174,6 +180,8 @@
    
     //NSScrollView-----------------
     [self scrollView];
+    [self saveSelfAsImage];
+
 
     //NSView-----------------------
     [self view];
@@ -193,8 +201,8 @@
     
     //NSButton---------------------
     //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
-    [self button:150 superView:self.window.contentView tag:1];
-    [self button:200 superView:self.window.contentView tag:2];
+    [self button:NSMakeRect(0, 150, 100, 40) superView:self.window.contentView tag:1 type:NSButtonTypeRadio];
+    [self button:NSMakeRect(0, 200, 100, 40) superView:self.window.contentView tag:2 type:NSButtonTypeRadio];
     
     //NSSegmentedControl-----------
     [self segmentControll];
@@ -231,8 +239,18 @@
     //NSTabView--------------------
     [self tabView];
     
-    //NSPanel
+    //NSPanel----------------------
     [self pannel];
+   
+    //NSAlert----------------------
+    [self nsAlert];
+    
+    //-----------------------------New Window-------------------
+   [self button:NSMakeRect(250, 350, 100, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
+
+    
+    
+    
 }
 
 #pragma mark - NSScrollView
@@ -253,7 +271,6 @@
     //scrollView.borderType = NSNoBorder;//“滚动条显示的样式风格”
     [self.window.contentView addSubview:scrollView];
     
-    [self saveSelfAsImage];
     
     return scrollView;
 
@@ -427,9 +444,9 @@
 
 
 #pragma mark - NSButton
-- (NSButton *)button:(CGFloat)y superView:(NSView *)superView tag:(NSInteger)tag{
+- (NSButton *)button:(NSRect)frame superView:(NSView *)superView tag:(NSInteger)tag type:(NSButtonType)type{
     NSButton *btn = [[NSButton alloc]init];
-    btn.frame = CGRectMake(0, y, 100, 50);//NSRectMake
+    btn.frame = frame;//NSRectMake
     btn.alignment = NSTextAlignmentCenter;
     btn.toolTip = @"这是一个按钮";
     btn.bezelStyle = NSBezelStyleRounded;
@@ -464,7 +481,7 @@
    
     //5.以下2种类型，stringValue=1有默认选中颜色，stringValue=0没选中无、颜色，
 //    [btn setButtonType:NSButtonTypePushOnPushOff];//     = 1,
-    [btn setButtonType:NSButtonTypeRadio];//             = 6,
+    [btn setButtonType:type];//             = 6,
     //设置按钮初始选中状态，1：选中
 //    btn.state = 1;
     
@@ -474,13 +491,25 @@
 
 #pragma mark NSButton action
 -(void)btnAction:(NSButton *)sender{
-  
+    NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
+
     
     if (sender.tag == 1) {
-        [self pannel];
-    }else{
+        
+        
+        [self.alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+    
+            NSLog(@"alert_returnCode_%ld",returnCode);
+    
+        }];
+
+
+    }else if (sender.tag == 3){//打开新的窗口
+
+        [self showNewWindow];
+    }
+    else{
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
-        NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
     }
     
     
@@ -814,6 +843,9 @@
     [tabView addTabViewItem:[self tabViewItemTitle:@"1" bColor:[NSColor redColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"2" bColor:[NSColor greenColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"3" bColor:[NSColor blueColor]]];
+    [tabView addTabViewItem:[self tabViewItemTitle:@"4" bColor:[NSColor orangeColor]]];
+    [tabView addTabViewItem:[self tabViewItemTitle:@"5" bColor:[NSColor purpleColor]]];
+
     tabView.delegate = self;
 //    tabView.selectedTabViewItem = tabView.tabViewItems[1];
     [self.window.contentView addSubview:tabView];
@@ -836,8 +868,21 @@
 
 #pragma mark delegate
 -(void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem{
+    NSLog(@"tabViewItem_%@",tabViewItem.label);
+
+    if ([tabViewItem.label isEqualToString:@"2"]) {
+        [self openPanel];
+    }else if ([tabViewItem.label isEqualToString:@"3"]){
+        [self savePanel];
+    }else if ([tabViewItem.label isEqualToString:@"4"]){
+        [self colorPanel];
+    }else if ([tabViewItem.label isEqualToString:@"5"]){
+        [self fontManager];
+    }
+    else{
+        
+    }
     
-    NSLog(@"tabView_%@",tabViewItem.label);
     
 }
 
@@ -864,12 +909,12 @@
 }
 
 
-#pragma mark - NSPanel
+#pragma mark - 面板：NSPanel
 
 - (void)pannel{
     NSPanel *panel = [[NSPanel alloc]initWithContentRect:NSMakeRect(0, 0, 300, 200) styleMask:NSWindowStyleMaskHUDWindow backing:NSBackingStoreRetained defer:YES];
     panel.title = @"nspanel";
-    NSButton *btn = [self button:30 superView:panel.contentView tag:30];
+    NSButton *btn = [self button:NSMakeRect(30, 30, 100, 100) superView:panel.contentView tag:30 type:NSButtonTypePushOnPushOff];
     btn.target =self;
     btn.action = @selector(panelBtnAction:);
     
@@ -880,7 +925,7 @@
     [self.window endSheet:self.panel];
 }
 
-#pragma mark - 打开文件
+#pragma mark - 面板：NSOpenPanel 读取电脑文件
 - (void)openPanel{
     NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
@@ -902,5 +947,205 @@
     }];
 
 }
+
+
+
+#pragma mark - 面板： NSSavePanel
+
+/**
+ 保存文件面板
+ */
+- (void)savePanel{
+    NSSavePanel *savePanel = [[NSSavePanel alloc]init];
+    savePanel.title = @"save Panel";
+    savePanel.message = @"热";
+    savePanel.allowedFileTypes = @[@"txt"];
+    savePanel.nameFieldStringValue = @"默认文件名";
+    [savePanel beginWithCompletionHandler:^(NSInteger result) {
+        if(result == NSFileHandlingPanelOKButton){
+            NSURL *url = [savePanel URL];
+            NSLog(@"文件路径_url_%@",url);
+            NSString *text = textField.stringValue;
+            NSError *error;
+            [text writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:&error];
+            if (error) {
+                NSLog(@"保存文件失败——%@",error);
+            }
+        }
+    }];
+}
+
+#pragma mark - 面板： NSColorPanel
+- (void)colorPanel{
+    NSColorPanel *colorPanel = [NSColorPanel sharedColorPanel];
+    [colorPanel setAction:@selector(changeColor:)];
+    [colorPanel setTarget:self];
+    [colorPanel orderFront:nil];
+}
+//- (void)changeColor:(NSColorPanel *)sender{
+//    textField.textColor = sender.color;
+//}
+
+-(void)changeColor:(id)sender{
+    NSColorPanel *panel = (NSColorPanel *)sender;
+    
+    textField.textColor = panel.color;
+}
+#pragma mark - 面板： NSFontManager
+-(void)fontManager{
+    NSFontManager *fontManager = [NSFontManager sharedFontManager];
+//    [fontManager setDelegate:self];
+    [fontManager setTarget:self];
+    [fontManager orderFrontFontPanel:self];
+
+}
+
+
+-(void)changeFont:(id)sender{
+
+    NSFontManager *font = (NSFontManager *)sender;
+    textField.font = [font convertFont:textField.font];
+
+    NSLog(@"font.size_%f,%@,%@",textField.font.pointSize,textField.font.fontName,textField.font.familyName);
+}
+
+
+#pragma mark - NSAlert
+
+- (void)nsAlert{
+    NSAlert *alert = [[NSAlert alloc]init];
+    alert.messageText = @"标题";
+    alert.informativeText = @"详细内容";
+    //alert.icon =//对应的一个图标，可以不设置为空。为空时根据下面的alertStyle样式决定使用默认的图标。
+    alert.alertStyle = NSAlertStyleWarning;
+    //新增按钮，最多为3个，存储在buttons属性中
+    [alert addButtonWithTitle:@"1"];
+    [alert addButtonWithTitle:@"2"];
+    [alert addButtonWithTitle:@"3"];
+//    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+//        
+//        NSLog(@"alert_returnCode_%ld",returnCode);
+//        
+//    }];
+    self.alert = alert;
+}
+
+//- (void)alertHide{
+//    self.alert eshe
+//}
+
+
+
+#pragma mark - NSWindow - 新窗口
+//-(SecondWindow *)secondWindow{
+//    if(!_secondWindow){
+//        _secondWindow = [[SecondWindow alloc]init];
+//        
+//    }
+//    return _secondWindow;
+//}
+-(SecondWCtrl *)secondWindow{
+    if(!_secondWindow){
+        _secondWindow = [[SecondWCtrl alloc]init];
+        NSRect frame = CGRectMake(0,0,500,500);
+        NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+        _secondWindow.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
+        _secondWindow.window.title = @"新窗口";
+        _secondWindow.window.backgroundColor = [NSColor orangeColor];
+
+    }
+    return _secondWindow;
+}
+
+-(void)showNewWindow{
+    //窗口显示
+    [self.secondWindow.window makeKeyAndOrderFront:self];
+    //窗口居中
+    [self.secondWindow.window center];
+    
+    //[self.secondWindow.window canBecomeMainWindow];
+    //[self.secondWindow.window makeKeyWindow];
+    
+    //[self.secondWindow.window  orderFront:self];
+    //关闭窗口
+    //[self.window orderOut:self];
+    
+    [self addView];
+
+}
+
+-(void)addView{
+    [self button:NSMakeRect(100, 100, 100, 100) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
+    [self toolbar];
+    
+}
+
+#pragma mark - NSToolbar
+- (void)toolbar{
+    NSToolbar *toolbar = [[NSToolbar alloc]initWithIdentifier:@"newWindowToolbar"];
+    toolbar.visible = YES;
+    toolbar.sizeMode = NSToolbarSizeModeRegular;
+    toolbar.allowsUserCustomization = NO;
+    toolbar.autosavesConfiguration = NO;
+    toolbar.displayMode = NSToolbarDisplayModeIconAndLabel;
+    toolbar.delegate = self;
+    self.secondWindow.window.toolbar = toolbar;
+    
+    //Toolbar 和左上角控制窗口关闭、最小化和全屏的三个按钮在同一行，这个特性需要10.10及以上的系统。
+    self.secondWindow.window.titleVisibility =  NSWindowTitleHidden;
+}
+
+
+
+#pragma mark NSToolbarDelegate
+
+-(NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar{
+    return @[@"FontSetting",@"Save"];
+}
+-(NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar{
+    return @[@"FontSetting",@"Save"];
+}
+-(NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag{
+    
+#pragma mark NSToolbarItem
+    NSToolbarItem *toolbarItem = [[NSToolbarItem alloc]initWithItemIdentifier:itemIdentifier];
+    
+    if([itemIdentifier isEqualToString:@"FontSetting"]){
+        toolbarItem.label = @"Font";
+        toolbarItem.paletteLabel = @"Font";//在xib的设计模式下toolbaritem显示的文本
+        toolbarItem.toolTip = @"格式";//悬停同事文字
+        toolbarItem.image = [NSImage imageNamed:@"FontSetting"];//图标图片
+        toolbarItem.tag  = 1;
+        
+    }else if ([itemIdentifier isEqualToString:@"Save"]){
+        toolbarItem.label = @"Save";
+        toolbarItem.paletteLabel = @"Save";
+        toolbarItem.toolTip = @"保存";
+        toolbarItem.image = [NSImage imageNamed:@"Save"];
+        toolbarItem.tag  = 2;
+
+    }else{
+        toolbarItem = nil;
+    }
+    
+    toolbarItem.minSize = CGSizeMake(25, 25);
+    toolbarItem.maxSize = CGSizeMake(100, 100);
+    toolbarItem.target = self;
+    toolbarItem.action = @selector(toolbarItemAction:);
+    //当使用标准的image/lable模式的toolbaritem时,可以嵌入一个其他的控件,这个view做为它的容器视图。
+    toolbarItem.view.wantsLayer = YES;
+    toolbarItem.view.layer.backgroundColor = [NSColor yellowColor].CGColor;
+toolbarItem.view.contextView.menu
+    return toolbarItem;
+    
+}
+- (void)toolbarItemAction:(NSToolbarItem *)sender{
+    NSLog(@"toobbarItem_%ld",sender.tag);
+}
+
+
+
+#pragma mark - NSMenu
+
 
 @end
