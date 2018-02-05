@@ -36,6 +36,7 @@
     btn.action = @selector(btnAction:);
     [self.view addSubview:btn];
     
+    
 //    [super loadView];
 }
 

@@ -27,6 +27,8 @@
 @property (nonatomic, strong) NSAlert *alert;
 /** <#Description#> */
 @property (nonatomic, strong) SecondWCtrl *secondWindow;
+/** <#Description#> */
+@property (nonatomic, strong) NSMenu *myMenu;
 
 @end
 
@@ -50,6 +52,20 @@
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
     [self addViewToWindow];
+    
+    NSMutableArray *arr = [NSMutableArray array];
+    for (int i = 0; i < 1000; i++) {
+        NSString *str = [NSString stringWithFormat:@"%d个田七蒸鸡",i];
+        [arr addObject:str];
+    }
+    NSString *str = [arr componentsJoinedByString:@"，"];
+    
+
+    NSString *ar = [str substringWithRange:NSMakeRange(0, 1930)];
+    NSLog(@"hfasidofoadf：%@,\nar_%@",str,ar);
+    
+    
+    
 }
 
 
@@ -203,6 +219,7 @@
     //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
     [self button:NSMakeRect(0, 150, 100, 40) superView:self.window.contentView tag:1 type:NSButtonTypeRadio];
     [self button:NSMakeRect(0, 200, 100, 40) superView:self.window.contentView tag:2 type:NSButtonTypeRadio];
+
     
     //NSSegmentedControl-----------
     [self segmentControll];
@@ -219,6 +236,7 @@
     
     //NSDatePicker-----------------
     [self datePicker];
+    
     
     //NSStepper--------------------
     [self stepper];
@@ -246,7 +264,8 @@
     [self nsAlert];
     
     //-----------------------------New Window-------------------
-   [self button:NSMakeRect(250, 350, 100, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
+   NSButton *btn = [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
+    btn.title = @"新窗口显示tableview";
 
     
     
@@ -511,6 +530,12 @@
     else{
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
     }
+    
+    NSButton *button = (NSButton *)sender;
+    NSPoint point = button.frame.origin;
+    point.x += button.frame.size.width;
+    point.y = point.y ;
+    [self.myMenu popUpMenuPositioningItem:nil atLocation:point inView:self.window.contentView];
     
     
   
@@ -1037,13 +1062,7 @@
 
 
 #pragma mark - NSWindow - 新窗口
-//-(SecondWindow *)secondWindow{
-//    if(!_secondWindow){
-//        _secondWindow = [[SecondWindow alloc]init];
-//        
-//    }
-//    return _secondWindow;
-//}
+
 -(SecondWCtrl *)secondWindow{
     if(!_secondWindow){
         _secondWindow = [[SecondWCtrl alloc]init];
@@ -1070,15 +1089,12 @@
     //关闭窗口
     //[self.window orderOut:self];
     
-    [self addView];
-
-}
-
--(void)addView{
-    [self button:NSMakeRect(100, 100, 100, 100) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
+    NSButton *btn = [self button:NSMakeRect(10, 10, 100, 50) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
+    btn.title = @"显示pop窗口";
     [self toolbar];
-    
+    [self.secondWindow viewInWindow];
 }
+
 
 #pragma mark - NSToolbar
 - (void)toolbar{
@@ -1135,7 +1151,7 @@
     //当使用标准的image/lable模式的toolbaritem时,可以嵌入一个其他的控件,这个view做为它的容器视图。
     toolbarItem.view.wantsLayer = YES;
     toolbarItem.view.layer.backgroundColor = [NSColor yellowColor].CGColor;
-toolbarItem.view.contextView.menu
+
     return toolbarItem;
     
 }
@@ -1147,5 +1163,31 @@ toolbarItem.view.contextView.menu
 
 #pragma mark - NSMenu
 
+- (void)newMenu{
+    NSMenu *menu = [[NSMenu alloc]init];
+    [menu insertItem:[self menuItem:@"1"] atIndex:1];
+    [menu insertItem:[self menuItem:@"2"] atIndex:2];
+    [menu insertItem:[self menuItem:@"3"] atIndex:3];
+    
+//    [self.window.contentView addSubview:menu];
+}
+
+-(NSMenu *)myMenu{
+    if(!_myMenu){
+        _myMenu = [[NSMenu alloc]init];
+        [_myMenu insertItem:[self menuItem:@"1"] atIndex:1];
+        [_myMenu insertItem:[self menuItem:@"2"] atIndex:2];
+        [_myMenu insertItem:[self menuItem:@"3"] atIndex:3];
+    }
+    return _myMenu;
+}
+
+- (NSMenuItem *)menuItem:(NSString *)title{
+    NSMenuItem *item = [[NSMenuItem alloc]initWithTitle:title action:@selector(menuItemAction:) keyEquivalent:@""];
+    return item;
+}
+-(void)menuItemAction:(NSMenuItem *)sender{
+    
+}
 
 @end
