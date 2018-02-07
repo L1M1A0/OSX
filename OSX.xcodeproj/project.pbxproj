@@ -33,6 +33,8 @@
 		05B55880202856E1005F7A20 /* MASViewConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55875202856E1005F7A20 /* MASViewConstraint.m */; };
 		05B55881202856E1005F7A20 /* MASViewAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55876202856E1005F7A20 /* MASViewAttribute.m */; };
 		05B55882202856E1005F7A20 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 05B55877202856E1005F7A20 /* Info.plist */; };
+		05B55885202AF66D005F7A20 /* BSTableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55884202AF66D005F7A20 /* BSTableRowView.m */; };
+		05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55887202AF7A1005F7A20 /* BSTableCellView.m */; };
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 /* End PBXBuildFile section */
@@ -90,6 +92,10 @@
 		05B55875202856E1005F7A20 /* MASViewConstraint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MASViewConstraint.m; sourceTree = "<group>"; };
 		05B55876202856E1005F7A20 /* MASViewAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MASViewAttribute.m; sourceTree = "<group>"; };
 		05B55877202856E1005F7A20 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		05B55883202AF66D005F7A20 /* BSTableRowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BSTableRowView.h; sourceTree = "<group>"; };
+		05B55884202AF66D005F7A20 /* BSTableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BSTableRowView.m; sourceTree = "<group>"; };
+		05B55886202AF7A1005F7A20 /* BSTableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BSTableCellView.h; sourceTree = "<group>"; };
+		05B55887202AF7A1005F7A20 /* BSTableCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BSTableCellView.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -140,6 +146,10 @@
 				052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */,
 				050EFCDF1EF1160700172269 /* SecondWCtrl.h */,
 				050EFCE01EF1160700172269 /* SecondWCtrl.m */,
+				05B55883202AF66D005F7A20 /* BSTableRowView.h */,
+				05B55884202AF66D005F7A20 /* BSTableRowView.m */,
+				05B55886202AF7A1005F7A20 /* BSTableCellView.h */,
+				05B55887202AF7A1005F7A20 /* BSTableCellView.m */,
 				050EFCDC1EF10EEC00172269 /* SecondWindow.h */,
 				050EFCDD1EF10EEC00172269 /* SecondWindow.m */,
 				0522D83D1ED587CF00D4671F /* Info.plist */,
@@ -303,8 +313,10 @@
 				052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */,
 				05B55880202856E1005F7A20 /* MASViewConstraint.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
+				05B55885202AF66D005F7A20 /* BSTableRowView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
+				05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */,
 				05B5587E202856E1005F7A20 /* View+MASAdditions.m in Sources */,
 				05B5587A202856E1005F7A20 /* MASCompositeConstraint.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,

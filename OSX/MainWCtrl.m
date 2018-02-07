@@ -183,7 +183,7 @@
 }
 
 -(void)windowStatusChange{
-    NSLog(@"窗口关闭，程序将退出_%@",@"fasd");
+    NSLog(@"窗口关闭，程序将退出");
     
 }
 
@@ -295,6 +295,10 @@
 
 }
 
+
+/**
+ 保存界面截图结束后 Finder 中自动定位到文件路径(保存后自动打开文件目录)
+ */
 - (void)saveSelfAsImage {
     [self.window.contentView lockFocus];
     NSImage *image = [[NSImage alloc]initWithData:[self.window.contentView dataWithPDFInsideRect:self.window.contentView.bounds]];
@@ -306,9 +310,9 @@
     NSString *path = @"/Users/vae/Documents/myCapture.png";
     [fm createFileAtPath:path contents:imageData attributes:nil];
     
-    //保存结束后 Finder 中自动定位到文件路径
-    NSURL *fileURL = [NSURL fileURLWithPath: path];
-    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
+    //保存结束后 Finder 中自动定位到文件路径(保存后自动打开文件目录)
+//    NSURL *fileURL = [NSURL fileURLWithPath: path];
+//    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
 }
 #pragma mark - NSView
 -(void)view{
@@ -511,20 +515,13 @@
 #pragma mark NSButton action
 -(void)btnAction:(NSButton *)sender{
     NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
-
-    
     if (sender.tag == 1) {
-        
         
         [self.alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
     
             NSLog(@"alert_returnCode_%ld",returnCode);
-    
         }];
-
-
     }else if (sender.tag == 3){//打开新的窗口
-
         [self showNewWindow];
     }
     else{
@@ -536,9 +533,6 @@
     point.x += button.frame.size.width;
     point.y = point.y ;
     [self.myMenu popUpMenuPositioningItem:nil atLocation:point inView:self.window.contentView];
-    
-    
-  
 }
 
 
@@ -1071,6 +1065,11 @@
         _secondWindow.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
         _secondWindow.window.title = @"新窗口";
         _secondWindow.window.backgroundColor = [NSColor orangeColor];
+        
+        NSButton *btn = [self button:NSMakeRect(10, 10, 100, 50) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
+        btn.title = @"显示pop窗口";
+        [self toolbar];
+        [_secondWindow viewInWindow];
 
     }
     return _secondWindow;
@@ -1089,10 +1088,7 @@
     //关闭窗口
     //[self.window orderOut:self];
     
-    NSButton *btn = [self button:NSMakeRect(10, 10, 100, 50) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
-    btn.title = @"显示pop窗口";
-    [self toolbar];
-    [self.secondWindow viewInWindow];
+
 }
 
 
@@ -1156,7 +1152,16 @@
     
 }
 - (void)toolbarItemAction:(NSToolbarItem *)sender{
-    NSLog(@"toobbarItem_%ld",sender.tag);
+    NSLog(@"toolbarItem_%ld",sender.tag);
+    if (sender.tag == 1) {//增加一行
+        [self.secondWindow insertRowAtIndex];
+    }else if (sender.tag == 2){//删除一行
+//        [self.secondWindow removeRowAtIndexs:YES];
+//        [self.secondWindow selectRow];
+    }else{
+        
+    }
+    
 }
 
 

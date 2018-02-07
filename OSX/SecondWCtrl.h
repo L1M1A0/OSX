@@ -11,5 +11,8 @@
 @interface SecondWCtrl : NSWindowController
 
 -(void)viewInWindow;
+-(void)insertRowAtIndex;
+-(void)removeRowAtIndexs:(BOOL)isMore;
+-(void)selectRow;
 
 @end
