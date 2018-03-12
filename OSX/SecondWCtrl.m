@@ -10,6 +10,7 @@
 #import "Masonry.h"
 #import "BSTableRowView.h"
 #import "BSTableCellView.h"
+#import <AVFoundation/AVFoundation.h>
 
 #define XXXTableViewDragDataTypeName @"XXXTableViewDragDataTypeName"
 

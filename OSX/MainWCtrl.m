@@ -11,6 +11,7 @@
 #import "PopoverVCtrl.h"
 #import "SecondWCtrl.h"
 #import "SecondWindow.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
     NSArray *comboBoxItemValue;
@@ -30,6 +31,8 @@
 /** <#Description#> */
 @property (nonatomic, strong) NSMenu *myMenu;
 
+@property (nonatomic, strong) AVAudioPlayer *player;
+
 @end
 
 @implementation MainWCtrl
@@ -48,6 +51,12 @@
     [super windowDidLoad];
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+    
+
+    
+    
+    
+    
     [self initWindow];
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
@@ -63,9 +72,31 @@
 
     NSString *ar = [str substringWithRange:NSMakeRange(0, 1930)];
     NSLog(@"hfasidofoadf：%@,\nar_%@",str,ar);
+    [self musicPlayer];
     
     
+}
+
+-(void)musicPlayer{
     
+    //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
+    //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
+//    self.player = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:@"/Users/vae/Documents/GitHub/OSX/OSX/松本晃彦 - 栄の活躍.mp3"]];
+    // 1 初始化播放器需要指定音乐文件的路径
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];
+    // 2 将路径字符串转换成url，从本地读取文件，需要使用fileURL
+    NSURL *url = [NSURL fileURLWithPath:path];
+    // 3 初始化音频播放器
+    self.player = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:nil];
+    // 4 设置循环播放
+    // 设置循环播放的次数
+    // 循环次数=0，声音会播放一次
+    // 循环次数=1，声音会播放2次
+    // 循环次数小于0，会无限循环播放
+    [self.player setNumberOfLoops:-1];
+    [self.player setVolume:0.5];
+    // 5 准备播放
+    [self.player prepareToPlay];
 }
 
 
@@ -264,9 +295,14 @@
     [self nsAlert];
     
     //-----------------------------New Window-------------------
-   NSButton *btn = [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
+    NSButton *btn = [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
     btn.title = @"新窗口显示tableview";
-
+    
+    NSButton *startBtn = [self button:NSMakeRect(250, 380, 50, 50) superView:self.window.contentView tag:4 type:NSButtonTypePushOnPushOff];
+    startBtn.title = @"播放";
+    
+    NSButton *stopBtn = [self button:NSMakeRect(300, 380, 50, 50) superView:self.window.contentView tag:5 type:NSButtonTypePushOnPushOff];
+    stopBtn.title = @"暂停";
     
     
     
@@ -276,7 +312,7 @@
 
 -(NSScrollView *)scrollView{
     NSScrollView *scrollView =  [[NSScrollView alloc]initWithFrame:[self.window.contentView bounds]];
-    NSImage *image =  [NSImage imageNamed:@"screen.png"];
+    NSImage *image =  [NSImage imageNamed:@"screen.jpg"];
     
     //NSImageView-----------------
     NSImageView *imageView = [[NSImageView alloc]initWithFrame:scrollView.bounds];
@@ -523,6 +559,13 @@
         }];
     }else if (sender.tag == 3){//打开新的窗口
         [self showNewWindow];
+    }else if (sender.tag == 4){
+        NSLog(@"播放开始");
+        [self.player play];
+        
+    }else if (sender.tag == 5){
+        NSLog(@"播放暂停");
+        [self.player pause];
     }
     else{
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
@@ -1156,7 +1199,7 @@
     if (sender.tag == 1) {//增加一行
         [self.secondWindow insertRowAtIndex];
     }else if (sender.tag == 2){//删除一行
-//        [self.secondWindow removeRowAtIndexs:YES];
+        [self.secondWindow removeRowAtIndexs:YES];
 //        [self.secondWindow selectRow];
     }else{
         
@@ -1194,5 +1237,7 @@
 -(void)menuItemAction:(NSMenuItem *)sender{
     
 }
+
+
 
 @end

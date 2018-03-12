@@ -18,9 +18,10 @@
 		052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E31EEA7956005FDDCD /* PopoverViewController.m */; };
 		052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */; };
 		052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */; };
-		0589401D1ED81F42004464E4 /* screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 0589401C1ED81F42004464E4 /* screen.png */; };
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		058940231ED82033004464E4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058940221ED82033004464E4 /* Images.xcassets */; };
+		05A2DA152056565400B539E4 /* screen.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA142056565300B539E4 /* screen.jpg */; };
+		05A2DA17205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */; };
 		05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */; };
 		05B55878202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5585F202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m */; };
 		05B55879202856E1005F7A20 /* ViewController+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55868202856E1005F7A20 /* ViewController+MASAdditions.m */; };
@@ -60,9 +61,10 @@
 		052954E51EEA7C40005FDDCD /* PopoverVCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopoverVCtrl.h; sourceTree = "<group>"; };
 		052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopoverVCtrl.m; sourceTree = "<group>"; };
 		052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopoverVCtrl.xib; sourceTree = "<group>"; };
-		0589401C1ED81F42004464E4 /* screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen.png; sourceTree = "<group>"; };
 		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
 		058940221ED82033004464E4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		05A2DA142056565300B539E4 /* screen.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = screen.jpg; sourceTree = "<group>"; };
+		05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "松本晃彦 - 栄の活躍.mp3"; sourceTree = "<group>"; };
 		05B516121ED67F2500A3820F /* OSX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OSX.entitlements; sourceTree = "<group>"; };
 		05B516191ED6DFC800A3820F /* ZBMacOSObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBMacOSObject.h; sourceTree = "<group>"; };
 		05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBMacOSObject.m; sourceTree = "<group>"; };
@@ -170,9 +172,10 @@
 		0589401B1ED81F36004464E4 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */,
+				05A2DA142056565300B539E4 /* screen.jpg */,
 				050EFCE21EF12C0900172269 /* Save.png */,
 				050EFCE31EF12C0900172269 /* FontSetting.png */,
-				0589401C1ED81F42004464E4 /* screen.png */,
 				058940201ED81F74004464E4 /* titleBar.png */,
 				05D904141EE017A700239BB7 /* docx.png */,
 			);
@@ -284,11 +287,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0589401D1ED81F42004464E4 /* screen.png in Resources */,
 				050EFCE51EF12C0900172269 /* FontSetting.png in Resources */,
 				058940211ED81F74004464E4 /* titleBar.png in Resources */,
+				05A2DA17205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 in Resources */,
 				050EFCE41EF12C0900172269 /* Save.png in Resources */,
 				058940231ED82033004464E4 /* Images.xcassets in Resources */,
+				05A2DA152056565400B539E4 /* screen.jpg in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
 				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
 				0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */,
