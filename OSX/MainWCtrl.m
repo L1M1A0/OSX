@@ -7,11 +7,12 @@
 //
 
 #import "MainWCtrl.h"
+#import <AVFoundation/AVFoundation.h>
 #import "PopoverViewController.h"
 #import "PopoverVCtrl.h"
-#import "SecondWCtrl.h"
+#import "TableViewWCtrl.h"
 #import "SecondWindow.h"
-#import <AVFoundation/AVFoundation.h>
+#import "OutlineWCtrl.h"
 
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
     NSArray *comboBoxItemValue;
@@ -27,12 +28,15 @@
 /** <#Description#> */
 @property (nonatomic, strong) NSAlert *alert;
 /** <#Description#> */
-@property (nonatomic, strong) SecondWCtrl *secondWindow;
+@property (nonatomic, strong) TableViewWCtrl *tableView;
 /** <#Description#> */
 @property (nonatomic, strong) NSMenu *myMenu;
 
 @property (nonatomic, strong) AVAudioPlayer *player;
 
+@property (nonatomic, strong) NSTextView *textView;
+
+@property (nonatomic, strong) OutlineWCtrl *outlineWC;
 @end
 
 @implementation MainWCtrl
@@ -51,52 +55,14 @@
     [super windowDidLoad];
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-    
 
-    
-    
-    
-    
     [self initWindow];
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
     [self addViewToWindow];
-    
-    NSMutableArray *arr = [NSMutableArray array];
-    for (int i = 0; i < 1000; i++) {
-        NSString *str = [NSString stringWithFormat:@"%d个田七蒸鸡",i];
-        [arr addObject:str];
-    }
-    NSString *str = [arr componentsJoinedByString:@"，"];
-    
-
-    NSString *ar = [str substringWithRange:NSMakeRange(0, 1930)];
-    NSLog(@"hfasidofoadf：%@,\nar_%@",str,ar);
     [self musicPlayer];
     
     
-}
-
--(void)musicPlayer{
-    
-    //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
-    //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
-//    self.player = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:@"/Users/vae/Documents/GitHub/OSX/OSX/松本晃彦 - 栄の活躍.mp3"]];
-    // 1 初始化播放器需要指定音乐文件的路径
-    NSString *path = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];
-    // 2 将路径字符串转换成url，从本地读取文件，需要使用fileURL
-    NSURL *url = [NSURL fileURLWithPath:path];
-    // 3 初始化音频播放器
-    self.player = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:nil];
-    // 4 设置循环播放
-    // 设置循环播放的次数
-    // 循环次数=0，声音会播放一次
-    // 循环次数=1，声音会播放2次
-    // 循环次数小于0，会无限循环播放
-    [self.player setNumberOfLoops:-1];
-    [self.player setVolume:0.5];
-    // 5 准备播放
-    [self.player prepareToPlay];
 }
 
 
@@ -238,7 +204,7 @@
     textField = [self textFied:self.x];
     
     //NSTextView-------------------
-    [self textView:self.x];
+    self.textView = [self textView:CGRectMake(self.x, 80, 200, 50)];
     
     //NSSearchField----------------
     [self searchField:self.x];
@@ -248,8 +214,8 @@
     
     //NSButton---------------------
     //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
-    [self button:NSMakeRect(0, 150, 100, 40) superView:self.window.contentView tag:1 type:NSButtonTypeRadio];
-    [self button:NSMakeRect(0, 200, 100, 40) superView:self.window.contentView tag:2 type:NSButtonTypeRadio];
+    [self button:NSMakeRect(0, 150, 150, 40) superView:self.window.contentView title:@"显示NSAlert" tag:1 type:NSButtonTypeRadio];
+    [self button:NSMakeRect(0, 200, 150, 40) superView:self.window.contentView title:@"显示NSPopover" tag:2 type:NSButtonTypeRadio];
 
     
     //NSSegmentedControl-----------
@@ -295,15 +261,13 @@
     [self nsAlert];
     
     //-----------------------------New Window-------------------
-    NSButton *btn = [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView tag:3 type:NSButtonTypePushOnPushOff];
-    btn.title = @"新窗口显示tableview";
+    [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView title:@"新窗口显示tableview" tag:3 type:NSButtonTypePushOnPushOff];
     
-    NSButton *startBtn = [self button:NSMakeRect(250, 380, 50, 50) superView:self.window.contentView tag:4 type:NSButtonTypePushOnPushOff];
-    startBtn.title = @"播放";
+    [self button:NSMakeRect(250, 400, 70, 50) superView:self.window.contentView title:@"播放" tag:4 type:NSButtonTypePushOnPushOff];
     
-    NSButton *stopBtn = [self button:NSMakeRect(300, 380, 50, 50) superView:self.window.contentView tag:5 type:NSButtonTypePushOnPushOff];
-    stopBtn.title = @"暂停";
-    
+    [self button:NSMakeRect(310, 400, 70, 50) superView:self.window.contentView title:@"暂停" tag:5 type:NSButtonTypePushOnPushOff];
+ 
+    [self button:NSMakeRect(370, 400, 100, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:6 type:NSButtonTypePushOnPushOff];
     
     
 }
@@ -406,13 +370,14 @@
 
 
 #pragma mark - NSTextView
--(void)textView:(CGFloat)x{
-    NSTextView *textV = [[NSTextView alloc]initWithFrame:CGRectMake(x, 80, 200, 50)];
+-(NSTextView *)textView:(NSRect)frame{
+    NSTextView *textV = [[NSTextView alloc]initWithFrame:frame];
     //textV.wantsLayer = YES;//YES 的时候显示在窗口上面，
     //textV.layer.backgroundColor = [NSColor blueColor].CGColor;
     textV.backgroundColor = [NSColor greenColor];
     textV.delegate = self;
     [self.window.contentView addSubview:textV];
+    return textV;
 }
 
 #pragma mark NSTextDelegate//nstextView
@@ -503,7 +468,7 @@
 
 
 #pragma mark - NSButton
-- (NSButton *)button:(NSRect)frame superView:(NSView *)superView tag:(NSInteger)tag type:(NSButtonType)type{
+- (NSButton *)button:(NSRect)frame superView:(NSView *)superView title:(NSString *)title tag:(NSInteger)tag type:(NSButtonType)type{
     NSButton *btn = [[NSButton alloc]init];
     btn.frame = frame;//NSRectMake
     btn.alignment = NSTextAlignmentCenter;
@@ -516,7 +481,7 @@
     
     //以下设置中，随着title和image的代码位置不同，在界面上的显示效果也不同
     btn.bordered = YES;//是否带边框
-    btn.title = @"NSButton哦";
+    btn.title = title.length>0?title:@"NSButton";
     //button中显示的图象。如果去掉button的边框和文字，设置完图象属性后，按钮就变成了一个图标按钮。”
 //    btn.image = [NSImage imageNamed:@"docx"];
     
@@ -558,15 +523,19 @@
             NSLog(@"alert_returnCode_%ld",returnCode);
         }];
     }else if (sender.tag == 3){//打开新的窗口
-        [self showNewWindow];
+        [self showNewWindow:self.tableView.window];
     }else if (sender.tag == 4){
         NSLog(@"播放开始");
         [self.player play];
+        [self mDefineUpControl];
         
     }else if (sender.tag == 5){
         NSLog(@"播放暂停");
         [self.player pause];
+    }else if (sender.tag == 6){
+        [self showNewWindow:self.outlineWC.window];
     }
+    
     else{
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
     }
@@ -976,7 +945,7 @@
 - (void)pannel{
     NSPanel *panel = [[NSPanel alloc]initWithContentRect:NSMakeRect(0, 0, 300, 200) styleMask:NSWindowStyleMaskHUDWindow backing:NSBackingStoreRetained defer:YES];
     panel.title = @"nspanel";
-    NSButton *btn = [self button:NSMakeRect(30, 30, 100, 100) superView:panel.contentView tag:30 type:NSButtonTypePushOnPushOff];
+    NSButton *btn = [self button:NSMakeRect(30, 30, 100, 100) superView:panel.contentView title:@"NSPanel" tag:30 type:NSButtonTypePushOnPushOff];
     btn.target =self;
     btn.action = @selector(panelBtnAction:);
     
@@ -1098,31 +1067,30 @@
 
 
 
-#pragma mark - NSWindow - 新窗口
+#pragma mark - NSWindowController & NSTableView - 新窗口
 
--(SecondWCtrl *)secondWindow{
-    if(!_secondWindow){
-        _secondWindow = [[SecondWCtrl alloc]init];
+-(TableViewWCtrl *)tableView{
+    if(!_tableView){
+        _tableView = [[TableViewWCtrl alloc]init];
         NSRect frame = CGRectMake(0,0,500,500);
         NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-        _secondWindow.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
-        _secondWindow.window.title = @"新窗口";
-        _secondWindow.window.backgroundColor = [NSColor orangeColor];
+        _tableView.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
+        _tableView.window.title = @"新窗口";
+        _tableView.window.backgroundColor = [NSColor orangeColor];
         
-        NSButton *btn = [self button:NSMakeRect(10, 10, 100, 50) superView:self.secondWindow.window.contentView tag:0 type:NSButtonTypePushOnPushOff];
-        btn.title = @"显示pop窗口";
+        [self button:NSMakeRect(10, 10, 100, 50) superView:self.tableView.window.contentView title:@"显示pop窗口" tag:0 type:NSButtonTypePushOnPushOff];
         [self toolbar];
-        [_secondWindow viewInWindow];
+        [_tableView viewInWindow];
 
     }
-    return _secondWindow;
+    return _tableView;
 }
 
--(void)showNewWindow{
+-(void)showNewWindow:(NSWindow*)window{
     //窗口显示
-    [self.secondWindow.window makeKeyAndOrderFront:self];
+    [window makeKeyAndOrderFront:self];
     //窗口居中
-    [self.secondWindow.window center];
+    [window center];
     
     //[self.secondWindow.window canBecomeMainWindow];
     //[self.secondWindow.window makeKeyWindow];
@@ -1130,7 +1098,6 @@
     //[self.secondWindow.window  orderFront:self];
     //关闭窗口
     //[self.window orderOut:self];
-    
 
 }
 
@@ -1144,10 +1111,10 @@
     toolbar.autosavesConfiguration = NO;
     toolbar.displayMode = NSToolbarDisplayModeIconAndLabel;
     toolbar.delegate = self;
-    self.secondWindow.window.toolbar = toolbar;
+    self.tableView.window.toolbar = toolbar;
     
     //Toolbar 和左上角控制窗口关闭、最小化和全屏的三个按钮在同一行，这个特性需要10.10及以上的系统。
-    self.secondWindow.window.titleVisibility =  NSWindowTitleHidden;
+    self.tableView.window.titleVisibility =  NSWindowTitleHidden;
 }
 
 
@@ -1197,9 +1164,9 @@
 - (void)toolbarItemAction:(NSToolbarItem *)sender{
     NSLog(@"toolbarItem_%ld",sender.tag);
     if (sender.tag == 1) {//增加一行
-        [self.secondWindow insertRowAtIndex];
+        [self.tableView insertRowAtIndex];
     }else if (sender.tag == 2){//删除一行
-        [self.secondWindow removeRowAtIndexs:YES];
+        [self.tableView removeRowAtIndexs:YES];
 //        [self.secondWindow selectRow];
     }else{
         
@@ -1237,6 +1204,132 @@
 -(void)menuItemAction:(NSMenuItem *)sender{
     
 }
+
+
+
+#pragma mark - 音乐
+
+
+-(void)musicPlayer{
+    
+    //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
+    //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
+    //    self.player = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:@"/Users/vae/Documents/GitHub/OSX/OSX/松本晃彦 - 栄の活躍.mp3"]];
+    // 1 初始化播放器需要指定音乐文件的路径
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];
+    // 2 将路径字符串转换成url，从本地读取文件，需要使用fileURL
+    NSURL *url = [NSURL fileURLWithPath:path];
+    // 3 初始化音频播放器
+    self.player = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:nil];
+    // 4 设置循环播放
+    // 设置循环播放的次数
+    // 循环次数=0，声音会播放一次
+    // 循环次数=1，声音会播放2次
+    // 循环次数小于0，会无限循环播放
+    [self.player setNumberOfLoops:-1];
+    [self.player setVolume:0.5];
+    // 5 准备播放
+    [self.player prepareToPlay];
+}
+
+
+/**
+ 获取音频文件的元数据 ID3
+ */
+-(void)mDefineUpControl{
+    NSString *filePath = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];//[self.wMp3URL objectAtIndex: 0 ];//随便取一个，说明
+    //文件管理，取得文件属性
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSDictionary *dictAtt = [fm attributesOfItemAtPath:filePath error:nil];
+    
+    
+    //取得音频数据
+    
+    NSURL *fileURL=[NSURL fileURLWithPath:filePath];
+    AVURLAsset *mp3Asset=[AVURLAsset URLAssetWithURL:fileURL options:nil];
+    
+    
+    NSString *singer;//歌手
+    NSString *song;//歌曲名
+    
+    NSImage *songImage;//图片
+    
+    NSString *albumName;//专辑名
+    NSString *fileSize;//文件大小
+    NSString *voiceStyle;//音质类型
+    NSString *fileStyle;//文件类型
+    NSString *creatDate;//创建日期
+    NSString *savePath; //存储路径
+    
+    for (NSString *format in [mp3Asset availableMetadataFormats]) {
+        for (AVMetadataItem *metadataItem in [mp3Asset metadataForFormat:format]) {
+            if([metadataItem.commonKey isEqualToString:@"title"]){
+                song = (NSString *)metadataItem.value;//歌曲名
+                
+            }else if ([metadataItem.commonKey isEqualToString:@"artist"]){
+                singer = [NSString stringWithFormat:@"%@",metadataItem.value];//歌手
+            }
+            //专辑名称
+            else if ([metadataItem.commonKey isEqualToString:@"albumName"])
+            {
+                albumName = (NSString *)metadataItem.value;
+            }else if ([metadataItem.commonKey isEqualToString:@"artwork"]) {
+//                NSDictionary *dict=(NSDictionary *)metadataItem.value;
+//                NSData *data=[dict objectForKey:@"data"];
+//                image=[NSImage imageWithData:data];//图片
+            }
+            
+        }
+    }
+    savePath = filePath;
+    float tempFlo = [[dictAtt objectForKey:@"NSFileSize"] floatValue]/(1024*1024);
+    fileSize = [NSString stringWithFormat:@"%.2fMB",[[dictAtt objectForKey:@"NSFileSize"] floatValue]/(1024*1024)];
+    NSString *tempStrr  = [NSString stringWithFormat:@"%@", [dictAtt objectForKey:@"NSFileCreationDate"]] ;
+    creatDate = [tempStrr substringToIndex:19];
+    fileStyle = [filePath substringFromIndex:[filePath length]-3];
+    if(tempFlo <= 2){
+        voiceStyle = @"普通";
+    }else if(tempFlo > 2 && tempFlo <= 5){
+        voiceStyle = @"良好";
+    }else if(tempFlo > 5 && tempFlo < 10){
+        voiceStyle = @"标准";
+    }else if(tempFlo > 10){
+        voiceStyle = @"高清";
+    }
+    
+    NSArray *tempArr = [[NSArray alloc] initWithObjects:@"歌手:",@"歌曲名称:",@"专辑名称:",@"文件大小:",@"音质类型:",@"文件格式:",@"创建日期:",@"保存路径:", nil];
+    NSArray *tempArrInfo = [[NSArray alloc] initWithObjects:singer,song,albumName,fileSize,voiceStyle,fileStyle,creatDate,savePath, nil];
+    
+    NSMutableString *mstr = [NSMutableString string];
+    for(int i = 0;i < [tempArr count]; i ++){
+        NSString *strTitle = [tempArr objectAtIndex:i];
+        NSString *strInfo  = [tempArrInfo objectAtIndex:i];
+        [mstr appendString:[NSString stringWithFormat:@"%@%@\n",strTitle,strInfo]];
+    }
+    textField.stringValue = [mstr copy];
+    
+    
+}
+
+#pragma mark - NSWindowController &  NSOutlineView - 新窗口
+-(OutlineWCtrl *)outlineWC{
+    if(!_outlineWC){
+        _outlineWC= [[OutlineWCtrl alloc]init];
+        NSRect frame = CGRectMake(0,0,500,500);
+        NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+        _outlineWC.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
+        _outlineWC.window.title = @"outlineview";
+        _outlineWC.window.backgroundColor = [NSColor whiteColor];
+
+        [_outlineWC viewInWindow];
+        
+    }
+    
+   
+    return _outlineWC;
+}
+
 
 
 

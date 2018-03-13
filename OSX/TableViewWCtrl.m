@@ -6,7 +6,7 @@
 //  Copyright © 2017年 李振彪. All rights reserved.
 //
 
-#import "SecondWCtrl.h"
+#import "TableViewWCtrl.h"
 #import "Masonry.h"
 #import "BSTableRowView.h"
 #import "BSTableCellView.h"
@@ -14,7 +14,7 @@
 
 #define XXXTableViewDragDataTypeName @"XXXTableViewDragDataTypeName"
 
-@interface SecondWCtrl ()<NSTableViewDelegate,NSTableViewDataSource>
+@interface TableViewWCtrl ()<NSTableViewDelegate,NSTableViewDataSource>
 
 @property (nonatomic, strong) NSMutableArray *datas;
 
@@ -22,7 +22,7 @@
 @property (nonatomic,strong) NSScrollView *tableViewScrollView;
 @end
 
-@implementation SecondWCtrl
+@implementation TableViewWCtrl
 
 - (void)windowDidLoad {
     [super windowDidLoad];
@@ -40,7 +40,6 @@
 //    //窗口居中
 //    [self.window center];
     
-
 //    [self viewInWindow];
     
     

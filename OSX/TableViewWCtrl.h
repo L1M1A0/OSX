@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SecondWCtrl : NSWindowController
+@interface TableViewWCtrl : NSWindowController
 
 -(void)viewInWindow;
 -(void)insertRowAtIndex;

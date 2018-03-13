@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		050EFCDE1EF10EEC00172269 /* SecondWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCDD1EF10EEC00172269 /* SecondWindow.m */; };
-		050EFCE11EF1160700172269 /* SecondWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* SecondWCtrl.m */; };
+		050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* TableViewWCtrl.m */; };
 		050EFCE41EF12C0900172269 /* Save.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE21EF12C0900172269 /* Save.png */; };
 		050EFCE51EF12C0900172269 /* FontSetting.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE31EF12C0900172269 /* FontSetting.png */; };
 		0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8301ED587CE00D4671F /* AppDelegate.m */; };
@@ -36,6 +36,7 @@
 		05B55882202856E1005F7A20 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 05B55877202856E1005F7A20 /* Info.plist */; };
 		05B55885202AF66D005F7A20 /* BSTableRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55884202AF66D005F7A20 /* BSTableRowView.m */; };
 		05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55887202AF7A1005F7A20 /* BSTableCellView.m */; };
+		05BCD48720577FF500068210 /* OutlineWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCD48620577FF500068210 /* OutlineWCtrl.m */; };
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 /* End PBXBuildFile section */
@@ -43,8 +44,8 @@
 /* Begin PBXFileReference section */
 		050EFCDC1EF10EEC00172269 /* SecondWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondWindow.h; sourceTree = "<group>"; };
 		050EFCDD1EF10EEC00172269 /* SecondWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondWindow.m; sourceTree = "<group>"; };
-		050EFCDF1EF1160700172269 /* SecondWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondWCtrl.h; sourceTree = "<group>"; };
-		050EFCE01EF1160700172269 /* SecondWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondWCtrl.m; sourceTree = "<group>"; };
+		050EFCDF1EF1160700172269 /* TableViewWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWCtrl.h; sourceTree = "<group>"; };
+		050EFCE01EF1160700172269 /* TableViewWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewWCtrl.m; sourceTree = "<group>"; };
 		050EFCE21EF12C0900172269 /* Save.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Save.png; sourceTree = "<group>"; };
 		050EFCE31EF12C0900172269 /* FontSetting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FontSetting.png; sourceTree = "<group>"; };
 		0522D82C1ED587CE00D4671F /* OSX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OSX.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +99,8 @@
 		05B55884202AF66D005F7A20 /* BSTableRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BSTableRowView.m; sourceTree = "<group>"; };
 		05B55886202AF7A1005F7A20 /* BSTableCellView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BSTableCellView.h; sourceTree = "<group>"; };
 		05B55887202AF7A1005F7A20 /* BSTableCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BSTableCellView.m; sourceTree = "<group>"; };
+		05BCD48520577FF500068210 /* OutlineWCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutlineWCtrl.h; sourceTree = "<group>"; };
+		05BCD48620577FF500068210 /* OutlineWCtrl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineWCtrl.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -146,8 +149,10 @@
 				052954E51EEA7C40005FDDCD /* PopoverVCtrl.h */,
 				052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */,
 				052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */,
-				050EFCDF1EF1160700172269 /* SecondWCtrl.h */,
-				050EFCE01EF1160700172269 /* SecondWCtrl.m */,
+				050EFCDF1EF1160700172269 /* TableViewWCtrl.h */,
+				050EFCE01EF1160700172269 /* TableViewWCtrl.m */,
+				05BCD48520577FF500068210 /* OutlineWCtrl.h */,
+				05BCD48620577FF500068210 /* OutlineWCtrl.m */,
 				05B55883202AF66D005F7A20 /* BSTableRowView.h */,
 				05B55884202AF66D005F7A20 /* BSTableRowView.m */,
 				05B55886202AF7A1005F7A20 /* BSTableCellView.h */,
@@ -310,13 +315,14 @@
 			files = (
 				05B5587F202856E1005F7A20 /* MASConstraint.m in Sources */,
 				05B5587D202856E1005F7A20 /* NSArray+MASAdditions.m in Sources */,
-				050EFCE11EF1160700172269 /* SecondWCtrl.m in Sources */,
+				050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */,
 				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
 				05B55878202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */,
 				05B55881202856E1005F7A20 /* MASViewAttribute.m in Sources */,
 				052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */,
 				05B55880202856E1005F7A20 /* MASViewConstraint.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
+				05BCD48720577FF500068210 /* OutlineWCtrl.m in Sources */,
 				05B55885202AF66D005F7A20 /* BSTableRowView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
