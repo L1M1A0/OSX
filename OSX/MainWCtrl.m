@@ -11,7 +11,6 @@
 #import "PopoverViewController.h"
 #import "PopoverVCtrl.h"
 #import "TableViewWCtrl.h"
-#import "SecondWindow.h"
 #import "OutlineWCtrl.h"
 
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
