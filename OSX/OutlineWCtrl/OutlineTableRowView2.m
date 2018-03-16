@@ -26,13 +26,13 @@
 
 
 -(void)creatViewWithLevel:(NSInteger)level{
-    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(30*level, 5, 50, 40)];
+    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(30+30*level, 5, 50, 40)];
     self.imageV.wantsLayer = YES;
     self.imageV.layer.backgroundColor = [NSColor greenColor].CGColor;
     self.imageV.image = [NSImage imageNamed:@"docx.png"];
     [self addSubview:self.imageV];
     
-    self.textV = [[NSTextView alloc]initWithFrame:NSMakeRect(30*level+50, 5, 120, 40)];
+    self.textV = [[NSTextView alloc]initWithFrame:NSMakeRect(30+30*level+50, 5, 120, 40)];
     self.textV.string = @"textView";
     //    self.textV.wantsLayer = YES;
     self.textV.backgroundColor = [NSColor cyanColor];

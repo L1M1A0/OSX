@@ -41,6 +41,7 @@
 		05BCD492205926E600068210 /* OutlineTableRowView2.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCD491205926E600068210 /* OutlineTableRowView2.m */; };
 		05BCD495205A58A000068210 /* arrow_gray_down.png in Resources */ = {isa = PBXBuildFile; fileRef = 05BCD493205A589F00068210 /* arrow_gray_down.png */; };
 		05BCD496205A58A000068210 /* arrow_gray_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 05BCD494205A589F00068210 /* arrow_gray_right.png */; };
+		05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCD498205BAA5200068210 /* OutlineIndexModel.m */; };
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 /* End PBXBuildFile section */
@@ -111,6 +112,8 @@
 		05BCD491205926E600068210 /* OutlineTableRowView2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineTableRowView2.m; sourceTree = "<group>"; };
 		05BCD493205A589F00068210 /* arrow_gray_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_gray_down.png; sourceTree = "<group>"; };
 		05BCD494205A589F00068210 /* arrow_gray_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_gray_right.png; sourceTree = "<group>"; };
+		05BCD497205BAA5200068210 /* OutlineIndexModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutlineIndexModel.h; sourceTree = "<group>"; };
+		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -257,6 +260,8 @@
 				05BCD48B2058FE5400068210 /* OutlineTableRowView.m */,
 				05BCD490205926E600068210 /* OutlineTableRowView2.h */,
 				05BCD491205926E600068210 /* OutlineTableRowView2.m */,
+				05BCD497205BAA5200068210 /* OutlineIndexModel.h */,
+				05BCD498205BAA5200068210 /* OutlineIndexModel.m */,
 			);
 			path = OutlineWCtrl;
 			sourceTree = "<group>";
@@ -362,6 +367,7 @@
 				05BCD48C2058FE5400068210 /* OutlineTableRowView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
+				05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */,
 				05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */,
 				05B5587E202856E1005F7A20 /* View+MASAdditions.m in Sources */,
 				05B5587A202856E1005F7A20 /* MASCompositeConstraint.m in Sources */,

@@ -148,11 +148,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/OutlineWCtrl/OutlineWCtrl.m"
-            timestampString = "542797873.996231"
+            timestampString = "542883419.5136909"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
+            startingLineNumber = "246"
+            endingLineNumber = "246"
             landmarkName = "-outlineView:viewForTableColumn:item:"
             landmarkType = "7">
          </BreakpointContent>
@@ -163,13 +163,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "OSX/OutlineWCtrl/OutlineWCtrl.m"
-            timestampString = "542797873.997118"
+            filePath = "OSX/OutlineWCtrl/OutlineTableRowView.m"
+            timestampString = "542883419.5143141"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "250"
-            endingLineNumber = "250"
-            landmarkName = "-outlineViewSelectionDidChange:"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
+            landmarkName = "-imageViewAction"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "OSX/OutlineWCtrl/OutlineTableRowView.m"
+            timestampString = "542883419.51441"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "87"
+            endingLineNumber = "87"
+            landmarkName = "-imageViewAction"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

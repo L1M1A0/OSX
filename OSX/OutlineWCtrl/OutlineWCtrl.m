@@ -10,6 +10,7 @@
 #import "Masonry.h"
 #import "OutlineTableRowView.h"
 #import "OutlineTableRowView2.h"
+#import "OutlineIndexModel.h"
 
 //@interface TreeNodeModel : NSObject
 //
@@ -32,13 +33,19 @@
 //
 //@end
 
+#define itemNode(superNode,currentNode,index)
+
 
 @interface OutlineWCtrl ()<NSOutlineViewDelegate,NSOutlineViewDataSource>
 
 @property (nonatomic, strong) NSOutlineView *outlineView;
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 @property (nonatomic, strong) NSScrollView *tableViewScrollView;
-@property (nonatomic, strong) TreeNodeModel *tempNodeModel;
+@property (nonatomic, strong) OutlineIndexModel *indexModel;
+@property (nonatomic, assign) NSInteger tempSperNodeIndex;
+
+
+
 @end
 
 @implementation OutlineWCtrl
@@ -75,7 +82,7 @@
     //使用Masony做Autolayout布局设置
     [self.tableViewScrollView  mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.window.contentView.mas_top).with.offset(0);
-        make.bottom.equalTo(self.window.contentView.mas_bottom).with.offset(-40);
+        make.bottom.equalTo(self.window.contentView.mas_bottom).with.offset(-50);
         make.left.equalTo(self.window.contentView.mas_left).with.offset(0);
         make.right.equalTo(self.window.contentView.mas_right).with.offset(0);
     }];
@@ -106,22 +113,28 @@
 
 #pragma mark - 数据源
 -(void)initData{
-    //根节点
-    TreeNodeModel *rootNode = [self node:@"公司" level:1];
-    [self.treeModel.childNodes addObject:rootNode];
+    self.indexModel = [[OutlineIndexModel alloc]init];
     
+    //根节点
+    TreeNodeModel *rootNode1 = [self node:@"公司1" level:0];
+    TreeNodeModel *rootNode2 = [self node:@"公司2" level:0];
+    TreeNodeModel *rootNode3 = [self node:@"公司3" level:0];
+//    self.treeModel = rootNode1;
+//    [self.treeModel.childNodes addObject:rootNode1];
+    [self.treeModel.childNodes addObjectsFromArray:@[rootNode1,rootNode2,rootNode3]];
+
     //2级节点
-    TreeNodeModel *level11Node = [self node:@"电商" level:2];
-    TreeNodeModel *level12Node = [self node:@"游戏" level:2];
-    TreeNodeModel *level13Node = [self node:@"音乐" level:2];
-    [rootNode.childNodes addObject:level11Node];
-    [rootNode.childNodes addObject:level12Node];
-    [rootNode.childNodes addObject:level13Node];
+    TreeNodeModel *level11Node = [self node:@"电商" level:1];
+    TreeNodeModel *level12Node = [self node:@"游戏" level:1];
+    TreeNodeModel *level13Node = [self node:@"音乐" level:1];
+    [rootNode1.childNodes addObjectsFromArray:@[level11Node,level12Node,level13Node]];
+    [rootNode2.childNodes addObjectsFromArray:@[level11Node,level12Node,level13Node]];
+    [rootNode3.childNodes addObjectsFromArray:@[level11Node,level12Node,level13Node]];
     
     //3级节点
-    [level11Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level11Node.name count:3 level:3]];
-    [level12Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level12Node.name count:2 level:3]];
-    [level13Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level13Node.name count:10 level:3]];
+    [level11Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level11Node.name count:5 level:2]];
+    [level12Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level12Node.name count:2 level:2]];
+    [level13Node.childNodes addObjectsFromArray:[self subNodeKeyStr:level13Node.name count:10 level:2]];
 }
 - (TreeNodeModel*)treeModel {
     if(!_treeModel){
@@ -179,6 +192,8 @@
     if(!item){
         return [self.treeModel.childNodes count] > 0 ? YES : NO;
     } else {
+//        TreeNodeModel *model = (TreeNodeModel *)item;
+//        BOOL result = model.childNodes.count > 0;
         return [self checkItem:item];
     }
 }
@@ -200,7 +215,7 @@
     //使用分级来做标识符更节省内存
     NSString *idet = [NSString stringWithFormat:@"%ld",nodeModel.nodeLevel];
 
-    if (nodeModel.nodeLevel == 3) {
+    if (nodeModel.nodeLevel == 2) {
         OutlineTableRowView2 *rowView = [outlineView makeViewWithIdentifier:idet owner:self];
         
         if (rowView == nil) {
@@ -249,7 +264,8 @@
     NSOutlineView *treeView = notification.object;
     NSInteger row = [treeView selectedRow];
     TreeNodeModel *model = (TreeNodeModel*)[treeView itemAtRow:row];
-    if(model.isExpand == YES){//[treeView isItemExpanded:model]
+    BOOL isExpand = [treeView isItemExpanded:model];
+    if(isExpand == YES){
         model.isExpand = NO;
         [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
     }else{
@@ -257,14 +273,40 @@
         [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
     }
     
-    NSLog(@"row = %ld,name = %@",row,model.name);
+    //    NSIndexSet *indexset = [treeView selectedRowIndexes];
+    //    NSInteger inlevel = treeView.indentationPerLevel;
+    //    NSIndexSet *hidenrowIndexSets = [treeView hiddenRowIndexes];
+    
+    //获取当前item的层级序号
+    NSInteger levelForRow  = [treeView levelForRow:row];
+    NSInteger levelForItem = [treeView levelForItem:model];
+    NSInteger childIndexForItem = [treeView childIndexForItem:model];
+    NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld，isItemExpanded=%d",row,model.name,levelForRow,levelForItem,childIndexForItem,isExpand);
     
     //获取指定层级下指定位置的item
-//    id childItemInMainItem = [treeView child:row ofItem:model];
-//    NSInteger childIndexForItem = [treeView childIndexForItem:model];
-//    NSLog(@"childItemInMainItem = %@,childIndexForItem = %ld",[(TreeNodeModel *)childItemInMainItem name],childIndexForItem);
+    //1. 获取当前item的父层级 [treeView parentForItem:model];
+    //2. 获取当前item所在父层级中的index [treeView childIndexForItem:model];
+    id parent = [treeView parentForItem:model];
+    TreeNodeModel *childItemInMainItem = (TreeNodeModel *)[treeView child:childIndexForItem ofItem:parent];
+
     
- 
+    //为完成，位置计算逻辑错误，无法完成两层级以上计算
+    OutlineIndexModel *childIndexModel = [[OutlineIndexModel alloc]init];
+    childIndexModel.level = levelForItem;
+    childIndexModel.index = childIndexForItem;//
+    if (self.tempSperNodeIndex != levelForItem) {
+        childIndexModel.section = childIndexForItem;
+    }else{
+        childIndexModel.section = self.tempSperNodeIndex;
+    }
+    
+    
+    NSLog(@"childItemInMainItem = %@，level=%ld，section=%ld，index=%ld",childItemInMainItem.name,childIndexModel.level,childIndexModel.section,childIndexModel.index);
+
+//    self.indexModel.section = levelForItem;
+//    self.indexModel.row = childIndexForItem;
+//    self.indexModel.childNode =
+    
 }
 
 
@@ -287,7 +329,7 @@
         return;
     }
     TreeNodeModel *item = [self.outlineView itemAtRow:selectedRow];
-    NSMutableArray *childNodes =[NSMutableArray arrayWithArray:[item childNodes]];
+    NSMutableArray *childNodes = [NSMutableArray arrayWithArray:[item childNodes]];
     
     TreeNodeModel *addNode = [[TreeNodeModel alloc]init];
     addNode.name = nodeName;
@@ -323,8 +365,5 @@
         [self.outlineView reloadData];
     }
 }
-
-
-
 
 @end
