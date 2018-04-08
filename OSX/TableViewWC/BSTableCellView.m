@@ -5,7 +5,6 @@
 //  Created by 李振彪 on 2018/2/7.
 //  Copyright © 2018年 李振彪. All rights reserved.
 //
-
 #import "BSTableCellView.h"
 
 @implementation BSTableCellView

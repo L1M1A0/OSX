@@ -316,8 +316,7 @@
     [indexSet addIndex:0];
     [indexSet addIndex:1];
     [self.tableView selectRowIndexes:indexSet byExtendingSelection:YES];
-    
-    
+
 }
 
 

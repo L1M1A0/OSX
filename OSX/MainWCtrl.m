@@ -7,6 +7,7 @@
 //
 
 #import "MainWCtrl.h"
+#import "ZBMacOSObject.h"
 #import <AVFoundation/AVFoundation.h>
 #import "PopoverViewController.h"
 #import "PopoverVCtrl.h"
@@ -17,6 +18,8 @@
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
+
+@property (nonatomic, strong) ZBMacOSObject *macOsObject;
 
 /** <#Description#> */
 @property (nonatomic, assign) CGFloat x;
@@ -55,6 +58,7 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 
+    self.macOsObject = [[ZBMacOSObject alloc]init];
     [self initWindow];
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
@@ -196,14 +200,14 @@
 
 
     //NSView-----------------------
-    [self view];
+    [self.macOsObject view:NSMakeRect(0, 0, 100, 100) superView:self.window.contentView];
     
     self.x = CGRectGetMaxX(self.window.contentView.frame)-200;
     //NSTextField------------------
     textField = [self textFied:self.x];
     
     //NSTextView-------------------
-    self.textView = [self textView:CGRectMake(self.x, 80, 200, 50)];
+    self.textView = [self textView:NSMakeRect(self.x, 80, 200, 50)];
     
     //NSSearchField----------------
     [self searchField:self.x];
@@ -218,28 +222,30 @@
 
     
     //NSSegmentedControl-----------
-    [self segmentControll];
+    [self.macOsObject segmentedControl:NSMakeRect(0, 240, 200, 30) labels:@[@"232",@"423",@"432",@"3422"] target:self superView:self.window.contentView];
     
     //NSComboBox-------------------
     [self comboBox];
     
     //NSPopUpButton----------------
-    [self popUpButton];
+    [self.macOsObject popUpButton:NSMakeRect(0, 310, 200, 30) superView:self.window.contentView];
     
     //NSSlider---------------------
-    [self slider:NSSliderTypeLinear frame:CGRectMake(230, 0, 150, 30) superView:self.window.contentView];
-    [self slider:NSSliderTypeCircular frame:CGRectMake(230, 35, 50, 50) superView:self.window.contentView];
+    [self slider:NSSliderTypeLinear frame:NSMakeRect(230, 0, 150, 30) superView:self.window.contentView];
+    [self slider:NSSliderTypeCircular frame:NSMakeRect(230, 35, 50, 50) superView:self.window.contentView];
     
     //NSDatePicker-----------------
     [self datePicker];
     
     
     //NSStepper--------------------
-    [self stepper];
+    NSStepper *stepper = [self.macOsObject stepper:NSMakeRect(300, 50, 50, 30)superView:self.window.contentView];
+    stepper.target = self;
+    stepper.action = @selector(stepperAction:);
     
     //NSProgressIndicator----------
-    [self progressIndicator:NSProgressIndicatorSpinningStyle x:230 w:50];
-    [self progressIndicator:NSProgressIndicatorBarStyle x:290 w:150];
+    [self.macOsObject progressIndicator:NSMakeRect(230, 90, 50, 45)  style:NSProgressIndicatorSpinningStyle superView:self.window.contentView];
+    [self.macOsObject progressIndicator:NSMakeRect(290, 90, 150, 45) style:NSProgressIndicatorBarStyle superView:self.window.contentView];
     
     //NSBox------------------------
     [self box];
@@ -289,9 +295,7 @@
     //scrollView.borderType = NSNoBorder;//“滚动条显示的样式风格”
     [self.window.contentView addSubview:scrollView];
     
-    
     return scrollView;
-
 }
 
 
@@ -313,18 +317,10 @@
 //    NSURL *fileURL = [NSURL fileURLWithPath: path];
 //    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
 }
-#pragma mark - NSView
--(void)view{
-    
-    NSView *view = [[NSView alloc]initWithFrame:CGRectMake(0, 0, 100, 100)];
-    view.wantsLayer = YES;//设置layer属性时必须先设置为YES
-    view.layer.backgroundColor = [NSColor redColor].CGColor;
-    [self.window.contentView addSubview:view];
-}
 
 #pragma mark - NSTextField
 - (NSTextField *)textFied:(CGFloat)x{
-    NSTextField *textf = [[NSTextField alloc]initWithFrame:CGRectMake(x, 10, 200, 50)];
+    NSTextField *textf = [[NSTextField alloc]initWithFrame:NSMakeRect(x, 10, 200, 50)];
     textf.wantsLayer = YES;
     textf.layer.backgroundColor = [NSColor yellowColor].CGColor;
     textf.textColor = [NSColor redColor];
@@ -401,7 +397,7 @@
 #pragma mark - label
 -(void)label{
     //“Label本质上是NSTextField类型的，去掉边框和背景，设置为不可编辑，不可以选择即可。”
-    NSTextField *label = [[NSTextField alloc]initWithFrame:CGRectMake(0, 100, 200, 30)];
+    NSTextField *label = [[NSTextField alloc]initWithFrame:NSMakeRect(0, 100, 200, 30)];
     [label setBezeled:NO];
     [label setDrawsBackground:NO];
     [label setEditable:NO];
@@ -433,7 +429,7 @@
 
 #pragma mark - NSSearchField
 - (void)searchField:(CGFloat)x{
-    NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:CGRectMake(x, 140, 150, 20)];
+    NSSearchField *searchF =  [[NSSearchField alloc]initWithFrame:NSMakeRect(x, 140, 150, 20)];
     searchF.textColor = [NSColor blueColor];
     searchF.backgroundColor = [NSColor redColor];
     searchF.placeholderString = @"NSSearchField";
@@ -468,47 +464,8 @@
 
 #pragma mark - NSButton
 - (NSButton *)button:(NSRect)frame superView:(NSView *)superView title:(NSString *)title tag:(NSInteger)tag type:(NSButtonType)type{
-    NSButton *btn = [[NSButton alloc]init];
-    btn.frame = frame;//NSRectMake
-    btn.alignment = NSTextAlignmentCenter;
-    btn.toolTip = @"这是一个按钮";
-    btn.bezelStyle = NSBezelStyleRounded;
-    btn.tag = tag;
-    btn.target = self;
-    btn.action = @selector(btnAction:);
-    [superView addSubview:btn];
     
-    //以下设置中，随着title和image的代码位置不同，在界面上的显示效果也不同
-    btn.bordered = YES;//是否带边框
-    btn.title = title.length>0?title:@"NSButton";
-    //button中显示的图象。如果去掉button的边框和文字，设置完图象属性后，按钮就变成了一个图标按钮。”
-//    btn.image = [NSImage imageNamed:@"docx"];
-    
-    //设置按钮类型，风格，强大
-    //1.以下5种类型只有在点击的时候背景颜色发生变化,其他无明显区别
-//    [btn setButtonType:NSButtonTypeMomentaryLight];//    = 0,
-//    [btn setButtonType:NSButtonTypeToggle];//            = 2,
-//    [btn setButtonType:NSButtonTypeMomentaryPushIn];//   = 7,
-//    [btn setButtonType:NSButtonTypeAccelerator];//       = 8,
-//    [btn setButtonType:NSButtonTypeMultiLevelAccelerator];// = 9,
-    
-    //2.默认的时候是（左复选框+右文字）的按钮，当设置了image之后，复选框变成了image
-//    [btn setButtonType:NSButtonTypeSwitch];//            = 3,
-    
-    //3.默认的时候是（左单选框+右文字）的按钮，当设置了image之后，复选框变成了image
-    //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
-//    [btn setButtonType:NSButtonTypeRadio];//            = 4,
-    
-    //4.点击的时候，title会变化（消失）
-//    [btn setButtonType:NSButtonTypeMomentaryChange];//   = 5,
-   
-    //5.以下2种类型，stringValue=1有默认选中颜色，stringValue=0没选中无、颜色，
-//    [btn setButtonType:NSButtonTypePushOnPushOff];//     = 1,
-    [btn setButtonType:type];//             = 6,
-    //设置按钮初始选中状态，1：选中
-//    btn.state = 1;
-    
-    
+    NSButton *btn = [self.macOsObject button:frame title:title tag:tag type:type target:self superView:superView];
     return btn;
 }
 
@@ -547,33 +504,11 @@
 }
 
 
-#pragma mark - NSSegmentedControl
--(void)segmentControll{
-    NSSegmentedControl *seg = [[NSSegmentedControl alloc]init];
-    seg = [NSSegmentedControl segmentedControlWithLabels:@[@"232",@"423",@"432",@"3422"] trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(segmentAction:)];
-    seg.frame = CGRectMake(0, 240, 200, 30);
-    seg.wantsLayer = YES;
-    seg.layer.backgroundColor = [NSColor redColor].CGColor;
-//    seg.segmentCount = 3;//seg的item数量
-//    seg.segmentStyle = NSSegmentStyleRounded;
-//    seg.trackingMode = NSSegmentSwitchTrackingSelectOne;
-//    seg.target = self;
-//    seg.action = @selector(segmentAction:);
-    [self.window.contentView addSubview:seg];
- 
-}
-
-- (void)segmentAction:(NSSegmentedControl *)seg{
-    
-    NSLog(@"NSSegmentedControl_%ld",seg.selectedSegment);
-    
-}
-
 
 #pragma mark - NSComboBox 组合框
 -(void)comboBox{
     comboBoxItemValue = @[@"1",@"e",@"3",@"4",@"23",@"1",@"9",@"rqw",@"e3",@"323"];
-    NSComboBox *comBox = [[NSComboBox alloc]initWithFrame:CGRectMake(0, 280, 200, 25)];
+    NSComboBox *comBox = [[NSComboBox alloc]initWithFrame:NSMakeRect(0, 280, 200, 25)];
 //    comBox.backgroundColor = [NSColor yellowColor];
     //在代理前设置usesDataSource，否则无效
     comBox.usesDataSource = YES;
@@ -646,37 +581,7 @@
     NSLog(@"comboBoxSelectionIsChanging selected item %@",comboBoxItemValue[selectedIndex]);
 }
 
-
-#pragma mark - NSPopUpButton:BS
-- (void)popUpButton{
-    //pullsDown = YES,选中item不能同步值到输入框
-    NSPopUpButton *popUpBtn = [[NSPopUpButton alloc]initWithFrame:CGRectMake(0, 310, 200, 30) pullsDown:NO];
-    popUpBtn.wantsLayer = YES;
-    popUpBtn.layer.backgroundColor = [NSColor greenColor].CGColor;
-    [popUpBtn addItemsWithTitles:@[@"1",@"32",@"ASDF",@"FA"]];
-    [popUpBtn removeItemAtIndex:1];
-    [popUpBtn insertItemWithTitle:@"er" atIndex:2];
-//    [popUpBtn setButtonType:NSButtonTypeRadio];
-//    [popUpBtn.cell setArrowPosition:NSPopUpNoArrow];//无箭头
-//    [popUpBtn.cell setArrowPosition:NSPopUpArrowAtBottom];
-    [popUpBtn.cell setArrowPosition:NSPopUpArrowAtCenter];
-    
-    popUpBtn.target = self;
-    popUpBtn.action = @selector(popUpBtnAction:);
-    [self.window.contentView addSubview:popUpBtn];
-
-    
-//    NSPopUpButtonCell *cel = [[NSPopUpButtonCell alloc]init];
-    
-}
-
--(void)popUpBtnAction:(NSPopUpButton *)sender{
-    
-    NSLog(@"popUpBtnAction_%ld,%@,%@",sender.indexOfSelectedItem,sender.itemTitles[sender.indexOfSelectedItem],sender.itemTitles);
-}
-
 #pragma mark - NSSlider
-
 -(void)slider:(NSSliderType)sliderType frame:(CGRect)frame superView:(NSView *)superView{
     
     NSSlider *slider = [[NSSlider alloc]initWithFrame:frame];
@@ -725,7 +630,7 @@
 
 #pragma mark - NSDatePicker
 - (void)datePicker{
-    NSDatePicker *datePicker = [[NSDatePicker alloc]initWithFrame:CGRectMake(230, 200, 300, 300)];
+    NSDatePicker *datePicker = [[NSDatePicker alloc]initWithFrame:NSMakeRect(230, 200, 300, 300)];
     //设置当前日期为初始值
     datePicker.dateValue = [NSDate date];
     //界面类型，以下style默认显示日历和时钟
@@ -754,46 +659,8 @@
     
 }
 
-
-#pragma mark - NSStepper
-- (void)stepper{
-    NSStepper *stepper = [[NSStepper alloc]initWithFrame:CGRectMake(300, 50, 50, 30)];
-    stepper.stringValue = @"10";
-    stepper.minValue = 10;
-    stepper.maxValue = 100;
-    stepper.increment = 10;//步进增长量
-    stepper.wantsLayer = YES;
-    stepper.layer.backgroundColor = [NSColor purpleColor].CGColor;
-    stepper.target = self;
-    stepper.action = @selector(stepperAction:);
-    [self.window.contentView addSubview:stepper];
-}
-
 - (void)stepperAction:(NSStepper *)sender{
     textField.stringValue = sender.stringValue;
-    
-}
-
-#pragma mark - NSProgressIndicator
-- (void)progressIndicator:(NSProgressIndicatorStyle)style x:(CGFloat)x w:(CGFloat)w{
-    NSProgressIndicator *proIndicator = [[NSProgressIndicator alloc]initWithFrame:CGRectMake(x, 90, w, 45)];
-    //类型：圆圈NSProgressIndicatorSpinningStyle
-    proIndicator.style = style;//默认，bar
-    proIndicator.controlSize = NSControlSizeMini;
-    proIndicator.controlTint = NSGraphiteControlTint;
-    proIndicator.usesThreadedAnimation = YES;
-    
-    proIndicator.minValue = 0;//默认
-    proIndicator.maxValue = 100;//默认
-    proIndicator.doubleValue = 25.0;//需要设置indeterminate==NO
-    proIndicator.indeterminate = NO;
-    [proIndicator incrementBy:1];
-    
-    proIndicator.wantsLayer = YES;
-    proIndicator.layer.backgroundColor = [NSColor brownColor].CGColor;
-    [self.window.contentView addSubview:proIndicator];
-    [proIndicator startAnimation:proIndicator];
-    
 }
 
 
@@ -801,7 +668,7 @@
 
 -(void)box{
     
-    NSBox *box = [[NSBox alloc]initWithFrame:CGRectMake(self.x, 200, 150, 150)];
+    NSBox *box = [[NSBox alloc]initWithFrame:NSMakeRect(self.x, 200, 150, 150)];
     box.title = @"NSBox";
     box.titlePosition = NSAtTop;//标题位置
     box.boxType = NSBoxPrimary;
@@ -816,20 +683,20 @@
     //设置边距margin,contentView中子视图到边线的距离
     NSSize margin = NSMakeSize(20, 30);
     box.contentViewMargins = margin;
-    [self slider:NSSliderTypeCircular frame:CGRectMake(0, 0, 50, 50) superView:box.contentView];
+    [self slider:NSSliderTypeCircular frame:NSMakeRect(0, 0, 50, 50) superView:box.contentView];
 }
 
 #pragma mark - NSSplitView
 - (void)splitView{
-    NSSplitView *splitView = [[NSSplitView alloc]initWithFrame:CGRectMake(0, 350, 200, 100)];
+    NSSplitView *splitView = [[NSSplitView alloc]initWithFrame:NSMakeRect(0, 350, 200, 100)];
     splitView.dividerStyle = NSSplitViewDividerStyleThick;
     splitView.vertical   = YES;//水平分割 or 垂直分割
     splitView.wantsLayer = YES;
     splitView.layer.backgroundColor = [NSColor redColor].CGColor;
     
     //view1.frame.size.width-20
-    NSRect rect1 = CGRectMake(30, 30,100 , 50);
-    NSRect rect2 = CGRectMake(30, 30,100 , 50);
+    NSRect rect1 = NSMakeRect(30, 30,100 , 50);
+    NSRect rect2 = NSMakeRect(30, 30,100 , 50);
     NSView *view1 = [self viewForSplitView:[NSColor greenColor] frame:rect1];
     NSView *view2 = [self viewForSplitView:[NSColor blueColor]  frame:rect2];
     
@@ -857,7 +724,7 @@
 #pragma mark - NSCollectionView
 
 - (void)collectionView{
-//    NSCollectionView *collectionView = [[NSCollectionView alloc]initWithFrame:CGRectMake(230, 350, 250, 200)];
+//    NSCollectionView *collectionView = [[NSCollectionView alloc]initWithFrame:NSMakeRect(230, 350, 250, 200)];
 //    collectionView.backgroundView.wantsLayer = YES;
 //    collectionView.backgroundView.layer.backgroundColor = [NSColor greenColor].CGColor;
 //    
@@ -867,7 +734,7 @@
 #pragma mark - NSTabView
 
 -(void)tabView{
-    NSTabView *tabView = [[NSTabView alloc]initWithFrame:CGRectMake(0, 440, 200, 120)];
+    NSTabView *tabView = [[NSTabView alloc]initWithFrame:NSMakeRect(0, 440, 200, 120)];
     tabView.tabViewType = NSTopTabsBezelBorder;//tab的位置
 //    tabView.tabViewItems = @[@"2",@"wew",@"re"]; 
     [tabView addTabViewItem:[self tabViewItemTitle:@"1" bColor:[NSColor redColor]]];
@@ -1070,8 +937,9 @@
 
 -(TableViewWCtrl *)tableView{
     if(!_tableView){
+        
         _tableView = [[TableViewWCtrl alloc]init];
-        NSRect frame = CGRectMake(0,0,500,500);
+        NSRect frame = NSMakeRect(0,0,500,500);
         NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
         _tableView.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
         _tableView.window.title = @"新窗口";
@@ -1315,7 +1183,7 @@
 -(OutlineWCtrl *)outlineWC{
     if(!_outlineWC){
         _outlineWC= [[OutlineWCtrl alloc]init];
-        NSRect frame = CGRectMake(0,0,500,500);
+        NSRect frame = NSMakeRect(0,0,500,500);
         NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
         _outlineWC.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
         _outlineWC.window.title = @"outlineview";
@@ -1325,7 +1193,6 @@
         
     }
     
-   
     return _outlineWC;
 }
 
