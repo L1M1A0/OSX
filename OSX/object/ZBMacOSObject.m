@@ -29,7 +29,7 @@
     btn.toolTip = @"这是一个按钮";
     btn.bezelStyle = NSBezelStyleRounded;
     btn.tag = tag;
-//    btn.target = self;
+    btn.target = target;
 //    btn.action = @selector(btnAction:);
     [superView addSubview:btn];
     

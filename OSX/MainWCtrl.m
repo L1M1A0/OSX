@@ -57,7 +57,7 @@
     [super windowDidLoad];
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-
+    
     self.macOsObject = [[ZBMacOSObject alloc]init];
     [self initWindow];
     [self addButtonToTitleBar];
@@ -88,7 +88,7 @@
     //self.window.minSize = NSMakeSize(700, 600);
     self.window.maxSize = NSMakeSize(900, 700);
     //self.window.contentMinSize = NSMakeSize(700, 600);
-
+    
     
     //4、窗口的图标
     NSImage *titleBarImage = [NSImage imageNamed:@"titleBar.png"];
@@ -105,7 +105,7 @@
     self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
     
     //---------------2、window
-
+    
     //是否不透明
     [self.window setOpaque:NO];
     
@@ -174,12 +174,12 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(windowStatusChange) name:NSWindowWillCloseNotification object:self.window];
     
     //窗口关闭时退出应用程序 方法2 在AppDelegate中设置
-//    - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)application {
-//        NSLog(@"appdelgate_applicationShouldTerminateAfterLastWindowClosed");
-//        return YES;
-//    }
+    //    - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)application {
+    //        NSLog(@"appdelgate_applicationShouldTerminateAfterLastWindowClosed");
+    //        return YES;
+    //    }
     
-
+    
 }
 
 -(void)windowStatusChange{
@@ -191,14 +191,14 @@
 #pragma mark - 添加窗口控件
 -(void)addViewToWindow{
     
-//    NSCell *cell = [[NSCell alloc]init];
-//    NSControl *con = [[NSControl alloc]init];
-   
+    //    NSCell *cell = [[NSCell alloc]init];
+    //    NSControl *con = [[NSControl alloc]init];
+    
     //NSScrollView-----------------
     [self scrollView];
     [self saveSelfAsImage];
-
-
+    
+    
     //NSView-----------------------
     [self.macOsObject view:NSMakeRect(0, 0, 100, 100) superView:self.window.contentView];
     
@@ -219,7 +219,7 @@
     //一组相关的 Radio Button 关联到同样的 action 方法即可，另外要求同一组 Radio Button 拥有相同的父视图。
     [self button:NSMakeRect(0, 150, 150, 40) superView:self.window.contentView title:@"显示NSAlert" tag:1 type:NSButtonTypeRadio];
     [self button:NSMakeRect(0, 200, 150, 40) superView:self.window.contentView title:@"显示NSPopover" tag:2 type:NSButtonTypeRadio];
-
+    
     
     //NSSegmentedControl-----------
     [self.macOsObject segmentedControl:NSMakeRect(0, 240, 200, 30) labels:@[@"232",@"423",@"432",@"3422"] target:self superView:self.window.contentView];
@@ -261,7 +261,7 @@
     
     //NSPanel----------------------
     [self pannel];
-   
+    
     //NSAlert----------------------
     [self nsAlert];
     
@@ -271,7 +271,7 @@
     [self button:NSMakeRect(250, 400, 70, 50) superView:self.window.contentView title:@"播放" tag:4 type:NSButtonTypePushOnPushOff];
     
     [self button:NSMakeRect(310, 400, 70, 50) superView:self.window.contentView title:@"暂停" tag:5 type:NSButtonTypePushOnPushOff];
- 
+    
     [self button:NSMakeRect(370, 400, 100, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:6 type:NSButtonTypePushOnPushOff];
     
     
@@ -314,8 +314,8 @@
     [fm createFileAtPath:path contents:imageData attributes:nil];
     
     //保存结束后 Finder 中自动定位到文件路径(保存后自动打开文件目录)
-//    NSURL *fileURL = [NSURL fileURLWithPath: path];
-//    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
+    //    NSURL *fileURL = [NSURL fileURLWithPath: path];
+    //    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ fileURL ]];
 }
 
 #pragma mark - NSTextField
@@ -466,6 +466,7 @@
 - (NSButton *)button:(NSRect)frame superView:(NSView *)superView title:(NSString *)title tag:(NSInteger)tag type:(NSButtonType)type{
     
     NSButton *btn = [self.macOsObject button:frame title:title tag:tag type:type target:self superView:superView];
+    btn.action = @selector(btnAction:);
     return btn;
 }
 
@@ -475,13 +476,14 @@
     if (sender.tag == 1) {
         
         [self.alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-    
+            
             NSLog(@"alert_returnCode_%ld",returnCode);
         }];
     }else if (sender.tag == 3){//打开新的窗口
         [self showNewWindow:self.tableView.window];
     }else if (sender.tag == 4){
         NSLog(@"播放开始");
+        self.player.volume = 0.1;
         [self.player play];
         [self mDefineUpControl];
         
@@ -509,18 +511,18 @@
 -(void)comboBox{
     comboBoxItemValue = @[@"1",@"e",@"3",@"4",@"23",@"1",@"9",@"rqw",@"e3",@"323"];
     NSComboBox *comBox = [[NSComboBox alloc]initWithFrame:NSMakeRect(0, 280, 200, 25)];
-//    comBox.backgroundColor = [NSColor yellowColor];
+    //    comBox.backgroundColor = [NSColor yellowColor];
     //在代理前设置usesDataSource，否则无效
     comBox.usesDataSource = YES;
     comBox.delegate = self;
     comBox.dataSource = self;//动态设置item的值
-//    comBox.completes = true;//设置这个为true来启用comboBox的自动补全功能
+    //    comBox.completes = true;//设置这个为true来启用comboBox的自动补全功能
     //设置固定的item的值，usesDataSource=YES时失效
-//    [comBox addItemsWithObjectValues:comboBoxItemValue];
+    //    [comBox addItemsWithObjectValues:comboBoxItemValue];
     [comBox selectItemAtIndex:0];
     [self.window.contentView addSubview:comBox];
-//    [comBox reloadData];
-
+    //    [comBox reloadData];
+    
 }
 
 #pragma mark comBox.dataSource
@@ -549,14 +551,14 @@
     //找出数据源中包含当前输入框中的字符的数据，提示自动补全
     NSLog(@"completedString_%@",string);
     
-//    NSString *str = comboBoxItemValue[comboBox.indexOfSelectedItem];
-//    if ([string hasPrefix:str]) {
-//        return str;
-//    }else{
-//        return string;//comboBoxItemValue[comboBox.indexOfSelectedItem];
-//
-//    }
-
+    //    NSString *str = comboBoxItemValue[comboBox.indexOfSelectedItem];
+    //    if ([string hasPrefix:str]) {
+    //        return str;
+    //    }else{
+    //        return string;//comboBoxItemValue[comboBox.indexOfSelectedItem];
+    //
+    //    }
+    
     return string;
 }
 #pragma mark comBox.delegate
@@ -602,17 +604,18 @@
     slider.numberOfTickMarks = 10;//标尺分节段数量，将无法设置线条颜色
     slider.appearance = [NSAppearance currentAppearance];
     slider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
-
+    
     slider.target = self;
     slider.action = @selector(sliderAction:);
     [superView addSubview:slider];
     
-
+    
 }
 -(void)sliderAction:(NSSlider *)sender{
-
+    
     NSLog(@"sliderValue_%ld,%f,%@",sender.integerValue,sender.floatValue,sender.stringValue);
     textField.stringValue = sender.stringValue;
+    [self.player setVolume:sender.floatValue/100];
     
     for (id control in self.window.contentView.subviews) {
         if ([control isKindOfClass:[NSProgressIndicator class]]){
@@ -639,14 +642,14 @@
     //datePicker.datePickerElements = NSYearMonthDayDatePickerElementFlag;
     //显示时钟
     //datePicker.datePickerElements = NSHourMinuteSecondDatePickerElementFlag;
-
-
+    
+    
     //背景色仅对 Graphical 样式的 NSDatePicker 有效
     datePicker.wantsLayer = YES;
     datePicker.backgroundColor = [NSColor cyanColor];
     //文字颜色仅仅对 Textual,Textual With Stepper 2种 UI 样式的 NSDatePicker 有效。
     datePicker.textColor = [NSColor blueColor];
-
+    
     datePicker.target = self;
     datePicker.action = @selector(datePickerAction:);
     [self.window.contentView addSubview:datePicker];
@@ -655,7 +658,7 @@
 -(void)datePickerAction:(NSDatePicker *)sender{
     
     NSLog(@"datePicker_%@",sender.dateValue);
-//    textField.stringValue = ]
+    //    textField.stringValue = ]
     
 }
 
@@ -672,14 +675,14 @@
     box.title = @"NSBox";
     box.titlePosition = NSAtTop;//标题位置
     box.boxType = NSBoxPrimary;
-
+    
     //设置背景色无效
-//    box.wantsLayer = YES;
-//    box.layer.backgroundColor  = [NSColor greenColor].CGColor;
+    //    box.wantsLayer = YES;
+    //    box.layer.backgroundColor  = [NSColor greenColor].CGColor;
     box.contentView.wantsLayer = YES;
     box.contentView.layer.backgroundColor = [NSColor orangeColor].CGColor;
     [self.window.contentView addSubview:box];
-  
+    
     //设置边距margin,contentView中子视图到边线的距离
     NSSize margin = NSMakeSize(20, 30);
     box.contentViewMargins = margin;
@@ -703,10 +706,10 @@
     //增加左右视图
     [splitView addSubview:view1];
     [splitView addSubview:view2];
-//    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
+    //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
     
-//    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
-//    [splitView setPosition:80 ofDividerAtIndex:0];
+    //    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
+    //    [splitView setPosition:80 ofDividerAtIndex:0];
     [self.window.contentView addSubview:splitView];
 }
 
@@ -717,18 +720,18 @@
     leftView.layer.backgroundColor = color.CGColor;
     [leftView setAutoresizesSubviews:YES];
     [self slider:NSSliderTypeLinear frame:frame superView:leftView];
-
+    
     return leftView;
 }
 
 #pragma mark - NSCollectionView
 
 - (void)collectionView{
-//    NSCollectionView *collectionView = [[NSCollectionView alloc]initWithFrame:NSMakeRect(230, 350, 250, 200)];
-//    collectionView.backgroundView.wantsLayer = YES;
-//    collectionView.backgroundView.layer.backgroundColor = [NSColor greenColor].CGColor;
-//    
-//    [self.window.contentView addSubview:collectionView];
+    //    NSCollectionView *collectionView = [[NSCollectionView alloc]initWithFrame:NSMakeRect(230, 350, 250, 200)];
+    //    collectionView.backgroundView.wantsLayer = YES;
+    //    collectionView.backgroundView.layer.backgroundColor = [NSColor greenColor].CGColor;
+    //
+    //    [self.window.contentView addSubview:collectionView];
 }
 
 #pragma mark - NSTabView
@@ -736,15 +739,15 @@
 -(void)tabView{
     NSTabView *tabView = [[NSTabView alloc]initWithFrame:NSMakeRect(0, 440, 200, 120)];
     tabView.tabViewType = NSTopTabsBezelBorder;//tab的位置
-//    tabView.tabViewItems = @[@"2",@"wew",@"re"]; 
+    //    tabView.tabViewItems = @[@"2",@"wew",@"re"];
     [tabView addTabViewItem:[self tabViewItemTitle:@"1" bColor:[NSColor redColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"2" bColor:[NSColor greenColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"3" bColor:[NSColor blueColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"4" bColor:[NSColor orangeColor]]];
     [tabView addTabViewItem:[self tabViewItemTitle:@"5" bColor:[NSColor purpleColor]]];
-
+    
     tabView.delegate = self;
-//    tabView.selectedTabViewItem = tabView.tabViewItems[1];
+    //    tabView.selectedTabViewItem = tabView.tabViewItems[1];
     [self.window.contentView addSubview:tabView];
 }
 
@@ -766,7 +769,7 @@
 #pragma mark delegate
 -(void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem{
     NSLog(@"tabViewItem_%@",tabViewItem.label);
-
+    
     if ([tabViewItem.label isEqualToString:@"2"]) {
         [self openPanel];
     }else if ([tabViewItem.label isEqualToString:@"3"]){
@@ -842,7 +845,7 @@
             }
         }
     }];
-
+    
 }
 
 
@@ -891,18 +894,18 @@
 #pragma mark - 面板： NSFontManager
 -(void)fontManager{
     NSFontManager *fontManager = [NSFontManager sharedFontManager];
-//    [fontManager setDelegate:self];
+    //    [fontManager setDelegate:self];
     [fontManager setTarget:self];
     [fontManager orderFrontFontPanel:self];
-
+    
 }
 
 
 -(void)changeFont:(id)sender{
-
+    
     NSFontManager *font = (NSFontManager *)sender;
     textField.font = [font convertFont:textField.font];
-
+    
     NSLog(@"font.size_%f,%@,%@",textField.font.pointSize,textField.font.fontName,textField.font.familyName);
 }
 
@@ -919,11 +922,11 @@
     [alert addButtonWithTitle:@"1"];
     [alert addButtonWithTitle:@"2"];
     [alert addButtonWithTitle:@"3"];
-//    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-//        
-//        NSLog(@"alert_returnCode_%ld",returnCode);
-//        
-//    }];
+    //    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+    //
+    //        NSLog(@"alert_returnCode_%ld",returnCode);
+    //
+    //    }];
     self.alert = alert;
 }
 
@@ -948,7 +951,7 @@
         [self button:NSMakeRect(10, 10, 100, 50) superView:self.tableView.window.contentView title:@"显示pop窗口" tag:0 type:NSButtonTypePushOnPushOff];
         [self toolbar];
         [_tableView viewInWindow];
-
+        
     }
     return _tableView;
 }
@@ -965,7 +968,7 @@
     //[self.secondWindow.window  orderFront:self];
     //关闭窗口
     //[self.window orderOut:self];
-
+    
 }
 
 
@@ -1012,7 +1015,7 @@
         toolbarItem.toolTip = @"保存";
         toolbarItem.image = [NSImage imageNamed:@"Save"];
         toolbarItem.tag  = 2;
-
+        
     }else{
         toolbarItem = nil;
     }
@@ -1024,7 +1027,7 @@
     //当使用标准的image/lable模式的toolbaritem时,可以嵌入一个其他的控件,这个view做为它的容器视图。
     toolbarItem.view.wantsLayer = YES;
     toolbarItem.view.layer.backgroundColor = [NSColor yellowColor].CGColor;
-
+    
     return toolbarItem;
     
 }
@@ -1034,7 +1037,7 @@
         [self.tableView insertRowAtIndex];
     }else if (sender.tag == 2){//删除一行
         [self.tableView removeRowAtIndexs:YES];
-//        [self.secondWindow selectRow];
+        //        [self.secondWindow selectRow];
     }else{
         
     }
@@ -1051,7 +1054,7 @@
     [menu insertItem:[self menuItem:@"2"] atIndex:2];
     [menu insertItem:[self menuItem:@"3"] atIndex:3];
     
-//    [self.window.contentView addSubview:menu];
+    //    [self.window.contentView addSubview:menu];
 }
 
 -(NSMenu *)myMenu{
@@ -1142,9 +1145,9 @@
             {
                 albumName = (NSString *)metadataItem.value;
             }else if ([metadataItem.commonKey isEqualToString:@"artwork"]) {
-//                NSDictionary *dict=(NSDictionary *)metadataItem.value;
-//                NSData *data=[dict objectForKey:@"data"];
-//                image=[NSImage imageWithData:data];//图片
+                //                NSDictionary *dict=(NSDictionary *)metadataItem.value;
+                //                NSData *data=[dict objectForKey:@"data"];
+                //                image=[NSImage imageWithData:data];//图片
             }
             
         }
@@ -1188,7 +1191,7 @@
         _outlineWC.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
         _outlineWC.window.title = @"outlineview";
         _outlineWC.window.backgroundColor = [NSColor whiteColor];
-
+        
         [_outlineWC viewInWindow];
         
     }
@@ -1200,3 +1203,4 @@
 
 
 @end
+
