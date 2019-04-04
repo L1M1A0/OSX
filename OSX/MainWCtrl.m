@@ -14,6 +14,14 @@
 #import "TableViewWCtrl.h"
 #import "OutlineWCtrl.h"
 
+
+
+#ifdef DEBUG
+
+#define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
+#else
+#define NSLog(format, ...)
+#endif
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate,AVAudioPlayerDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
@@ -1141,19 +1149,41 @@
         [_player play];
     }else{
         
-#warning 能够拿到本地文件了，但是播放失败
-        NSString *ur  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
-        NSString *str = [ur substringFromIndex:7];//去除file://
-        //url编码 解码
+#pragma mark 播放本地音乐
+        /*
+     
+         *参考:AVPlayer 为什么不能播放本地音乐~ http://www.cocoachina.com/bbs/read.php?tid-1743038.html
+         1.要将target->capabilities->app sandbox->network->outgoing connection(clinet)勾选
+         
+         2.如果遇到errors encountered while discovering extensions: Error Domain=PlugInKit Code=13 "query cancelled" UserInfo={NSLocalizedDescription=query cancelled}，只能加载部分文件就中断了。参考：https://my.oschina.net/rainwz/blog/2218590
+         2.1 打开 Product > Scheme > Edit Scheme，在run或者其他地方的arguments下的Enviroment Variables下添加环境变量：OS_ACTIVITY_MODE 值：disable
+         2.2 如果没法打印日志，那全局添加以下代码
+         #ifdef DEBUG
+         
+         #define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
+         #else
+         #define NSLog(format, ...)
+         #endif
+         
+        */
+
+#warning 1.未能选择子文件夹中的文件；2.需要扩展至多个格式
+        for(int i = 0; i<self.localMusics.count;i++){
+            NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:i]];
+            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
+        }
+        
+        
+        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
+        str = [str substringFromIndex:7];//去除file://
+        //url编码 解码（重要）
         NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    
-        AVPlayer *av = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:decodeURL]];
-        [av play];
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:decodeURL] error:NULL];
+        _player.delegate = self;
+        [_player play];
         
     }
-    
-
-
 }
 
 - (void)restart:(id)sender
