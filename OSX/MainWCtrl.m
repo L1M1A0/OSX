@@ -14,7 +14,7 @@
 #import "TableViewWCtrl.h"
 #import "OutlineWCtrl.h"
 
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate,AVAudioPlayerDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
@@ -35,6 +35,9 @@
 @property (nonatomic, strong) NSMenu *myMenu;
 
 @property (nonatomic, strong) AVAudioPlayer *player;
+@property (nonatomic, strong) NSArray *musicFileNames; // 这个数组中保存音频的名称
+@property (nonatomic, strong) NSMutableArray *localMusics;
+@property (nonatomic, assign) NSUInteger currentTrackIndex;
 
 @property (nonatomic, strong) NSTextView *textView;
 
@@ -484,9 +487,9 @@
     }else if (sender.tag == 4){
         NSLog(@"播放开始");
         self.player.volume = 0.1;
-        [self.player play];
-        [self mDefineUpControl];
-        
+//        [self.player play];
+//        [self mDefineUpControl];
+        [self startPlaying];
     }else if (sender.tag == 5){
         NSLog(@"播放暂停");
         [self.player pause];
@@ -825,17 +828,19 @@
     [self.window endSheet:self.panel];
 }
 
-#pragma mark - 面板：NSOpenPanel 读取电脑文件
+#pragma mark - 面板：NSOpenPanel 读取电脑文件 获取文件名，路径
 - (void)openPanel{
+    self.localMusics = [NSMutableArray array];
     NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
     openDlg.canChooseDirectories = YES;//-----“是否允许选择目录”
     openDlg.allowsMultipleSelection = YES;//--“是否允许多选”
-    openDlg.allowedFileTypes = @[@"txt"];//---“允许的文件名后缀”
+    openDlg.allowedFileTypes = @[@"mp3"];//---“允许的文件名后缀”
     //openDlg.URL = @"";////“保存用户选择的文件/文件夹路径path”
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
         if(result==NSFileHandlingPanelOKButton){
             NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
+            [_localMusics addObjectsFromArray:fileURLs];
             for(NSURL *url in fileURLs) {
                 NSError *error;
                 NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
@@ -843,6 +848,7 @@
                     textField.stringValue = string;
                 }
             }
+            NSLog(@"获取本地文件的路径：%@",fileURLs);
         }
     }];
     
@@ -1078,8 +1084,6 @@
 
 
 #pragma mark - 音乐
-
-
 -(void)musicPlayer{
     
     //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
@@ -1100,31 +1104,84 @@
     [self.player setVolume:0.5];
     // 5 准备播放
     [self.player prepareToPlay];
+    
+    self.musicFileNames = @[@"松本晃彦 - 栄の活躍",@"吉田潔 - Potu",@"吉田潔 - Private Moon",@"吉田潔 - はるかな旅"];
+    self.currentTrackIndex = 0;
 }
 
 
+
+
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
+{
+    //切歌
+    if (flag) {
+        if (self.localMusics == nil || self.localMusics.count == 0) {
+            if (self.currentTrackIndex < [self.musicFileNames count] - 1) {
+                self.currentTrackIndex ++;
+                [self startPlaying];
+            }
+        }else{
+            if (self.currentTrackIndex < [self.localMusics count] - 1) {
+                self.currentTrackIndex ++;
+                [self startPlaying];
+            }
+        }
+        
+    
+    }
+}
+
+//开始播放
+- (void)startPlaying{
+
+    if (self.localMusics == nil || self.localMusics.count == 0) {
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicFileNames  objectAtIndex:self.currentTrackIndex]] ofType:@"mp3"]] error:NULL];
+        _player.delegate = self;
+        [_player play];
+    }else{
+        
+#warning 能够拿到本地文件了，但是播放失败
+        NSString *ur  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
+        NSString *str = [ur substringFromIndex:7];//去除file://
+        //url编码 解码
+        NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+        AVPlayer *av = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:decodeURL]];
+        [av play];
+        
+    }
+    
+
+
+}
+
+- (void)restart:(id)sender
+{
+//    [[AFSoundManager sharedManager] restart];
+//    _player = nil;
+//    currentTrackNumber = 0;
+//    [self startPlaying];
+}
+
+#pragma mark 获取音频文件的元数据 ID3
 /**
  获取音频文件的元数据 ID3
  */
 -(void)mDefineUpControl{
     NSString *filePath = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];//[self.wMp3URL objectAtIndex: 0 ];//随便取一个，说明
     //文件管理，取得文件属性
-    
     NSFileManager *fm = [NSFileManager defaultManager];
     NSDictionary *dictAtt = [fm attributesOfItemAtPath:filePath error:nil];
     
     
     //取得音频数据
-    
     NSURL *fileURL=[NSURL fileURLWithPath:filePath];
     AVURLAsset *mp3Asset=[AVURLAsset URLAssetWithURL:fileURL options:nil];
     
-    
     NSString *singer;//歌手
     NSString *song;//歌曲名
-    
     NSImage *songImage;//图片
-    
     NSString *albumName;//专辑名
     NSString *fileSize;//文件大小
     NSString *voiceStyle;//音质类型
@@ -1178,9 +1235,8 @@
         [mstr appendString:[NSString stringWithFormat:@"%@%@\n",strTitle,strInfo]];
     }
     textField.stringValue = [mstr copy];
-    
-    
 }
+
 
 #pragma mark - NSWindowController &  NSOutlineView - 新窗口
 -(OutlineWCtrl *)outlineWC{
