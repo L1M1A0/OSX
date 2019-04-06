@@ -1137,27 +1137,27 @@
     NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
     self.localMusics = [NSMutableArray array];
     //遍历文件夹，包括子文件夹中的文件。直至遍历完所有文件。此处嵌套了10层，嵌套层级越深，获取的目录层级越深。
-    [self enumerateAudionList:sourcePath folder:@"" block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+    [self enumerateAudio:sourcePath folder:@"" block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
         if (isFolder == YES) {
-            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                 if (isFolder == YES) {
-                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                         if (isFolder == YES) {
-                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                 if (isFolder == YES) {
-                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                         if (isFolder == YES) {
-                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                 if (isFolder == YES) {
-                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                         if (isFolder == YES) {
-                                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                                 if (isFolder == YES) {
-                                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                                         if (isFolder == YES) {
-                                                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                                                 if (isFolder == YES) {
-                                                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
                                                                                         if (isFolder == YES) {
                                                                                             
                                                                                         }
@@ -1193,7 +1193,9 @@
 }
 
 
--(void)enumerateAudionList:(NSString *)basePath folder:(NSString *)folder block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
+-(void)enumerateAudio:(NSString *)basePath folder:(NSString *)folder block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
+    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
+
     NSFileManager *fileManager = [NSFileManager defaultManager] ;
     NSString *newPath = [NSString stringWithFormat:@"%@/%@",basePath,folder];
     NSArray  *newDirs = [fileManager contentsOfDirectoryAtPath:newPath error:NULL];
