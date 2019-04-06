@@ -22,6 +22,8 @@
 #else
 #define NSLog(format, ...)
 #endif
+
+
 @interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate,AVAudioPlayerDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
@@ -46,10 +48,12 @@
 @property (nonatomic, strong) NSArray *musicFileNames; // 这个数组中保存音频的名称
 @property (nonatomic, strong) NSMutableArray *localMusics;
 @property (nonatomic, assign) NSUInteger currentTrackIndex;
+@property (nonatomic, copy) NSString *localMusicBasePath;
 
 @property (nonatomic, strong) NSTextView *textView;
 
 @property (nonatomic, strong) OutlineWCtrl *outlineWC;
+
 @end
 
 @implementation MainWCtrl
@@ -495,6 +499,7 @@
     }else if (sender.tag == 4){
         NSLog(@"播放开始");
         self.player.volume = 0.1;
+        self.currentTrackIndex = 0;//重头播放
 //        [self.player play];
 //        [self mDefineUpControl];
         [self startPlaying];
@@ -843,7 +848,8 @@
     openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
     openDlg.canChooseDirectories = YES;//-----“是否允许选择目录”
     openDlg.allowsMultipleSelection = YES;//--“是否允许多选”
-    openDlg.allowedFileTypes = @[@"mp3"];//---“允许的文件名后缀”
+    openDlg.allowedFileTypes = @[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"ape",@"ogg",@"alac"];//---“允许的文件名后缀”
+    openDlg.treatsFilePackagesAsDirectories = YES;
     //openDlg.URL = @"";////“保存用户选择的文件/文件夹路径path”
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
         if(result==NSFileHandlingPanelOKButton){
@@ -856,7 +862,12 @@
                     textField.stringValue = string;
                 }
             }
-            NSLog(@"获取本地文件的路径：%@",fileURLs);
+            
+            self.localMusicBasePath = [fileURLs.firstObject path];
+            [self loacalMusicInPath];//更新列表
+
+//            NSFileManager
+            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,self.localMusicBasePath);
         }
     }];
     
@@ -916,11 +927,9 @@
 
 
 -(void)changeFont:(id)sender{
-    
     NSFontManager *font = (NSFontManager *)sender;
     textField.font = [font convertFont:textField.font];
-    
-    NSLog(@"font.size_%f,%@,%@",textField.font.pointSize,textField.font.fontName,textField.font.familyName);
+    NSLog(@"font_%f,%@,%@",textField.font.pointSize,textField.font.fontName,textField.font.familyName);
 }
 
 
@@ -1115,9 +1124,91 @@
     
     self.musicFileNames = @[@"松本晃彦 - 栄の活躍",@"吉田潔 - Potu",@"吉田潔 - Private Moon",@"吉田潔 - はるかな旅"];
     self.currentTrackIndex = 0;
+    [self loacalMusicInPath];
 }
 
 
+/**
+ 通过路径 获取本地音乐（实现获取子文件中的文件）
+ */
+-(void)loacalMusicInPath{
+    
+    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
+    NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
+    self.localMusics = [NSMutableArray array];
+    //遍历文件夹，包括子文件夹中的文件。直至遍历完所有文件。此处嵌套了10层，嵌套层级越深，获取的目录层级越深。
+    [self enumerateAudionList:sourcePath folder:@"" block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+        if (isFolder == YES) {
+            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                if (isFolder == YES) {
+                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                        if (isFolder == YES) {
+                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                if (isFolder == YES) {
+                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                        if (isFolder == YES) {
+                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                if (isFolder == YES) {
+                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                        if (isFolder == YES) {
+                                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                if (isFolder == YES) {
+                                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                        if (isFolder == YES) {
+                                                                            [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                                if (isFolder == YES) {
+                                                                                    [self enumerateAudionList:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
+                                                                                        if (isFolder == YES) {
+                                                                                            
+                                                                                        }
+                                                                                    }];
+                                                                                }
+                                                                            }];
+                                                                        }
+                                                                    }];
+                                                                }
+                                                            }];
+                                                        }
+                                                    }];
+                                                }
+                                            }];
+                                        }
+                                    }];
+                                }
+                            }];
+                        }
+                    }];
+                }
+            }];
+        }
+    }];
+}
+
+-(BOOL)isAudioFormat:(NSString *)format{
+    if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"]) {
+        return YES;
+    }else{
+        return NO;
+    }
+}
+
+
+-(void)enumerateAudionList:(NSString *)basePath folder:(NSString *)folder block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
+    NSFileManager *fileManager = [NSFileManager defaultManager] ;
+    NSString *newPath = [NSString stringWithFormat:@"%@/%@",basePath,folder];
+    NSArray  *newDirs = [fileManager contentsOfDirectoryAtPath:newPath error:NULL];
+    [newDirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSString *filename = (NSString *)obj;
+        NSString *extension = [[filename pathExtension] lowercaseString];//文件格式
+        if ([self isAudioFormat:extension]  == YES) {
+            //拼接路径
+            [self.localMusics addObject:[newPath stringByAppendingPathComponent:filename]];
+        }else if(extension.length == 0){
+            //如果是文件夹，那就继续遍历子文件夹中的
+            block(YES,newPath,obj);
+        }
+    }];
+}
 
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
@@ -1135,8 +1226,6 @@
                 [self startPlaying];
             }
         }
-        
-    
     }
 }
 
@@ -1167,16 +1256,17 @@
          
         */
 
-#warning 1.未能选择子文件夹中的文件；2.需要扩展至多个格式
-        for(int i = 0; i<self.localMusics.count;i++){
-            NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:i]];
-            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
+//        for(int i = 0; i<self.localMusics.count;i++){
+//            NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:i]];
+//            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+//            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
+//        }
+        NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
+        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
+        if([str containsString:@"file://"]){
+            str = [str substringFromIndex:7];//去除file://
         }
         
-        
-        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
-        str = [str substringFromIndex:7];//去除file://
         //url编码 解码（重要）
         NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:decodeURL] error:NULL];

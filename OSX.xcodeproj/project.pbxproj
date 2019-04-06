@@ -44,8 +44,6 @@
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 		05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */; };
-		05E7CF3122566578008071C8 /* 吉田潔 - はるかな旅.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2E22566578008071C8 /* 吉田潔 - はるかな旅.mp3 */; };
-		05E7CF3222566578008071C8 /* 吉田潔 - Potu.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2F22566578008071C8 /* 吉田潔 - Potu.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,8 +115,6 @@
 		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 		05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - Private Moon.mp3"; sourceTree = "<group>"; };
-		05E7CF2E22566578008071C8 /* 吉田潔 - はるかな旅.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - はるかな旅.mp3"; sourceTree = "<group>"; };
-		05E7CF2F22566578008071C8 /* 吉田潔 - Potu.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - Potu.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,9 +183,7 @@
 			children = (
 				05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */,
 				05BCD493205A589F00068210 /* arrow_gray_down.png */,
-				05E7CF2F22566578008071C8 /* 吉田潔 - Potu.mp3 */,
 				05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */,
-				05E7CF2E22566578008071C8 /* 吉田潔 - はるかな旅.mp3 */,
 				05BCD494205A589F00068210 /* arrow_gray_right.png */,
 				05A2DA142056565300B539E4 /* screen.jpg */,
 				050EFCE21EF12C0900172269 /* Save.png */,
@@ -343,9 +337,7 @@
 				050EFCE41EF12C0900172269 /* Save.png in Resources */,
 				05A2DA152056565400B539E4 /* screen.jpg in Resources */,
 				05BCD495205A58A000068210 /* arrow_gray_down.png in Resources */,
-				05E7CF3122566578008071C8 /* 吉田潔 - はるかな旅.mp3 in Resources */,
 				05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */,
-				05E7CF3222566578008071C8 /* 吉田潔 - Potu.mp3 in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
 				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
 				0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */,
