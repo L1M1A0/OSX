@@ -23,13 +23,14 @@
 }
 
 -(void)loadView{
+//    self.title = @"NSPopover";
     NSView *view = [[NSView alloc]initWithFrame:NSMakeRect(0, 0, 300, 300)];
     view.wantsLayer = YES;
     view.layer.backgroundColor = [NSColor redColor].CGColor;
     self.view = view;
    
     NSButton *btn = [[NSButton alloc]initWithFrame:CGRectMake(50, 50, 200, 100)];
-    btn.title = @"anniu";
+    btn.title = @"NSPopover";
     btn.wantsLayer = YES;
     btn.layer.backgroundColor = [NSColor yellowColor].CGColor;
     btn.target = self;

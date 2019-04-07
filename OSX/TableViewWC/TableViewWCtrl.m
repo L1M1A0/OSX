@@ -108,10 +108,10 @@
     [self.window.contentView addSubview:self.tableViewScrollView];
     //使用Masony做Autolayout布局设置
     [self.tableViewScrollView  mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.window.contentView.mas_top).with.offset(0);
+        make.top.equalTo(self.window.contentView.mas_top).with.offset(10);
         make.bottom.equalTo(self.window.contentView.mas_bottom).with.offset(-50);
-        make.left.equalTo(self.window.contentView.mas_left).with.offset(0);
-        make.right.equalTo(self.window.contentView.mas_right).with.offset(0);
+        make.left.equalTo(self.window.contentView.mas_left).with.offset(20);
+        make.right.equalTo(self.window.contentView.mas_right).with.offset(-50);
     }];
     
     

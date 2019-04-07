@@ -13,6 +13,7 @@
 #import "PopoverVCtrl.h"
 #import "TableViewWCtrl.h"
 #import "OutlineWCtrl.h"
+#import "ZBPlayer.h"
 
 
 
@@ -39,8 +40,7 @@
 @property (nonatomic, strong) NSPanel *panel;
 /** <#Description#> */
 @property (nonatomic, strong) NSAlert *alert;
-/** <#Description#> */
-@property (nonatomic, strong) TableViewWCtrl *tableView;
+
 /** <#Description#> */
 @property (nonatomic, strong) NSMenu *myMenu;
 
@@ -50,8 +50,12 @@
 @property (nonatomic, assign) NSUInteger currentTrackIndex;
 @property (nonatomic, copy) NSString *localMusicBasePath;
 
+@property (nonatomic, strong) ZBPlayer *zbPlayer;
+
 @property (nonatomic, strong) NSTextView *textView;
 
+/** <#Description#> */
+@property (nonatomic, strong) TableViewWCtrl *tableView;
 @property (nonatomic, strong) OutlineWCtrl *outlineWC;
 
 @end
@@ -288,7 +292,8 @@
     [self button:NSMakeRect(310, 400, 70, 50) superView:self.window.contentView title:@"暂停" tag:5 type:NSButtonTypePushOnPushOff];
     
     [self button:NSMakeRect(370, 400, 100, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:6 type:NSButtonTypePushOnPushOff];
-    
+    [self button:NSMakeRect(250, 420, 100, 50) superView:self.window.contentView title:@"ZBPlayer" tag:7 type:NSButtonTypePushOnPushOff];
+
     
 }
 
@@ -485,7 +490,7 @@
     return btn;
 }
 
-#pragma mark NSButton action
+#pragma mark NSButton action 按钮响应方法集合
 -(void)btnAction:(NSButton *)sender{
     NSLog(@"点击了按钮_%@,%@,%ld",sender.title,sender.stringValue,sender.tag);
     if (sender.tag == 1) {
@@ -507,9 +512,12 @@
         NSLog(@"播放暂停");
         [self.player pause];
     }else if (sender.tag == 6){
+        //显示节点列表 窗口
         [self showNewWindow:self.outlineWC.window];
+    }else if (sender.tag == 7){
+        //显示ZBPlayer 播放器 综合学习
+        [self showNewWindow:self.zbPlayer.window];
     }
-    
     else{
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
     }
@@ -959,40 +967,6 @@
 
 
 
-#pragma mark - NSWindowController & NSTableView - 新窗口
-
--(TableViewWCtrl *)tableView{
-    if(!_tableView){
-        
-        _tableView = [[TableViewWCtrl alloc]init];
-        NSRect frame = NSMakeRect(0,0,500,500);
-        NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-        _tableView.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
-        _tableView.window.title = @"新窗口";
-        _tableView.window.backgroundColor = [NSColor orangeColor];
-        
-        [self button:NSMakeRect(10, 10, 100, 50) superView:self.tableView.window.contentView title:@"显示pop窗口" tag:0 type:NSButtonTypePushOnPushOff];
-        [self toolbar];
-        [_tableView viewInWindow];
-        
-    }
-    return _tableView;
-}
-
--(void)showNewWindow:(NSWindow*)window{
-    //窗口显示
-    [window makeKeyAndOrderFront:self];
-    //窗口居中
-    [window center];
-    
-    //[self.secondWindow.window canBecomeMainWindow];
-    //[self.secondWindow.window makeKeyWindow];
-    
-    //[self.secondWindow.window  orderFront:self];
-    //关闭窗口
-    //[self.window orderOut:self];
-    
-}
 
 
 #pragma mark - NSToolbar
@@ -1359,24 +1333,63 @@
     textField.stringValue = [mstr copy];
 }
 
+#pragma mark - NSWindowController &  ZBPlayer - 新窗口
+-(ZBPlayer *)zbPlayer{
+    if(!_zbPlayer){
+        _zbPlayer= [[ZBPlayer alloc]init];
+        _zbPlayer.window = [self window:NSMakeRect(0,0,500,500) title:@"ZBPlayer" bgColor:[NSColor whiteColor]];
+        [_zbPlayer viewInWindow];
+    }
+    return _zbPlayer;
+}
+
+
 
 #pragma mark - NSWindowController &  NSOutlineView - 新窗口
 -(OutlineWCtrl *)outlineWC{
     if(!_outlineWC){
         _outlineWC= [[OutlineWCtrl alloc]init];
-        NSRect frame = NSMakeRect(0,0,500,500);
-        NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-        _outlineWC.window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
-        _outlineWC.window.title = @"outlineview";
-        _outlineWC.window.backgroundColor = [NSColor whiteColor];
-        
+        _outlineWC.window = [self window:NSMakeRect(0,0,500,500) title:@"outlineview" bgColor:[NSColor redColor]];
         [_outlineWC viewInWindow];
-        
     }
-    
     return _outlineWC;
 }
+#pragma mark - NSWindowController & NSTableView - 新窗口
 
+-(TableViewWCtrl *)tableView{
+    if(!_tableView){
+        _tableView = [[TableViewWCtrl alloc]init];
+        _tableView.window = [self window:NSMakeRect(0,0,500,500) title:@"表格视图" bgColor:[NSColor orangeColor]];
+        
+        [self button:NSMakeRect(10, 10, 100, 50) superView:self.tableView.window.contentView title:@"显示pop窗口" tag:0 type:NSButtonTypePushOnPushOff];
+        [self toolbar];
+        [_tableView viewInWindow];
+    }
+    return _tableView;
+}
+
+
+-(NSWindow *)window:(NSRect)frame title:(NSString *)title bgColor:(NSColor *)bgColor{
+    //    NSRect frame = NSMakeRect(0,0,500,500);
+    NSUInteger style =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+    NSWindow *window = [[NSWindow alloc]initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:YES];
+    window.title = title;
+    window.backgroundColor = bgColor;
+    return window;
+}
+-(void)showNewWindow:(NSWindow*)window{
+    //窗口显示
+    [window makeKeyAndOrderFront:self];
+    //窗口居中
+    [window center];
+    
+    //[self.secondWindow.window canBecomeMainWindow];
+    //[self.secondWindow.window makeKeyWindow];
+    
+    //[self.secondWindow.window  orderFront:self];
+    //关闭窗口
+    //[self.window orderOut:self];
+}
 
 
 

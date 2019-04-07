@@ -6,32 +6,14 @@
 //  Copyright © 2018年 李振彪. All rights reserved.
 //
 
+//层级列表，可收起和展开
+
 #import "OutlineWCtrl.h"
 #import "Masonry.h"
 #import "OutlineTableRowView.h"
 #import "OutlineTableRowView2.h"
 #import "OutlineIndexModel.h"
 
-//@interface TreeNodeModel : NSObject
-//
-//@property(nonatomic,strong) NSString *name;
-//@property(nonatomic,strong) NSMutableArray *childNodes;
-//@property (nonatomic, assign) BOOL isExpand;
-//@property (nonatomic, assign) NSInteger nodeLevel;
-//
-//@end
-//
-//@implementation TreeNodeModel
-//-(instancetype)init{
-//    if(self = [super init]){
-//        self.name = @"";
-//        self.childNodes = [NSMutableArray array];
-//        self.isExpand = NO;
-//    }
-//    return self;
-//}
-//
-//@end
 
 #define itemNode(superNode,currentNode,index)
 
@@ -57,17 +39,19 @@
 
 -(void)viewInWindow{
 
-    
     [self initData];
 
     self.outlineView = [[NSOutlineView alloc]initWithFrame:NSMakeRect(0, 0, 0, 0)];
-//    self.outlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
-    self.outlineView.wantsLayer = YES;
-    self.outlineView.backgroundColor = [NSColor purpleColor];
     self.outlineView.delegate = self;
     self.outlineView.dataSource = self;
+    self.outlineView.wantsLayer = YES;
+    self.outlineView.backgroundColor = [NSColor purpleColor];
+//    self.outlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
 //    [self.window.contentView addSubview:self.outlineView];
-    
+//    self.outlineView.outlineTableColumn.hidden = YES;
+    NSTableColumn *column1=[[NSTableColumn alloc]initWithIdentifier:@"name"];
+    column1.title = @"可创建一个空的，不创建的话，内容会跑到bar底下";
+    [self.outlineView addTableColumn:column1];
     
     _tableViewScrollView = [[NSScrollView alloc] init];
     [_tableViewScrollView setHasVerticalScroller:NO];
@@ -77,18 +61,17 @@
     [_tableViewScrollView setBorderType:NSBezelBorder];
     [_tableViewScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
     [self.tableViewScrollView setDocumentView:self.outlineView];
-    
     [self.window.contentView addSubview:self.tableViewScrollView];
+    
     //使用Masony做Autolayout布局设置
     [self.tableViewScrollView  mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.window.contentView.mas_top).with.offset(0);
+        make.top.equalTo(self.window.contentView.mas_top).with.offset(50);
         make.bottom.equalTo(self.window.contentView.mas_bottom).with.offset(-50);
-        make.left.equalTo(self.window.contentView.mas_left).with.offset(0);
-        make.right.equalTo(self.window.contentView.mas_right).with.offset(0);
+        make.left.equalTo(self.window.contentView.mas_left).with.offset(50);
+        make.right.equalTo(self.window.contentView.mas_right).with.offset(-50);
     }];
     
     [self.outlineView reloadData];
-    
     [self btn:NSMakeRect(20, 0, 60, 50) title:@"增加" tag:0];
     [self btn:NSMakeRect(80, 0, 60, 50) title:@"移除" tag:0];
 
