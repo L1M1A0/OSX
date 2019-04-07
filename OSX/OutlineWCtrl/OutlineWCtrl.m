@@ -273,7 +273,7 @@
     TreeNodeModel *childItemInMainItem = (TreeNodeModel *)[treeView child:childIndexForItem ofItem:parent];
 
     
-    //为完成，位置计算逻辑错误，无法完成两层级以上计算
+    //未完成，位置计算逻辑错误，无法完成两层级以上计算
     OutlineIndexModel *childIndexModel = [[OutlineIndexModel alloc]init];
     childIndexModel.level = levelForItem;
     childIndexModel.index = childIndexForItem;//

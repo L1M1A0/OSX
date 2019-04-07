@@ -45,6 +45,8 @@
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 		05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */; };
+		05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */; };
+		05EFBBFD225A4509003F58A4 /* ZBPlayerRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +120,10 @@
 		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 		05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - Private Moon.mp3"; sourceTree = "<group>"; };
+		05EFBBF8225A44E5003F58A4 /* ZBPlayerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerSection.h; sourceTree = "<group>"; };
+		05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerSection.m; sourceTree = "<group>"; };
+		05EFBBFB225A4509003F58A4 /* ZBPlayerRow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerRow.h; sourceTree = "<group>"; };
+		05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerRow.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +193,10 @@
 			children = (
 				053B533022599D2D00AA82C6 /* ZBPlayer.h */,
 				053B533122599D2D00AA82C6 /* ZBPlayer.m */,
+				05EFBBF8225A44E5003F58A4 /* ZBPlayerSection.h */,
+				05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */,
+				05EFBBFB225A4509003F58A4 /* ZBPlayerRow.h */,
+				05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -374,6 +384,7 @@
 				05B55881202856E1005F7A20 /* MASViewAttribute.m in Sources */,
 				05BCD492205926E600068210 /* OutlineTableRowView2.m in Sources */,
 				052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */,
+				05EFBBFD225A4509003F58A4 /* ZBPlayerRow.m in Sources */,
 				05B55880202856E1005F7A20 /* MASViewConstraint.m in Sources */,
 				0522D8341ED587CE00D4671F /* main.m in Sources */,
 				053B533222599D2D00AA82C6 /* ZBPlayer.m in Sources */,
@@ -388,6 +399,7 @@
 				05B5587A202856E1005F7A20 /* MASCompositeConstraint.m in Sources */,
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
 				05B55879202856E1005F7A20 /* ViewController+MASAdditions.m in Sources */,
+				05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */,
 				052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */,
 				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 				05BCD48F2059237000068210 /* TreeNodeModel.m in Sources */,

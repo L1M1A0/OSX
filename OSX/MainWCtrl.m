@@ -25,7 +25,7 @@
 #endif
 
 
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate,AVAudioPlayerDelegate>{
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
@@ -44,11 +44,6 @@
 /** <#Description#> */
 @property (nonatomic, strong) NSMenu *myMenu;
 
-@property (nonatomic, strong) AVAudioPlayer *player;
-@property (nonatomic, strong) NSArray *musicFileNames; // 这个数组中保存音频的名称
-@property (nonatomic, strong) NSMutableArray *localMusics;
-@property (nonatomic, assign) NSUInteger currentTrackIndex;
-@property (nonatomic, copy) NSString *localMusicBasePath;
 
 @property (nonatomic, strong) ZBPlayer *zbPlayer;
 
@@ -82,7 +77,6 @@
     [self addButtonToTitleBar];
     [self noticeWindowActiveStatuChange];
     [self addViewToWindow];
-    [self musicPlayer];
     
     
 }
@@ -287,12 +281,9 @@
     //-----------------------------New Window-------------------
     [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView title:@"新窗口显示tableview" tag:3 type:NSButtonTypePushOnPushOff];
     
-    [self button:NSMakeRect(250, 400, 70, 50) superView:self.window.contentView title:@"播放" tag:4 type:NSButtonTypePushOnPushOff];
-    
-    [self button:NSMakeRect(310, 400, 70, 50) superView:self.window.contentView title:@"暂停" tag:5 type:NSButtonTypePushOnPushOff];
-    
-    [self button:NSMakeRect(370, 400, 100, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:6 type:NSButtonTypePushOnPushOff];
-    [self button:NSMakeRect(250, 420, 100, 50) superView:self.window.contentView title:@"ZBPlayer" tag:7 type:NSButtonTypePushOnPushOff];
+    [self button:NSMakeRect(250, 400, 70, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:4 type:NSButtonTypePushOnPushOff];
+
+    [self button:NSMakeRect(250, 420, 100, 50) superView:self.window.contentView title:@"ZBPlayer" tag:5 type:NSButtonTypePushOnPushOff];
 
     
 }
@@ -502,19 +493,9 @@
     }else if (sender.tag == 3){//打开新的窗口
         [self showNewWindow:self.tableView.window];
     }else if (sender.tag == 4){
-        NSLog(@"播放开始");
-        self.player.volume = 0.1;
-        self.currentTrackIndex = 0;//重头播放
-//        [self.player play];
-//        [self mDefineUpControl];
-        [self startPlaying];
-    }else if (sender.tag == 5){
-        NSLog(@"播放暂停");
-        [self.player pause];
-    }else if (sender.tag == 6){
         //显示节点列表 窗口
         [self showNewWindow:self.outlineWC.window];
-    }else if (sender.tag == 7){
+    }else if (sender.tag == 5){
         //显示ZBPlayer 播放器 综合学习
         [self showNewWindow:self.zbPlayer.window];
     }
@@ -639,7 +620,6 @@
     
     NSLog(@"sliderValue_%ld,%f,%@",sender.integerValue,sender.floatValue,sender.stringValue);
     textField.stringValue = sender.stringValue;
-    [self.player setVolume:sender.floatValue/100];
     
     for (id control in self.window.contentView.subviews) {
         if ([control isKindOfClass:[NSProgressIndicator class]]){
@@ -722,14 +702,17 @@
     splitView.layer.backgroundColor = [NSColor redColor].CGColor;
     
     //view1.frame.size.width-20
-    NSRect rect1 = NSMakeRect(30, 30,100 , 50);
+    NSRect rect1 = NSMakeRect(30, 30,50 , 50);
     NSRect rect2 = NSMakeRect(30, 30,100 , 50);
     NSView *view1 = [self viewForSplitView:[NSColor greenColor] frame:rect1];
     NSView *view2 = [self viewForSplitView:[NSColor blueColor]  frame:rect2];
-    
+    NSView *view3 = [self viewForSplitView:[NSColor yellowColor]  frame:rect2];
+
     //增加左右视图
     [splitView addSubview:view1];
     [splitView addSubview:view2];
+    [splitView addSubview:view3];
+
     //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
     
     //    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
@@ -851,7 +834,6 @@
 
 #pragma mark - 面板：NSOpenPanel 读取电脑文件 获取文件名，路径
 - (void)openPanel{
-    self.localMusics = [NSMutableArray array];
     NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
     openDlg.canChooseDirectories = YES;//-----“是否允许选择目录”
@@ -862,7 +844,6 @@
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
         if(result==NSFileHandlingPanelOKButton){
             NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
-            [_localMusics addObjectsFromArray:fileURLs];
             for(NSURL *url in fileURLs) {
                 NSError *error;
                 NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
@@ -871,11 +852,10 @@
                 }
             }
             
-            self.localMusicBasePath = [fileURLs.firstObject path];
-            [self loacalMusicInPath];//更新列表
+            NSString *pa = [fileURLs.firstObject path];
 
 //            NSFileManager
-            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,self.localMusicBasePath);
+            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,pa);
         }
     }];
     
@@ -970,7 +950,8 @@
 
 
 #pragma mark - NSToolbar
-- (void)toolbar{
+- (NSToolbar *)toolbar{
+    //Toolbar 和左上角控制窗口关闭、最小化和全屏的三个按钮在同一行，这个特性需要10.10及以上的系统。
     NSToolbar *toolbar = [[NSToolbar alloc]initWithIdentifier:@"newWindowToolbar"];
     toolbar.visible = YES;
     toolbar.sizeMode = NSToolbarSizeModeRegular;
@@ -978,10 +959,7 @@
     toolbar.autosavesConfiguration = NO;
     toolbar.displayMode = NSToolbarDisplayModeIconAndLabel;
     toolbar.delegate = self;
-    self.tableView.window.toolbar = toolbar;
-    
-    //Toolbar 和左上角控制窗口关闭、最小化和全屏的三个按钮在同一行，这个特性需要10.10及以上的系统。
-    self.tableView.window.titleVisibility =  NSWindowTitleHidden;
+    return toolbar;
 }
 
 
@@ -1073,271 +1051,11 @@
 }
 
 
-
-#pragma mark - 音乐
--(void)musicPlayer{
-    
-    //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
-    //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
-    //    self.player = [[AVPlayer alloc]initWithURL:[NSURL URLWithString:@"/Users/vae/Documents/GitHub/OSX/OSX/松本晃彦 - 栄の活躍.mp3"]];
-    // 1 初始化播放器需要指定音乐文件的路径
-    NSString *path = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];
-    // 2 将路径字符串转换成url，从本地读取文件，需要使用fileURL
-    NSURL *url = [NSURL fileURLWithPath:path];
-    // 3 初始化音频播放器
-    self.player = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:nil];
-    // 4 设置循环播放
-    // 设置循环播放的次数
-    // 循环次数=0，声音会播放一次
-    // 循环次数=1，声音会播放2次
-    // 循环次数小于0，会无限循环播放
-    [self.player setNumberOfLoops:-1];
-    [self.player setVolume:0.5];
-    // 5 准备播放
-    [self.player prepareToPlay];
-    
-    self.musicFileNames = @[@"松本晃彦 - 栄の活躍",@"吉田潔 - Potu",@"吉田潔 - Private Moon",@"吉田潔 - はるかな旅"];
-    self.currentTrackIndex = 0;
-    [self loacalMusicInPath];
-}
-
-
-/**
- 通过路径 获取本地音乐（实现获取子文件中的文件）
- */
--(void)loacalMusicInPath{
-    
-    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
-    NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
-    self.localMusics = [NSMutableArray array];
-    //遍历文件夹，包括子文件夹中的文件。直至遍历完所有文件。此处嵌套了10层，嵌套层级越深，获取的目录层级越深。
-    [self enumerateAudio:sourcePath folder:@"" block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-        if (isFolder == YES) {
-            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                if (isFolder == YES) {
-                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                        if (isFolder == YES) {
-                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                if (isFolder == YES) {
-                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                        if (isFolder == YES) {
-                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                if (isFolder == YES) {
-                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                        if (isFolder == YES) {
-                                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                if (isFolder == YES) {
-                                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                        if (isFolder == YES) {
-                                                                            [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                                if (isFolder == YES) {
-                                                                                    [self enumerateAudio:basePath folder:folder block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                                        if (isFolder == YES) {
-                                                                                            
-                                                                                        }
-                                                                                    }];
-                                                                                }
-                                                                            }];
-                                                                        }
-                                                                    }];
-                                                                }
-                                                            }];
-                                                        }
-                                                    }];
-                                                }
-                                            }];
-                                        }
-                                    }];
-                                }
-                            }];
-                        }
-                    }];
-                }
-            }];
-        }
-    }];
-}
-
--(BOOL)isAudioFormat:(NSString *)format{
-    if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"]) {
-        return YES;
-    }else{
-        return NO;
-    }
-}
-
-
--(void)enumerateAudio:(NSString *)basePath folder:(NSString *)folder block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
-    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
-
-    NSFileManager *fileManager = [NSFileManager defaultManager] ;
-    NSString *newPath = [NSString stringWithFormat:@"%@/%@",basePath,folder];
-    NSArray  *newDirs = [fileManager contentsOfDirectoryAtPath:newPath error:NULL];
-    [newDirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *filename = (NSString *)obj;
-        NSString *extension = [[filename pathExtension] lowercaseString];//文件格式
-        if ([self isAudioFormat:extension]  == YES) {
-            //拼接路径
-            [self.localMusics addObject:[newPath stringByAppendingPathComponent:filename]];
-        }else if(extension.length == 0){
-            //如果是文件夹，那就继续遍历子文件夹中的
-            block(YES,newPath,obj);
-        }
-    }];
-}
-
-
-- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
-{
-    //切歌
-    if (flag) {
-        if (self.localMusics == nil || self.localMusics.count == 0) {
-            if (self.currentTrackIndex < [self.musicFileNames count] - 1) {
-                self.currentTrackIndex ++;
-                [self startPlaying];
-            }
-        }else{
-            if (self.currentTrackIndex < [self.localMusics count] - 1) {
-                self.currentTrackIndex ++;
-                [self startPlaying];
-            }
-        }
-    }
-}
-
-//开始播放
-- (void)startPlaying{
-
-    if (self.localMusics == nil || self.localMusics.count == 0) {
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicFileNames  objectAtIndex:self.currentTrackIndex]] ofType:@"mp3"]] error:NULL];
-        _player.delegate = self;
-        [_player play];
-    }else{
-        
-#pragma mark 播放本地音乐
-        /*
-     
-         *参考:AVPlayer 为什么不能播放本地音乐~ http://www.cocoachina.com/bbs/read.php?tid-1743038.html
-         1.要将target->capabilities->app sandbox->network->outgoing connection(clinet)勾选
-         
-         2.如果遇到errors encountered while discovering extensions: Error Domain=PlugInKit Code=13 "query cancelled" UserInfo={NSLocalizedDescription=query cancelled}，只能加载部分文件就中断了。参考：https://my.oschina.net/rainwz/blog/2218590
-         2.1 打开 Product > Scheme > Edit Scheme，在run或者其他地方的arguments下的Enviroment Variables下添加环境变量：OS_ACTIVITY_MODE 值：disable
-         2.2 如果没法打印日志，那全局添加以下代码
-         #ifdef DEBUG
-         
-         #define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
-         #else
-         #define NSLog(format, ...)
-         #endif
-         
-        */
-
-//        for(int i = 0; i<self.localMusics.count;i++){
-//            NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:i]];
-//            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-//            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
-//        }
-        NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
-        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
-        if([str containsString:@"file://"]){
-            str = [str substringFromIndex:7];//去除file://
-        }
-        
-        //url编码 解码（重要）
-        NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:decodeURL] error:NULL];
-        _player.delegate = self;
-        [_player play];
-        
-    }
-}
-
-- (void)restart:(id)sender
-{
-//    [[AFSoundManager sharedManager] restart];
-//    _player = nil;
-//    currentTrackNumber = 0;
-//    [self startPlaying];
-}
-
-#pragma mark 获取音频文件的元数据 ID3
-/**
- 获取音频文件的元数据 ID3
- */
--(void)mDefineUpControl{
-    NSString *filePath = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];//[self.wMp3URL objectAtIndex: 0 ];//随便取一个，说明
-    //文件管理，取得文件属性
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSDictionary *dictAtt = [fm attributesOfItemAtPath:filePath error:nil];
-    
-    
-    //取得音频数据
-    NSURL *fileURL=[NSURL fileURLWithPath:filePath];
-    AVURLAsset *mp3Asset=[AVURLAsset URLAssetWithURL:fileURL options:nil];
-    
-    NSString *singer;//歌手
-    NSString *song;//歌曲名
-    NSImage *songImage;//图片
-    NSString *albumName;//专辑名
-    NSString *fileSize;//文件大小
-    NSString *voiceStyle;//音质类型
-    NSString *fileStyle;//文件类型
-    NSString *creatDate;//创建日期
-    NSString *savePath; //存储路径
-    
-    for (NSString *format in [mp3Asset availableMetadataFormats]) {
-        for (AVMetadataItem *metadataItem in [mp3Asset metadataForFormat:format]) {
-            if([metadataItem.commonKey isEqualToString:@"title"]){
-                song = (NSString *)metadataItem.value;//歌曲名
-                
-            }else if ([metadataItem.commonKey isEqualToString:@"artist"]){
-                singer = [NSString stringWithFormat:@"%@",metadataItem.value];//歌手
-            }
-            //专辑名称
-            else if ([metadataItem.commonKey isEqualToString:@"albumName"])
-            {
-                albumName = (NSString *)metadataItem.value;
-            }else if ([metadataItem.commonKey isEqualToString:@"artwork"]) {
-                //                NSDictionary *dict=(NSDictionary *)metadataItem.value;
-                //                NSData *data=[dict objectForKey:@"data"];
-                //                image=[NSImage imageWithData:data];//图片
-            }
-            
-        }
-    }
-    savePath = filePath;
-    float tempFlo = [[dictAtt objectForKey:@"NSFileSize"] floatValue]/(1024*1024);
-    fileSize = [NSString stringWithFormat:@"%.2fMB",[[dictAtt objectForKey:@"NSFileSize"] floatValue]/(1024*1024)];
-    NSString *tempStrr  = [NSString stringWithFormat:@"%@", [dictAtt objectForKey:@"NSFileCreationDate"]] ;
-    creatDate = [tempStrr substringToIndex:19];
-    fileStyle = [filePath substringFromIndex:[filePath length]-3];
-    if(tempFlo <= 2){
-        voiceStyle = @"普通";
-    }else if(tempFlo > 2 && tempFlo <= 5){
-        voiceStyle = @"良好";
-    }else if(tempFlo > 5 && tempFlo < 10){
-        voiceStyle = @"标准";
-    }else if(tempFlo > 10){
-        voiceStyle = @"高清";
-    }
-    
-    NSArray *tempArr = [[NSArray alloc] initWithObjects:@"歌手:",@"歌曲名称:",@"专辑名称:",@"文件大小:",@"音质类型:",@"文件格式:",@"创建日期:",@"保存路径:", nil];
-    NSArray *tempArrInfo = [[NSArray alloc] initWithObjects:singer,song,albumName,fileSize,voiceStyle,fileStyle,creatDate,savePath, nil];
-    
-    NSMutableString *mstr = [NSMutableString string];
-    for(int i = 0;i < [tempArr count]; i ++){
-        NSString *strTitle = [tempArr objectAtIndex:i];
-        NSString *strInfo  = [tempArrInfo objectAtIndex:i];
-        [mstr appendString:[NSString stringWithFormat:@"%@%@\n",strTitle,strInfo]];
-    }
-    textField.stringValue = [mstr copy];
-}
-
 #pragma mark - NSWindowController &  ZBPlayer - 新窗口
 -(ZBPlayer *)zbPlayer{
     if(!_zbPlayer){
         _zbPlayer= [[ZBPlayer alloc]init];
-        _zbPlayer.window = [self window:NSMakeRect(0,0,500,500) title:@"ZBPlayer" bgColor:[NSColor whiteColor]];
+        _zbPlayer.window = [self window:NSMakeRect(0,0,1000,500) title:@"ZBPlayer" bgColor:[NSColor whiteColor]];
         [_zbPlayer viewInWindow];
     }
     return _zbPlayer;
@@ -1351,6 +1069,7 @@
         _outlineWC= [[OutlineWCtrl alloc]init];
         _outlineWC.window = [self window:NSMakeRect(0,0,500,500) title:@"outlineview" bgColor:[NSColor redColor]];
         [_outlineWC viewInWindow];
+    
     }
     return _outlineWC;
 }
@@ -1362,7 +1081,10 @@
         _tableView.window = [self window:NSMakeRect(0,0,500,500) title:@"表格视图" bgColor:[NSColor orangeColor]];
         
         [self button:NSMakeRect(10, 10, 100, 50) superView:self.tableView.window.contentView title:@"显示pop窗口" tag:0 type:NSButtonTypePushOnPushOff];
-        [self toolbar];
+        
+        //Toolbar 和左上角控制窗口关闭、最小化和全屏的三个按钮在同一行，这个特性需要10.10及以上的系统。
+        self.tableView.window.toolbar = [self toolbar];;
+        self.tableView.window.titleVisibility =  NSWindowTitleHidden;
         [_tableView viewInWindow];
     }
     return _tableView;
