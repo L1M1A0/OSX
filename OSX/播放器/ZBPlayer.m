@@ -13,6 +13,12 @@
 #import "ZBPlayerRow.h"
 #import <AVFoundation/AVFoundation.h>
 
+#ifdef DEBUG
+
+#define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
+#else
+#define NSLog(format, ...)
+#endif
 
 @interface ZBPlayer ()<NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate>
 
@@ -213,17 +219,33 @@
 }
 -(void)btnAction:(NSButton *)sender{
     if(sender.tag == 0){
+        //暂停
         [self.player pause];
     }else if(sender.tag == 1){
-        
+        //上一曲
+        if (self.currentTrackIndex == 0) {
+            self.currentTrackIndex = self.localMusics.count;
+        }else{
+            self.currentTrackIndex--;
+        }
+        [self.player prepareToPlay];
+        [self startPlaying];        
     }else if(sender.tag == 2){
+        //播放
         if (self.currentTrackIndex > self.localMusics.count) {
             self.currentTrackIndex = 0;
         }
         [self.player prepareToPlay];
         [self startPlaying];
     }else if(sender.tag == 3){
-        
+        //下一曲
+        if (self.currentTrackIndex == self.localMusics.count) {
+            self.currentTrackIndex = 0;
+        }else{
+            self.currentTrackIndex++;
+        }
+        [self.player prepareToPlay];
+        [self startPlaying];
     }else if(sender.tag == 4){
         [self openPanel];
     }
@@ -383,7 +405,15 @@
     NSInteger levelForItem = [treeView levelForItem:model];
     NSInteger childIndexForItem = [treeView childIndexForItem:model];
     NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld，isItemExpanded=%d",row,model.name,levelForRow,levelForItem,childIndexForItem,isExpand);
-    
+    if (levelForRow == 1) {
+        if(self.currentTrackIndex != childIndexForItem){
+            self.currentTrackIndex = childIndexForItem;
+            [self.player prepareToPlay];
+            [self startPlaying];
+        }else{
+            NSLog(@"正在播放：%@",model.name);
+        }
+    }
 
     
 }

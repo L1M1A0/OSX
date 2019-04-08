@@ -201,7 +201,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "990"
             endingLineNumber = "990"
-            landmarkName = "-toolbarItemAction:"
+            landmarkName = "-toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
