@@ -7,11 +7,12 @@
 //
 
 #import "ZBPlayer.h"
+#import <AVFoundation/AVFoundation.h>
 #import "Masonry.h"
 #import "ZBMacOSObject.h"
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
-#import <AVFoundation/AVFoundation.h>
+#import "ZBAudioModel.h"
 
 #ifdef DEBUG
 
@@ -76,6 +77,8 @@
 @property (nonatomic, assign) NSInteger currentTrackIndex;
 /** 本地音乐基础路径 */
 @property (nonatomic, copy) NSString *localMusicBasePath;
+/** 是否是随机数 */
+@property (nonatomic, assign) BOOL isRandom;
 
 
 
@@ -203,10 +206,12 @@
 -(void)btn{
 
     [self button:NSMakeRect(10, 10, 70, 50) title:@"暂停" tag:0];
-    self.lastBtn     = [self button:NSMakeRect(100, 10, 70, 50)  title:@"上一曲" tag:1];
-    self.playBtn     = [self button:NSMakeRect(190, 10, 70, 50) title:@"播放"   tag:2];
-    self.nextBtn     = [self button:NSMakeRect(270, 10, 70, 50) title:@"下一曲" tag:3];
-    self.addAudioBtn = [self button:NSMakeRect(350, 10, 70, 50) title:@"导入"   tag:4];
+    self.lastBtn      = [self button:NSMakeRect(100, 10, 70, 50)  title:@"上一曲" tag:1];
+    self.playBtn      = [self button:NSMakeRect(190, 10, 70, 50) title:@"播放"   tag:2];
+    self.nextBtn      = [self button:NSMakeRect(270, 10, 70, 50) title:@"下一曲" tag:3];
+    self.addAudioBtn  = [self button:NSMakeRect(350, 10, 70, 50) title:@"导入"   tag:4];
+    self.playModelBtn = [self button:NSMakeRect(430, 10, 70, 50) title:@"随机"   tag:5];
+
 }
 
 
@@ -248,6 +253,14 @@
         [self startPlaying];
     }else if(sender.tag == 4){
         [self openPanel];
+    }else if(sender.tag == 5){
+        self.isRandom = YES;
+        u_int32_t  num = (u_int32_t)self.localMusics.count;
+        u_int32_t a = arc4random_uniform(num);
+        self.currentTrackIndex = a;
+        [self.player prepareToPlay];
+        [self startPlaying];
+//        u_int32_t arc4random_uniform();
     }
     
     
@@ -265,13 +278,11 @@
     
     //2级节点
     for(int i = 0; i< self.localMusics.count; i++){
-        NSString *name = self.localMusics[i];
-        TreeNodeModel *childNode = [self node:name level:1];
+        ZBAudioModel *audio = self.localMusics[i];
+        TreeNodeModel *childNode = [self node:audio.title level:1];
         [rootNode1.childNodes addObject:childNode];
     }
-
     [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
-
 }
 
 -(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level{
@@ -410,6 +421,8 @@
             self.currentTrackIndex = childIndexForItem;
             [self.player prepareToPlay];
             [self startPlaying];
+            NSLog(@"正在播放：%@",model.name);
+
         }else{
             NSLog(@"正在播放：%@",model.name);
         }
@@ -429,7 +442,7 @@
     openDlg.canChooseFiles = YES ;//----------“是否允许选择文件”
     openDlg.canChooseDirectories = YES;//-----“是否允许选择目录”
     openDlg.allowsMultipleSelection = YES;//--“是否允许多选”
-    openDlg.allowedFileTypes = @[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"ape",@"ogg",@"alac"];//---“允许的文件名后缀”
+    openDlg.allowedFileTypes = @[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"wma",@"ape",@"ogg",@"alac"];//---“允许的文件名后缀”
     openDlg.treatsFilePackagesAsDirectories = YES;
     //openDlg.URL = @"";////“保存用户选择的文件/文件夹路径path”
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
@@ -564,8 +577,23 @@
         NSString *filename = (NSString *)obj;
         NSString *extension = [[filename pathExtension] lowercaseString];//文件格式
         if ([self isAudioFormat:extension]  == YES) {
+            
+            //路径解码比较耗时间
+            NSString *filePath = [newPath stringByAppendingPathComponent:filename];
+            if([filePath containsString:@"file://"]){
+                //去除file://
+                filePath = [filePath substringFromIndex:7];
+            }
+            //url编码 解码路劲（重要）
+            filePath = [filePath stringByRemovingPercentEncoding];
+            
+            NSLog(@"正在导入：%@",filePath);
+            ZBAudioModel *model = [[ZBAudioModel alloc]init];
+            model.title = filename;
+            model.path = filePath;
+            model.extension = extension;
             //拼接路径
-            [self.localMusics addObject:[newPath stringByAppendingPathComponent:filename]];
+            [self.localMusics addObject:model];
         }else if(extension.length == 0){
             //如果是文件夹，那就继续遍历子文件夹中的
             block(YES,newPath,obj);
@@ -606,6 +634,7 @@
          
          *参考:AVPlayer 为什么不能播放本地音乐~ http://www.cocoachina.com/bbs/read.php?tid-1743038.html
          1.要将target->capabilities->app sandbox->network->outgoing connection(clinet)勾选
+         1.1 注：使用FileManager方式读取文件，似乎不用打开（待确实验证）
          
          2.如果遇到errors encountered while discovering extensions: Error Domain=PlugInKit Code=13 "query cancelled" UserInfo={NSLocalizedDescription=query cancelled}，只能加载部分文件就中断了。参考：https://my.oschina.net/rainwz/blog/2218590
          2.1 打开 Product > Scheme > Edit Scheme，在run或者其他地方的arguments下的Enviroment Variables下添加环境变量：OS_ACTIVITY_MODE 值：disable
@@ -624,15 +653,22 @@
         //            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         //            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
         //        }
-        NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
-        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
-        if([str containsString:@"file://"]){
-            str = [str substringFromIndex:7];//去除file://
-        }
         
-        //url编码 解码（重要）
-        NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:decodeURL] error:NULL];
+        if (self.isRandom == YES) {
+            u_int32_t  num = (u_int32_t)self.localMusics.count;
+            u_int32_t a = arc4random_uniform(num);
+            self.currentTrackIndex = a;
+        }
+        NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
+//        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
+//        if([str containsString:@"file://"]){
+//            str = [str substringFromIndex:7];//去除file://
+//        }
+//
+//        //url编码 解码（重要）
+//        NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        ZBAudioModel *audio = [self.localMusics objectAtIndex:self.currentTrackIndex];
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:NULL];
         _player.delegate = self;
         [_player play];
         

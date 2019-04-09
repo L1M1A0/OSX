@@ -45,6 +45,7 @@
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 		05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */; };
+		05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */; };
 		05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */; };
 		05EFBBFD225A4509003F58A4 /* ZBPlayerRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */; };
 /* End PBXBuildFile section */
@@ -120,6 +121,8 @@
 		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 		05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - Private Moon.mp3"; sourceTree = "<group>"; };
+		05ECA6F3225D5DC5005648FF /* ZBAudioModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioModel.h; sourceTree = "<group>"; };
+		05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBAudioModel.m; sourceTree = "<group>"; };
 		05EFBBF8225A44E5003F58A4 /* ZBPlayerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerSection.h; sourceTree = "<group>"; };
 		05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerSection.m; sourceTree = "<group>"; };
 		05EFBBFB225A4509003F58A4 /* ZBPlayerRow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerRow.h; sourceTree = "<group>"; };
@@ -197,6 +200,8 @@
 				05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */,
 				05EFBBFB225A4509003F58A4 /* ZBPlayerRow.h */,
 				05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */,
+				05ECA6F3225D5DC5005648FF /* ZBAudioModel.h */,
+				05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -376,6 +381,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */,
 				05B5587F202856E1005F7A20 /* MASConstraint.m in Sources */,
 				05B5587D202856E1005F7A20 /* NSArray+MASAdditions.m in Sources */,
 				050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */,

@@ -25,7 +25,7 @@
 #endif
 
 
-@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate>{
+@interface MainWCtrl ()<NSApplicationDelegate,NSTextFieldDelegate,NSTextViewDelegate,NSComboBoxDelegate,NSComboBoxDataSource,NSTabViewDelegate,NSToolbarDelegate,NSSplitViewDelegate>{
     NSArray *comboBoxItemValue;
     NSTextField *textField;
 }
@@ -699,6 +699,7 @@
     splitView.dividerStyle = NSSplitViewDividerStyleThick;
     splitView.vertical   = YES;//水平分割 or 垂直分割
     splitView.wantsLayer = YES;
+    splitView.delegate = self;
     splitView.layer.backgroundColor = [NSColor redColor].CGColor;
     
     //view1.frame.size.width-20
@@ -708,10 +709,10 @@
     NSView *view2 = [self viewForSplitView:[NSColor blueColor]  frame:rect2];
     NSView *view3 = [self viewForSplitView:[NSColor yellowColor]  frame:rect2];
 
-    //增加左右视图
+    //增加左右视图。可以任意加，每加一个，就多一个分栏
     [splitView addSubview:view1];
     [splitView addSubview:view2];
-    [splitView addSubview:view3];
+//    [splitView addSubview:view3];
 
     //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
     
@@ -729,6 +730,15 @@
     [self slider:NSSliderTypeLinear frame:frame superView:leftView];
     
     return leftView;
+}
+#pragma mark NSSplitViewDelegate
+/** 设置每个栏的最小值，可以根据dividerIndex单独设置 */
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
+    return 80;
+}
+/** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
+-(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
+    return 120;
 }
 
 #pragma mark - NSCollectionView
