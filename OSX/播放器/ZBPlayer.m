@@ -8,6 +8,10 @@
 
 #import "ZBPlayer.h"
 #import <AVFoundation/AVFoundation.h>
+//#import <AVAudioSession.h>
+//设置锁屏仍能继续播放
+//[[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
+//[[AVAudioSession sharedInstance] setActive: YES error: nil];
 #import "Masonry.h"
 #import "ZBMacOSObject.h"
 #import "ZBPlayerSection.h"
@@ -21,7 +25,7 @@
 #define NSLog(format, ...)
 #endif
 
-@interface ZBPlayer ()<NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate>
+@interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate>
 
 @property (nonatomic, strong) ZBMacOSObject *object;
 
@@ -62,6 +66,7 @@
 @property (nonatomic, strong) NSOutlineView *audioListOutlineView;
 /** 歌曲列表层级页面 的背景页面 */
 @property (nonatomic, strong) NSScrollView *audioListScrollView;
+@property (nonatomic, strong) NSTableColumn *column1;
 
 
 #pragma mark - 数据
@@ -77,8 +82,10 @@
 @property (nonatomic, assign) NSInteger currentTrackIndex;
 /** 本地音乐基础路径 */
 @property (nonatomic, copy) NSString *localMusicBasePath;
-/** 是否是随机数 */
+/** 是否是随机播放 */
 @property (nonatomic, assign) BOOL isRandom;
+/** 是否正在播放  */
+@property (nonatomic, assign) BOOL isPlaying;
 
 
 
@@ -97,6 +104,11 @@
 }
 
 -(void)viewInWindow{
+//    //窗口标题栏透明
+//    self.window.titlebarAppearsTransparent = YES;
+//    //窗口背景颜色
+//    NSColor *windowBackgroundColor = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.5];//[NSColor colorWithRed:30/255.0 green:30/255.0 blue:30/255.0 alpha:1.0];
+//    [self.window setBackgroundColor: windowBackgroundColor];
     
     self.object = [[ZBMacOSObject alloc]init];
     [self initData];
@@ -109,7 +121,8 @@
     [self musicPlayer];
  
     
-    NSView *view1 = [self viewForSplitView:[NSColor orangeColor] frame:NSMakeRect(50, 30,400 , 400)];
+    
+    NSView *view1 = [self viewForSplitView:[NSColor orangeColor]];
     [view1 addSubview:_audioListScrollView];
     [_audioListScrollView  mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(view1.mas_top).with.offset(0);
@@ -117,14 +130,19 @@
         make.left.equalTo(view1.mas_left).with.offset(0);
         make.right.equalTo(view1.mas_right).with.offset(0);
     }];
-
-    //增加左右视图
+    
+    NSView *view2 = [self viewForSplitView:[NSColor cyanColor]];
+    
+    //增加左右分栏视图,数量任意加
     [_playerMainBoard addSubview:view1];
+    [_playerMainBoard addSubview:view2];
+
     
     [_audioListOutlineView reloadData];
 }
 
-- (NSView *)viewForSplitView:(NSColor *)color frame:(NSRect)frame{
+- (NSView *)viewForSplitView:(NSColor *)color{
+    //设置frame的值似乎没什么意义
     NSView *leftView = [[NSView alloc]initWithFrame:NSZeroRect];
     leftView.autoresizingMask = NSViewMinXMargin;
     leftView.wantsLayer = YES;
@@ -136,6 +154,8 @@
 
 #pragma mark - UI
 
+
+#pragma mark - NSSplitView playerMainBoard
 /**
  播发器主面板
 
@@ -147,6 +167,7 @@
         _playerMainBoard.dividerStyle = NSSplitViewDividerStyleThick;
         _playerMainBoard.vertical = YES;
         _playerMainBoard.wantsLayer = YES;
+        _playerMainBoard.delegate = self;
         _playerMainBoard.layer.backgroundColor = [NSColor greenColor].CGColor;
         [self.window.contentView addSubview:_playerMainBoard];
         [_playerMainBoard mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -167,7 +188,24 @@
     return _playerMainBoard;
 }
 
+#pragma mark NSSplitViewDelegate
+/** 设置每个栏的最小值，可以根据dividerIndex单独设置 */
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
+    if (dividerIndex == 0) {
+        return 400;
+    }else{
+        return 600;
+    }
 
+}
+/** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
+-(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
+    if (dividerIndex == 0) {
+        return 500;
+    }else{
+        return 500;
+    }
+}
 
 -(NSOutlineView *)audioListOutlineView{
     if (!_audioListOutlineView) {
@@ -180,10 +218,10 @@
         //    _audioListOutlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
         //    [self.window.contentView addSubview:s_audioListOutlineView];
         //    _audioListOutlineView.outlineTableColumn.hidden = YES;
-        NSTableColumn *column1=[[NSTableColumn alloc]initWithIdentifier:@"name"];
-        column1.title = @"可创建一个空的，不创建的话，内容会跑到bar底下";
-        [_audioListOutlineView addTableColumn:column1];
-
+        self.column1 = [[NSTableColumn alloc]initWithIdentifier:@"name"];
+        self.column1.title = @"可创建一个空的，不创建的话，内容会跑到bar底下";
+        [_audioListOutlineView addTableColumn:self.column1];
+        
     }
     
     return _audioListOutlineView;
@@ -204,28 +242,32 @@
 }
 
 -(void)btn{
-
-    [self button:NSMakeRect(10, 10, 70, 50) title:@"暂停" tag:0];
-    self.lastBtn      = [self button:NSMakeRect(100, 10, 70, 50)  title:@"上一曲" tag:1];
-    self.playBtn      = [self button:NSMakeRect(190, 10, 70, 50) title:@"播放"   tag:2];
-    self.nextBtn      = [self button:NSMakeRect(270, 10, 70, 50) title:@"下一曲" tag:3];
-    self.addAudioBtn  = [self button:NSMakeRect(350, 10, 70, 50) title:@"导入"   tag:4];
-    self.playModelBtn = [self button:NSMakeRect(430, 10, 70, 50) title:@"随机"   tag:5];
+    self.lastBtn      = [self button:NSMakeRect(10, 10, 50, 50) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
+    self.playBtn      = [self button:NSMakeRect(70, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
+    self.nextBtn      = [self button:NSMakeRect(130, 10, 50, 50) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
+    self.addAudioBtn  = [self button:NSMakeRect(190, 10, 50, 50) title:@"导入"   tag:4 image:@"" alternateImage:@""];
+    self.playModelBtn = [self button:NSMakeRect(250, 10, 50, 50) title:@"随机"   tag:5 image:@"" alternateImage:@""];
 
 }
 
 
-- (NSButton *)button:(NSRect)frame title:(NSString *)title tag:(NSInteger)tag {
+- (NSButton *)button:(NSRect)frame title:(NSString *)title tag:(NSInteger)tag image:(NSString *)image alternateImage:(NSString *)alternateImage {
     NSButton *btn = [self.object button:frame title:title tag:tag type:NSButtonTypePushOnPushOff target:self superView:self.window.contentView];
     btn.wantsLayer = YES;
     btn.layer.backgroundColor = [NSColor greenColor].CGColor;
     btn.action = @selector(btnAction:);
+    
+    //设置图片类型的按钮，不能设置标题，不能带边框，设置图片，可以添加鼠标悬浮提示
+    btn.title = @"";
+    btn.bordered = NO;//是否带边框
+    btn.image = [NSImage imageNamed:image];//常态
+    btn.alternateImage = [NSImage imageNamed:alternateImage];
+    btn.toolTip = title;
     return btn;
 }
 -(void)btnAction:(NSButton *)sender{
     if(sender.tag == 0){
-        //暂停
-        [self.player pause];
+       
     }else if(sender.tag == 1){
         //上一曲
         if (self.currentTrackIndex == 0) {
@@ -236,12 +278,24 @@
         [self.player prepareToPlay];
         [self startPlaying];        
     }else if(sender.tag == 2){
-        //播放
-        if (self.currentTrackIndex > self.localMusics.count) {
-            self.currentTrackIndex = 0;
+        self.isPlaying = !self.isPlaying;
+        if(self.isPlaying == YES){
+            
+            //播放
+            if (self.currentTrackIndex > self.localMusics.count) {
+                self.currentTrackIndex = 0;
+            }
+            [self.player prepareToPlay];
+            [self startPlaying];
+            self.playBtn.image = [NSImage imageNamed:@"statusBarPlay"];
+            self.playBtn.alternateImage = [NSImage imageNamed:@"statusBarPlaySelected"];
+        }else{
+            //暂停
+            [self.player pause];
+            self.playBtn.image = [NSImage imageNamed:@"statusBarPause"];
+            self.playBtn.alternateImage = [NSImage imageNamed:@"statusBarPauseSelected"];
         }
-        [self.player prepareToPlay];
-        [self startPlaying];
+        
     }else if(sender.tag == 3){
         //下一曲
         if (self.currentTrackIndex == self.localMusics.count) {
@@ -455,6 +509,8 @@
                 if(!error){
                     
                     
+                }else{
+                    
                 }
             }
             
@@ -473,6 +529,7 @@
 #pragma mark - 音乐
 
 -(void)musicPlayer{
+    
     
     //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
     //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
@@ -496,9 +553,7 @@
     self.musicFileNames = @[@"松本晃彦 - 栄の活躍",@"吉田潔 - Potu",@"吉田潔 - Private Moon",@"吉田潔 - はるかな旅"];
     self.currentTrackIndex = 0;
     [self loacalMusicInPath];
-    
-    //        [self.player setVolume:sender.floatValue/100];
-
+    //[self.player setVolume:sender.floatValue/100];
 }
 
 
@@ -559,6 +614,8 @@
 }
 
 -(BOOL)isAudioFormat:(NSString *)format{
+    //@[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"wma",@"ape",@"ogg",@"alac"]
+    //暂时不支持以下格式，建议用ffmpeg、vlc、mpv的第三方： [format isEqualToString:@"wma"] || [format isEqualToString:@"ape"] || [format isEqualToString:@"ogg"] || [format isEqualToString:@"alac"] 
     if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"]) {
         return YES;
     }else{
@@ -567,6 +624,13 @@
 }
 
 
+/**
+ 根据文件基础路径，遍历该路径下的文件
+
+ @param basePath 基础路径
+ @param folder  子文件夹名字，可以是空字符串：@"",
+ @param block  isFolder：是否是文件夹。basePath：当前基础路径。folder：子文件夹名字
+ */
 -(void)enumerateAudio:(NSString *)basePath folder:(NSString *)folder block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
     //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
     
@@ -623,6 +687,8 @@
 //开始播放
 - (void)startPlaying{
     
+    
+    //播放工程目录下的文件
     if (self.localMusics == nil || self.localMusics.count == 0) {
         _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicFileNames  objectAtIndex:self.currentTrackIndex]] ofType:@"mp3"]] error:NULL];
         _player.delegate = self;
@@ -648,47 +714,34 @@
          
          */
         
-        //        for(int i = 0; i<self.localMusics.count;i++){
-        //            NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:i]];
-        //            NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        //            NSLog(@"已选中%ld：%@",self.localMusics.count,decodeURL);
-        //        }
-        
         if (self.isRandom == YES) {
             u_int32_t  num = (u_int32_t)self.localMusics.count;
             u_int32_t a = arc4random_uniform(num);
             self.currentTrackIndex = a;
         }
         NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
-//        NSString *str  = [NSString stringWithFormat:@"%@",[self.localMusics objectAtIndex:self.currentTrackIndex]];
-//        if([str containsString:@"file://"]){
-//            str = [str substringFromIndex:7];//去除file://
-//        }
-//
-//        //url编码 解码（重要）
-//        NSString *decodeURL = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSError *error =  nil;
         ZBAudioModel *audio = [self.localMusics objectAtIndex:self.currentTrackIndex];
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:NULL];
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
+        NSLog(@"error__%@",error);
+//        _player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
+
         _player.delegate = self;
         [_player play];
+        [self.column1 setTitle:audio.title];
+        [self mDefineUpControl:audio.path];
         
     }
 }
 
-- (void)restart:(id)sender
-{
-    //    [[AFSoundManager sharedManager] restart];
-    //    _player = nil;
-    //    currentTrackNumber = 0;
-    //    [self startPlaying];
-}
+
 
 #pragma mark 获取音频文件的元数据 ID3
 /**
  获取音频文件的元数据 ID3
  */
--(void)mDefineUpControl{
-    NSString *filePath = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];//[self.wMp3URL objectAtIndex: 0 ];//随便取一个，说明
+-(void)mDefineUpControl:(NSString *)filePath{
+//    filePath = [[NSBundle mainBundle]pathForResource:@"松本晃彦 - 栄の活躍" ofType:@"mp3"];//[self.wMp3URL objectAtIndex: 0 ];//随便取一个，说明
     //文件管理，取得文件属性
     NSFileManager *fm = [NSFileManager defaultManager];
     NSDictionary *dictAtt = [fm attributesOfItemAtPath:filePath error:nil];
@@ -753,6 +806,11 @@
         NSString *strInfo  = [tempArrInfo objectAtIndex:i];
         [mstr appendString:[NSString stringWithFormat:@"%@%@\n",strTitle,strInfo]];
     }
+}
+
+#pragma mark - 其他获取本地文件的方式
+-(void)loadFieldInBundle{
+    
 }
 
 

@@ -21,6 +21,7 @@
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		05A2DA152056565400B539E4 /* screen.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA142056565300B539E4 /* screen.jpg */; };
 		05A2DA17205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */; };
+		05B1977F225E507B005CC344 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B1977E225E507B005CC344 /* Images.xcassets */; };
 		05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */; };
 		05B55878202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B5585F202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m */; };
 		05B55879202856E1005F7A20 /* ViewController+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 05B55868202856E1005F7A20 /* ViewController+MASAdditions.m */; };
@@ -74,6 +75,7 @@
 		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
 		05A2DA142056565300B539E4 /* screen.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = screen.jpg; sourceTree = "<group>"; };
 		05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "松本晃彦 - 栄の活躍.mp3"; sourceTree = "<group>"; };
+		05B1977E225E507B005CC344 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		05B516121ED67F2500A3820F /* OSX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OSX.entitlements; sourceTree = "<group>"; };
 		05B516191ED6DFC800A3820F /* ZBMacOSObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZBMacOSObject.h; sourceTree = "<group>"; };
 		05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZBMacOSObject.m; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				05BCD4892058FC4300068210 /* OutlineWCtrl */,
 				05BCD4882058FC0800068210 /* TableViewWC */,
 				0522D83D1ED587CF00D4671F /* Info.plist */,
+				05B1977E225E507B005CC344 /* Images.xcassets */,
 				0522D8321ED587CE00D4671F /* Supporting Files */,
 			);
 			path = OSX;
@@ -336,10 +339,9 @@
 			};
 			buildConfigurationList = 0522D8271ED587CE00D4671F /* Build configuration list for PBXProject "OSX" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
@@ -367,6 +369,7 @@
 				05BCD495205A58A000068210 /* arrow_gray_down.png in Resources */,
 				05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
+				05B1977F225E507B005CC344 /* Images.xcassets in Resources */,
 				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
 				0522D84B1ED58AF700D4671F /* MainWCtrl.xib in Resources */,
 				05B55882202856E1005F7A20 /* Info.plist in Resources */,
@@ -507,6 +510,7 @@
 		0522D8411ED587CF00D4671F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OSX/OSX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = OSX/Info.plist;
@@ -519,6 +523,7 @@
 		0522D8421ED587CF00D4671F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OSX/OSX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = OSX/Info.plist;
