@@ -10,7 +10,7 @@
 #import "TreeNodeModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
+#define ZBPlayerRowHeight 40
 @interface ZBPlayerRow : NSTableRowView
 
 @property (nonatomic, strong) NSImageView *imageV;

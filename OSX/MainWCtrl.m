@@ -590,31 +590,7 @@
 
 #pragma mark - NSSlider
 -(void)slider:(NSSliderType)sliderType frame:(CGRect)frame superView:(NSView *)superView{
-    
-    NSSlider *slider = [[NSSlider alloc]initWithFrame:frame];
-    slider.wantsLayer = YES;
-    slider.layer.backgroundColor = [NSColor yellowColor].CGColor;
-    slider.sliderType = sliderType;//线型 或者 圆钮型
-    if (sliderType == NSSliderTypeLinear) {
-        slider.vertical = NO;//是否是垂直的
-    }
-    //设置数值
-    slider.minValue = 0;
-    slider.maxValue = 100;
-    //当前数值位置
-    slider.integerValue = 58;
-    //slider.floatValue = 29.22;
-    //slider.stringValue = @"40";
-    
-    slider.numberOfTickMarks = 10;//标尺分节段数量，将无法设置线条颜色
-    slider.appearance = [NSAppearance currentAppearance];
-    slider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
-    
-    slider.target = self;
-    slider.action = @selector(sliderAction:);
-    [superView addSubview:slider];
-    
-    
+    [self.macOsObject slider:sliderType frame:frame superView:superView target:self action: @selector(sliderAction:)];
 }
 -(void)sliderAction:(NSSlider *)sender{
     

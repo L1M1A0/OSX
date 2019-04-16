@@ -26,17 +26,24 @@
 
 
 -(void)creatViewWithLevel:(NSInteger)level{
-    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(30+30*level, 5, 50, 40)];
+    NSInteger leftgap = 20;
+    NSInteger topGap = 5;
+    NSInteger rowHeight = ZBPlayerSectionHeight - 5 * 2;
+    
+    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level, topGap, rowHeight, rowHeight)];
     self.imageV.wantsLayer = YES;
     self.imageV.layer.backgroundColor = [NSColor greenColor].CGColor;
-    self.imageV.image = [NSImage imageNamed:@"arrow_gray_right.png"];
+    self.imageV.image = [NSImage imageNamed:@"list_hide"];
     //    self.imageV.action = @selector(imageViewAction:);
     //    self.imageV.target = self;
     //    self.imageV.editable = YES;
     [self addSubview:self.imageV];
     
-    self.textV = [[NSTextField alloc]initWithFrame:NSMakeRect(30+30*level+50, 10, 420, 40)];
-    self.textV.textColor = [NSColor blackColor];
+    self.textV = [[NSTextField alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level+rowHeight,topGap*2, 420, rowHeight-topGap*2)];
+    self.textV.textColor = [NSColor whiteColor];
+//    self.textV.wantsLayer = YES;
+//    self.textV.layer.backgroundColor = [NSColor orangeColor].CGColor;
+    self.textV.alignment = NSTextAlignmentLeft;
     [self.textV setBezeled:NO];
     [self.textV setDrawsBackground:NO];
     [self.textV setEditable:NO];
@@ -71,6 +78,8 @@
         [path fill];
         [path stroke];
     }
+    [self imageViewAction];
+
 }
 
 
@@ -85,12 +94,12 @@
 }
 
 -(void)imageViewAction{
-    if (self.model.isExpand == YES) {
-        self.imageV.image = [NSImage imageNamed:@"arrow_gray_down.png"];
+    NSLog(@"self.model.isExpand_%d",self.model.isExpand);
+    if (self.model.isExpand == NO) {
+        self.imageV.image = [NSImage imageNamed:@"list_show"];
     }else{
-        self.imageV.image = [NSImage imageNamed:@"arrow_gray_right.png"];
+        self.imageV.image = [NSImage imageNamed:@"list_hide"];
     }
-    
 }
 
 

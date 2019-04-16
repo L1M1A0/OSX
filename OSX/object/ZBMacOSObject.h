@@ -28,4 +28,7 @@
 
 #pragma mark - NSStepper
 -(NSStepper *)stepper:(NSRect)frame superView:(NSView *)superView;
+
+#pragma mark - NSSlider
+-(NSSlider *)slider:(NSSliderType)sliderType frame:(CGRect)frame superView:(NSView *)superView target:(id)target action:(SEL)action;
 @end

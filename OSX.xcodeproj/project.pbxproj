@@ -49,6 +49,7 @@
 		05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */; };
 		05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */; };
 		05EFBBFD225A4509003F58A4 /* ZBPlayerRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */; };
+		05F55C6822661BEB003F4CE5 /* ZBPlayerSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F55C6722661BEB003F4CE5 /* ZBPlayerSplitView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -129,6 +130,8 @@
 		05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerSection.m; sourceTree = "<group>"; };
 		05EFBBFB225A4509003F58A4 /* ZBPlayerRow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerRow.h; sourceTree = "<group>"; };
 		05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerRow.m; sourceTree = "<group>"; };
+		05F55C6622661BEB003F4CE5 /* ZBPlayerSplitView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerSplitView.h; sourceTree = "<group>"; };
+		05F55C6722661BEB003F4CE5 /* ZBPlayerSplitView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayerSplitView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +208,8 @@
 				05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */,
 				05ECA6F3225D5DC5005648FF /* ZBAudioModel.h */,
 				05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */,
+				05F55C6622661BEB003F4CE5 /* ZBPlayerSplitView.h */,
+				05F55C6722661BEB003F4CE5 /* ZBPlayerSplitView.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -400,6 +405,7 @@
 				05BCD48720577FF500068210 /* OutlineWCtrl.m in Sources */,
 				05B55885202AF66D005F7A20 /* BSTableRowView.m in Sources */,
 				05BCD48C2058FE5400068210 /* OutlineTableRowView.m in Sources */,
+				05F55C6822661BEB003F4CE5 /* ZBPlayerSplitView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
 				05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */,

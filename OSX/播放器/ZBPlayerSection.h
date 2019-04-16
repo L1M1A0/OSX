@@ -9,7 +9,10 @@
 #import <Cocoa/Cocoa.h>
 #import "TreeNodeModel.h"
 
+
 NS_ASSUME_NONNULL_BEGIN
+
+#define ZBPlayerSectionHeight 40
 
 @interface ZBPlayerSection : NSTableRowView
 
@@ -17,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSTextField *textV;
 @property (nonatomic, strong) TreeNodeModel *model;
 -(instancetype)initWithLevel:(NSInteger)level;
+
 
 @end
 

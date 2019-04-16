@@ -24,15 +24,26 @@
 
 
 
+
 -(void)creatViewWithLevel:(NSInteger)level{
-    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(30+30*level, 5, 50, 40)];
+    NSInteger leftgap = 20;
+    NSInteger topGap = 5;
+    NSInteger rowHeight = ZBPlayerRowHeight - 5 * 2;
+    
+    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level, topGap, rowHeight, rowHeight)];
     self.imageV.wantsLayer = YES;
     self.imageV.layer.backgroundColor = [NSColor greenColor].CGColor;
-    self.imageV.image = [NSImage imageNamed:@"docx.png"];
+    self.imageV.image = [NSImage imageNamed:@"list_hide"];
+    //    self.imageV.action = @selector(imageViewAction:);
+    //    self.imageV.target = self;
+    //    self.imageV.editable = YES;
     [self addSubview:self.imageV];
     
-    self.textV = [[NSTextField alloc]initWithFrame:NSMakeRect(30+30*level+50, 10, 420, 40)];
-    self.textV.textColor = [NSColor blackColor];
+    self.textV = [[NSTextField alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level+rowHeight,topGap*2, 420, rowHeight-topGap*2)];
+    self.textV.textColor = [NSColor whiteColor];
+//    self.textV.wantsLayer = YES;
+//    self.textV.layer.backgroundColor = [NSColor orangeColor].CGColor;
+    self.textV.alignment = NSTextAlignmentLeft;
     [self.textV setBezeled:NO];
     [self.textV setDrawsBackground:NO];
     [self.textV setEditable:NO];
@@ -41,7 +52,12 @@
     self.textV.backgroundColor = [NSColor cyanColor];
     [self addSubview:self.textV];
     
-
+    //    self.wantsLayer = YES;
+    //    if(self.isSelected == YES){
+    //        self.layer.backgroundColor = [NSColor brownColor].CGColor;
+    //    }else{
+    //        self.layer.backgroundColor = [NSColor orangeColor].CGColor;
+    //    }
 }
 
 
@@ -62,12 +78,28 @@
         [path fill];
         [path stroke];
     }
+    [self imageViewAction];
+    
 }
 
 
 -(void)setModel:(TreeNodeModel *)model{
     _model = model;
     self.textV.stringValue = model.name;
-    
+    self.toolTip = self.textV.stringValue;
 }
+
+-(void)mouseDown:(NSEvent *)event{
+    [NSApp sendAction:@selector(imageViewAction) to:self.imageV from:self];
+}
+
+-(void)imageViewAction{
+    NSLog(@"self.model.isExpand_%d",self.model.isExpand);
+    if (self.model.isExpand == NO) {
+        self.imageV.image = [NSImage imageNamed:@"list_show"];
+    }else{
+        self.imageV.image = [NSImage imageNamed:@"list_hide"];
+    }
+}
+
 @end

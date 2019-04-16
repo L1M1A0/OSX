@@ -17,7 +17,7 @@
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
 #import "ZBAudioModel.h"
-
+#import "ZBPlayerSplitView.h"
 #ifdef DEBUG
 
 #define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
@@ -61,7 +61,7 @@
 
 #pragma mark - 主界面
 /** 播放器主活动界面 左边存放歌曲列表，右边显示歌词等其他界面 */
-@property (nonatomic, strong) NSSplitView *playerMainBoard;
+@property (nonatomic, strong) ZBPlayerSplitView *playerMainBoard;
 /** 歌曲列表层级页面 */
 @property (nonatomic, strong) NSOutlineView *audioListOutlineView;
 /** 歌曲列表层级页面 的背景页面 */
@@ -87,6 +87,10 @@
 /** 是否正在播放  */
 @property (nonatomic, assign) BOOL isPlaying;
 
+/** 主色调 */
+@property (nonatomic, strong) NSColor *mainColor;
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) CFRunLoopTimerRef timerForRemainTime;
 
 
 #pragma mark - 临时
@@ -104,11 +108,12 @@
 }
 
 -(void)viewInWindow{
-//    //窗口标题栏透明
-//    self.window.titlebarAppearsTransparent = YES;
-//    //窗口背景颜色
-//    NSColor *windowBackgroundColor = [NSColor colorWithRed:0 green:0 blue:0 alpha:0.5];//[NSColor colorWithRed:30/255.0 green:30/255.0 blue:30/255.0 alpha:1.0];
-//    [self.window setBackgroundColor: windowBackgroundColor];
+    //窗口标题栏透明
+    self.window.titlebarAppearsTransparent = YES;
+    //窗口背景颜色
+    /* 222222FF */
+    self.mainColor = [NSColor colorWithCalibratedRed:0x22/255.0 green:0x22/255.0 blue:0x22/255.0 alpha:0xFF/255.0];//[NSColor colorWithRed:30/255.0 green:30/255.0 blue:30/255.0 alpha:1.0];
+    [self.window setBackgroundColor: self.mainColor];
     
     self.object = [[ZBMacOSObject alloc]init];
     [self initData];
@@ -119,8 +124,6 @@
     [self audioListScrollView];
     [self btn];
     [self musicPlayer];
- 
-    
     
     NSView *view1 = [self viewForSplitView:[NSColor orangeColor]];
     [view1 addSubview:_audioListScrollView];
@@ -161,14 +164,15 @@
 
  @return <#return value description#>
  */
--(NSSplitView *)playerMainBoard{
+-(ZBPlayerSplitView *)playerMainBoard{
     if(!_playerMainBoard){
-        _playerMainBoard = [[NSSplitView alloc]init];
+        _playerMainBoard = [[ZBPlayerSplitView alloc]init];
         _playerMainBoard.dividerStyle = NSSplitViewDividerStyleThick;
         _playerMainBoard.vertical = YES;
         _playerMainBoard.wantsLayer = YES;
         _playerMainBoard.delegate = self;
         _playerMainBoard.layer.backgroundColor = [NSColor greenColor].CGColor;
+        [_playerMainBoard adjustSubviews];
         [self.window.contentView addSubview:_playerMainBoard];
         [_playerMainBoard mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.window.contentView.mas_top).offset(0);
@@ -214,7 +218,7 @@
         _audioListOutlineView.delegate = self;
         _audioListOutlineView.dataSource = self;
         _audioListOutlineView.wantsLayer = YES;
-        _audioListOutlineView.backgroundColor = [NSColor yellowColor];
+        _audioListOutlineView.backgroundColor = [NSColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:0.1];
         //    _audioListOutlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
         //    [self.window.contentView addSubview:s_audioListOutlineView];
         //    _audioListOutlineView.outlineTableColumn.hidden = YES;
@@ -242,19 +246,24 @@
 }
 
 -(void)btn{
-    self.lastBtn      = [self button:NSMakeRect(10, 10, 50, 50) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
-    self.playBtn      = [self button:NSMakeRect(70, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
-    self.nextBtn      = [self button:NSMakeRect(130, 10, 50, 50) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
+    self.lastBtn      = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
+    self.lastBtn = [self border:self.lastBtn];
+    self.playBtn      = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
+    self.playBtn = [self border:self.playBtn];
+    self.nextBtn      = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
+    self.nextBtn = [self border:self.nextBtn];
     self.addAudioBtn  = [self button:NSMakeRect(190, 10, 50, 50) title:@"导入"   tag:4 image:@"" alternateImage:@""];
     self.playModelBtn = [self button:NSMakeRect(250, 10, 50, 50) title:@"随机"   tag:5 image:@"" alternateImage:@""];
+    
+    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(310, 15, 400, 15)  superView:self.window.contentView target:self action:@selector(progressAction:)];//[self.object progressIndicator:NSMakeRect(310, 15, 400, 15) style:NSProgressIndicatorStyleBar superView:self.window.contentView];
 
 }
 
 
 - (NSButton *)button:(NSRect)frame title:(NSString *)title tag:(NSInteger)tag image:(NSString *)image alternateImage:(NSString *)alternateImage {
-    NSButton *btn = [self.object button:frame title:title tag:tag type:NSButtonTypePushOnPushOff target:self superView:self.window.contentView];
+    NSButton *btn = [self.object button:frame title:title tag:tag type:NSButtonTypeMomentaryChange target:self superView:self.window.contentView];
     btn.wantsLayer = YES;
-    btn.layer.backgroundColor = [NSColor greenColor].CGColor;
+    btn.layer.backgroundColor = [NSColor colorWithCalibratedRed:0x2C/255.0 green:0x28/255.0 blue:0x2D/255.0 alpha:0xFF/255.0].CGColor;
     btn.action = @selector(btnAction:);
     
     //设置图片类型的按钮，不能设置标题，不能带边框，设置图片，可以添加鼠标悬浮提示
@@ -263,6 +272,13 @@
     btn.image = [NSImage imageNamed:image];//常态
     btn.alternateImage = [NSImage imageNamed:alternateImage];
     btn.toolTip = title;
+    return btn;
+}
+- (NSButton *)border:(NSButton *)btn{
+    btn.layer.masksToBounds = YES;
+    btn.layer.cornerRadius = btn.frame.size.width/2;
+    btn.layer.borderColor = [NSColor whiteColor].CGColor;
+    btn.layer.borderWidth = 3;
     return btn;
 }
 -(void)btnAction:(NSButton *)sender{
@@ -275,25 +291,12 @@
         }else{
             self.currentTrackIndex--;
         }
-        [self.player prepareToPlay];
-        [self startPlaying];        
+        [self startPlaying];
     }else if(sender.tag == 2){
-        self.isPlaying = !self.isPlaying;
-        if(self.isPlaying == YES){
-            
-            //播放
-            if (self.currentTrackIndex > self.localMusics.count) {
-                self.currentTrackIndex = 0;
-            }
-            [self.player prepareToPlay];
-            [self startPlaying];
-            self.playBtn.image = [NSImage imageNamed:@"statusBarPlay"];
-            self.playBtn.alternateImage = [NSImage imageNamed:@"statusBarPlaySelected"];
+        if(self.isPlaying == NO){
+            [self setIsPlaying:YES];
         }else{
-            //暂停
-            [self.player pause];
-            self.playBtn.image = [NSImage imageNamed:@"statusBarPause"];
-            self.playBtn.alternateImage = [NSImage imageNamed:@"statusBarPauseSelected"];
+            [self setIsPlaying:NO];
         }
         
     }else if(sender.tag == 3){
@@ -303,7 +306,6 @@
         }else{
             self.currentTrackIndex++;
         }
-        [self.player prepareToPlay];
         [self startPlaying];
     }else if(sender.tag == 4){
         [self openPanel];
@@ -312,15 +314,69 @@
         u_int32_t  num = (u_int32_t)self.localMusics.count;
         u_int32_t a = arc4random_uniform(num);
         self.currentTrackIndex = a;
-        [self.player prepareToPlay];
         [self startPlaying];
 //        u_int32_t arc4random_uniform();
     }
     
-    
+}
+
+
+
+-(void)setIsPlaying:(BOOL)isPlaying{
+    _isPlaying = isPlaying;
+    if(isPlaying == YES){
+        //播放
+        if (self.currentTrackIndex > self.localMusics.count || !self.currentTrackIndex) {
+            self.currentTrackIndex = 0;
+        }
+        [self startPlaying];
+
+    }else{
+        //暂停
+        [self.player pause];
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlay"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
+        CFRunLoopTimerInvalidate(self.timerForRemainTime);
+    }
     
 }
 
+-(void)progressAction:(NSSlider *)slider{
+    NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
+//    textField.stringValue = sender.stringValue;
+    self.player.currentTime = slider.integerValue;
+}
+
+
+/**
+ 设置定时器，暂时不知道怎么暂停
+ */
+-(void)runLoopTimerForRemainTime{
+    if(!_timerForRemainTime){
+
+        CGFloat timeInterVal = 1.0;
+        __weak __typeof(self) weakSelf = self;
+        CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
+            weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+
+        });
+        
+        _timerForRemainTime = timer;
+        CFRunLoopAddTimer(CFRunLoopGetCurrent(), _timerForRemainTime, kCFRunLoopCommonModes);
+    }
+    
+}
+
+
+/**
+ 修改播放进度
+
+ @param timer <#timer description#>
+ */
+-(void)progressChange:(id)timer{
+    NSLog(@"timer_%@",timer);
+    self.progressSlider.stringValue = [NSString stringWithFormat:@"%f",self.progressSlider.doubleValue + 1.0];
+}
 
 //8********************************
 
@@ -438,7 +494,12 @@
 }
 
 -(CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item{
-    return 50;
+    TreeNodeModel *model = item;
+    if(model.nodeLevel == 0){
+        return ZBPlayerSectionHeight;
+    }else{
+        return ZBPlayerRowHeight;
+    }
 }
 
 
@@ -473,10 +534,7 @@
     if (levelForRow == 1) {
         if(self.currentTrackIndex != childIndexForItem){
             self.currentTrackIndex = childIndexForItem;
-            [self.player prepareToPlay];
-            [self startPlaying];
-            NSLog(@"正在播放：%@",model.name);
-
+            self.isPlaying = YES;
         }else{
             NSLog(@"正在播放：%@",model.name);
         }
@@ -687,7 +745,9 @@
 //开始播放
 - (void)startPlaying{
     
-    
+    if(_player){
+        _player = nil;
+    }
     //播放工程目录下的文件
     if (self.localMusics == nil || self.localMusics.count == 0) {
         _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicFileNames  objectAtIndex:self.currentTrackIndex]] ofType:@"mp3"]] error:NULL];
@@ -719,18 +779,25 @@
             u_int32_t a = arc4random_uniform(num);
             self.currentTrackIndex = a;
         }
-        NSLog(@"已选中 %ld 个音频文件",self.localMusics.count);
         NSError *error =  nil;
         ZBAudioModel *audio = [self.localMusics objectAtIndex:self.currentTrackIndex];
         _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
-        NSLog(@"error__%@",error);
-//        _player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
+        NSLog(@"已选中 %ld 个音频文件,正在播放：%@，error__%@",self.localMusics.count,audio.title,error);
 
+//        _player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
         _player.delegate = self;
+        [_player prepareToPlay];
         [_player play];
         [self.column1 setTitle:audio.title];
-        [self mDefineUpControl:audio.path];
+//        [self mDefineUpControl:audio.path];
         
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPause"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
+        self.progressSlider.maxValue = _player.duration;
+        self.progressSlider.integerValue = 0;
+        [self runLoopTimerForRemainTime];
+
+        NSLog(@"_player.duration_%f,%f",_player.duration,self.progressSlider.maxValue);
     }
 }
 

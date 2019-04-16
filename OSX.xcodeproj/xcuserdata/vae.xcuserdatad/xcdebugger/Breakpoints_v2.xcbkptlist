@@ -180,11 +180,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/MainWCtrl.m"
-            timestampString = "576602884.702776"
+            timestampString = "577128004.614814"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "993"
-            endingLineNumber = "993"
+            startingLineNumber = "969"
+            endingLineNumber = "969"
             landmarkName = "-toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:"
             landmarkType = "7">
          </BreakpointContent>
@@ -196,11 +196,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/MainWCtrl.m"
-            timestampString = "576602884.703325"
+            timestampString = "577128004.6149631"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1001"
-            endingLineNumber = "1001"
+            startingLineNumber = "977"
+            endingLineNumber = "977"
             landmarkName = "-toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:"
             landmarkType = "7">
          </BreakpointContent>
@@ -208,16 +208,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "577065827.901714"
+            timestampString = "577128004.6150481"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "317"
-            endingLineNumber = "317"
-            landmarkName = "-btnAction:"
+            startingLineNumber = "522"
+            endingLineNumber = "522"
+            landmarkName = "-outlineViewSelectionDidChange:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
