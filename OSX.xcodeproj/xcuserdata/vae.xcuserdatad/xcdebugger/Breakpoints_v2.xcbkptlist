@@ -212,11 +212,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "577128004.6150481"
+            timestampString = "577238291.059556"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "522"
-            endingLineNumber = "522"
+            startingLineNumber = "567"
+            endingLineNumber = "567"
             landmarkName = "-outlineViewSelectionDidChange:"
             landmarkType = "7">
          </BreakpointContent>

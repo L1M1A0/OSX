@@ -66,7 +66,7 @@
 @property (nonatomic, strong) NSOutlineView *audioListOutlineView;
 /** 歌曲列表层级页面 的背景页面 */
 @property (nonatomic, strong) NSScrollView *audioListScrollView;
-@property (nonatomic, strong) NSTableColumn *column1;
+
 
 
 #pragma mark - 数据
@@ -134,7 +134,7 @@
         make.right.equalTo(view1.mas_right).with.offset(0);
     }];
     
-    NSView *view2 = [self viewForSplitView:[NSColor cyanColor]];
+    NSView *view2 = [self viewForSplitView:self.mainColor];
     
     //增加左右分栏视图,数量任意加
     [_playerMainBoard addSubview:view1];
@@ -169,14 +169,14 @@
         _playerMainBoard = [[ZBPlayerSplitView alloc]init];
         _playerMainBoard.dividerStyle = NSSplitViewDividerStyleThick;
         _playerMainBoard.vertical = YES;
-        _playerMainBoard.wantsLayer = YES;
         _playerMainBoard.delegate = self;
+        _playerMainBoard.wantsLayer = YES;
         _playerMainBoard.layer.backgroundColor = [NSColor greenColor].CGColor;
         [_playerMainBoard adjustSubviews];
         [self.window.contentView addSubview:_playerMainBoard];
         [_playerMainBoard mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.window.contentView.mas_top).offset(0);
-            make.bottom.equalTo(self.window.contentView.mas_bottom).offset(-80);
+            make.bottom.equalTo(self.window.contentView.mas_bottom).offset(-70);
             make.left.equalTo(self.window.contentView.mas_left).offset(0);
             make.right.equalTo(self.window.contentView.mas_right).offset(0);
         }];
@@ -222,9 +222,9 @@
         //    _audioListOutlineView.layer.backgroundColor = [NSColor blueColor].CGColor;
         //    [self.window.contentView addSubview:s_audioListOutlineView];
         //    _audioListOutlineView.outlineTableColumn.hidden = YES;
-        self.column1 = [[NSTableColumn alloc]initWithIdentifier:@"name"];
-        self.column1.title = @"可创建一个空的，不创建的话，内容会跑到bar底下";
-        [_audioListOutlineView addTableColumn:self.column1];
+        NSTableColumn *column1 = [[NSTableColumn alloc]initWithIdentifier:@"name"];
+        column1.title = @" ";//@"可创建一个空的，不创建的话，内容会跑到bar底下";
+        [_audioListOutlineView addTableColumn:column1];
         
     }
     
@@ -246,17 +246,22 @@
 }
 
 -(void)btn{
-    self.lastBtn      = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
+    self.lastBtn = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
     self.lastBtn = [self border:self.lastBtn];
-    self.playBtn      = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
+    self.playBtn = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
     self.playBtn = [self border:self.playBtn];
-    self.nextBtn      = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
+    self.nextBtn = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
     self.nextBtn = [self border:self.nextBtn];
-    self.addAudioBtn  = [self button:NSMakeRect(190, 10, 50, 50) title:@"导入"   tag:4 image:@"" alternateImage:@""];
-    self.playModelBtn = [self button:NSMakeRect(250, 10, 50, 50) title:@"随机"   tag:5 image:@"" alternateImage:@""];
     
-    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(310, 15, 400, 15)  superView:self.window.contentView target:self action:@selector(progressAction:)];//[self.object progressIndicator:NSMakeRect(310, 15, 400, 15) style:NSProgressIndicatorStyleBar superView:self.window.contentView];
+    self.addAudioBtn  = [self button:NSMakeRect(170, 15, 40, 40) title:@"导入"   tag:4 image:@"" alternateImage:@""];
+    self.addAudioBtn  = [self border:self.addAudioBtn];
+    self.playModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"随机"   tag:5 image:@"" alternateImage:@""];
+    self.playModelBtn = [self border:self.playModelBtn];
 
+    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(270, 15, 450, 3)  superView:self.window.contentView target:self action:@selector(progressAction:)];
+
+    self.audioNameTF = [self textField:NSMakeRect(270, 20, 450, 20) holder:@"歌名" fontsize:12];
+    self.durationTF  = [self textField:NSMakeRect(270, 41, 450, 15) holder:@"时长" fontsize:10];
 }
 
 
@@ -358,13 +363,35 @@
         __weak __typeof(self) weakSelf = self;
         CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
             weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
-
+            NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
+            NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
+            weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
+            
         });
         
         _timerForRemainTime = timer;
         CFRunLoopAddTimer(CFRunLoopGetCurrent(), _timerForRemainTime, kCFRunLoopCommonModes);
     }
+}
+
+-(NSString *)countTime:(float)duration{
+    int h = duration/60/60;//时
+    int m = duration/60;//分
+    int s = (int)duration % 60;//n秒
+    NSString *time = [NSString stringWithFormat:@"%@ : %@",[self fill0:m],[self fill0:s]];
+    if (h > 0) {
+        time = [NSString stringWithFormat:@"%@ : %@",[self fill0:h],time];
+    }
+    return time;
     
+}
+
+-(NSString *)fill0:(int)number{
+    if (number < 10) {
+        return [NSString stringWithFormat:@"0%d",number];
+    }else{
+        return [NSString stringWithFormat:@"%d",number];
+    }
 }
 
 
@@ -376,6 +403,24 @@
 -(void)progressChange:(id)timer{
     NSLog(@"timer_%@",timer);
     self.progressSlider.stringValue = [NSString stringWithFormat:@"%f",self.progressSlider.doubleValue + 1.0];
+}
+
+-(NSTextField *)textField:(NSRect)frame holder:(NSString *)holder fontsize:(CGFloat)size{
+    NSTextField *tf = [[NSTextField alloc]initWithFrame:frame];
+    tf.textColor = [NSColor whiteColor];
+    tf.alignment = NSTextAlignmentLeft;
+    [tf setBezeled:NO];
+    [tf setDrawsBackground:NO];
+    [tf setEditable:NO];
+    tf.font = [NSFont systemFontOfSize:size];
+    tf.placeholderString = holder;
+
+//    tf.wantsLayer = YES;
+//    tf.layer.backgroundColor = [NSColor orangeColor].CGColor;
+//    tf.stringValue = @"textView";
+
+    [self.window.contentView addSubview:tf];
+    return tf;
 }
 
 //8********************************
@@ -608,7 +653,7 @@
     // 5 准备播放
     [self.player prepareToPlay];
     
-    self.musicFileNames = @[@"松本晃彦 - 栄の活躍",@"吉田潔 - Potu",@"吉田潔 - Private Moon",@"吉田潔 - はるかな旅"];
+    self.musicFileNames = @[@"松本晃彦 - 栄の活躍"];
     self.currentTrackIndex = 0;
     [self loacalMusicInPath];
     //[self.player setVolume:sender.floatValue/100];
@@ -788,7 +833,6 @@
         _player.delegate = self;
         [_player prepareToPlay];
         [_player play];
-        [self.column1 setTitle:audio.title];
 //        [self mDefineUpControl:audio.path];
         
         [self.playBtn setImage:[NSImage imageNamed:@"statusBarPause"]];
@@ -796,8 +840,13 @@
         self.progressSlider.maxValue = _player.duration;
         self.progressSlider.integerValue = 0;
         [self runLoopTimerForRemainTime];
-
+        self.audioNameTF.stringValue = audio.title;
+        self.audioNameTF.toolTip = audio.title;
         NSLog(@"_player.duration_%f,%f",_player.duration,self.progressSlider.maxValue);
+        //show file in finder 打开文件所在文件夹
+        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[[NSURL fileURLWithPath:audio.path]]];
+        
+
     }
 }
 

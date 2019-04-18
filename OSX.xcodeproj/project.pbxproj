@@ -45,7 +45,6 @@
 		05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCD498205BAA5200068210 /* OutlineIndexModel.m */; };
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
-		05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */; };
 		05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */; };
 		05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */; };
 		05EFBBFD225A4509003F58A4 /* ZBPlayerRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBFC225A4509003F58A4 /* ZBPlayerRow.m */; };
@@ -123,7 +122,6 @@
 		05BCD497205BAA5200068210 /* OutlineIndexModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutlineIndexModel.h; sourceTree = "<group>"; };
 		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
-		05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "吉田潔 - Private Moon.mp3"; sourceTree = "<group>"; };
 		05ECA6F3225D5DC5005648FF /* ZBAudioModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioModel.h; sourceTree = "<group>"; };
 		05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBAudioModel.m; sourceTree = "<group>"; };
 		05EFBBF8225A44E5003F58A4 /* ZBPlayerSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayerSection.h; sourceTree = "<group>"; };
@@ -219,7 +217,6 @@
 			children = (
 				05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */,
 				05BCD493205A589F00068210 /* arrow_gray_down.png */,
-				05E7CF2D22566577008071C8 /* 吉田潔 - Private Moon.mp3 */,
 				05BCD494205A589F00068210 /* arrow_gray_right.png */,
 				05A2DA142056565300B539E4 /* screen.jpg */,
 				050EFCE21EF12C0900172269 /* Save.png */,
@@ -372,7 +369,6 @@
 				050EFCE41EF12C0900172269 /* Save.png in Resources */,
 				05A2DA152056565400B539E4 /* screen.jpg in Resources */,
 				05BCD495205A58A000068210 /* arrow_gray_down.png in Resources */,
-				05E7CF3022566578008071C8 /* 吉田潔 - Private Moon.mp3 in Resources */,
 				0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */,
 				05B1977F225E507B005CC344 /* Images.xcassets in Resources */,
 				052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */,
