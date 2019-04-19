@@ -8,16 +8,14 @@
 
 #import "ZBPlayer.h"
 #import <AVFoundation/AVFoundation.h>
-//#import <AVAudioSession.h>
-//设置锁屏仍能继续播放
-//[[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
-//[[AVAudioSession sharedInstance] setActive: YES error: nil];
 #import "Masonry.h"
 #import "ZBMacOSObject.h"
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
 #import "ZBAudioModel.h"
 #import "ZBPlayerSplitView.h"
+#import <VLCKit/VLCKit.h>
+
 #ifdef DEBUG
 
 #define NSLog(format,...) printf("\n[%s] %s [第%d行] %s\n",__TIME__,__FUNCTION__,__LINE__,[[NSString stringWithFormat:format,## __VA_ARGS__] UTF8String]);
@@ -26,7 +24,9 @@
 #endif
 
 @interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate>
-
+{
+     VLCMediaPlayer *vclPlayer;
+}
 @property (nonatomic, strong) ZBMacOSObject *object;
 
 #pragma mark - 常用功能
@@ -97,6 +97,8 @@
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 
 
+
+
 @end
 
 @implementation ZBPlayer
@@ -124,6 +126,8 @@
     [self audioListScrollView];
     [self btn];
     [self musicPlayer];
+    //创建是特别卡顿
+    vclPlayer = [[VLCMediaPlayer alloc]init];
     
     NSView *view1 = [self viewForSplitView:[NSColor orangeColor]];
     [view1 addSubview:_audioListScrollView];
@@ -234,7 +238,7 @@
 -(NSScrollView *)audioListScrollView{
     if(!_audioListScrollView){
         _audioListScrollView = [[NSScrollView alloc] init];
-        [_audioListScrollView setHasVerticalScroller:NO];
+        [_audioListScrollView setHasVerticalScroller:YES];
         [_audioListScrollView setHasHorizontalScroller:NO];
         [_audioListScrollView setFocusRingType:NSFocusRingTypeNone];
         [_audioListScrollView setAutohidesScrollers:YES];
@@ -429,7 +433,7 @@
 -(void)initData{
     self.treeModel = [[TreeNodeModel alloc]init];
     //根节点
-    TreeNodeModel *rootNode1 = [self node:@"播放列表1" level:0];
+    TreeNodeModel *rootNode1 = [self node:@"播放列表" level:0];
     
     //2级节点
     for(int i = 0; i< self.localMusics.count; i++){
@@ -656,6 +660,9 @@
     self.musicFileNames = @[@"松本晃彦 - 栄の活躍"];
     self.currentTrackIndex = 0;
     [self loacalMusicInPath];
+    [self initData];
+    [self.audioListOutlineView reloadData];
+    
     //[self.player setVolume:sender.floatValue/100];
 }
 
@@ -719,7 +726,7 @@
 -(BOOL)isAudioFormat:(NSString *)format{
     //@[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"wma",@"ape",@"ogg",@"alac"]
     //暂时不支持以下格式，建议用ffmpeg、vlc、mpv的第三方： [format isEqualToString:@"wma"] || [format isEqualToString:@"ape"] || [format isEqualToString:@"ogg"] || [format isEqualToString:@"alac"] 
-    if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"]) {
+    if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"] || [format isEqualToString:@"wma"] || [format isEqualToString:@"ape"] || [format isEqualToString:@"ogg"] || [format isEqualToString:@"alac"]) {
         return YES;
     }else{
         return NO;
@@ -831,9 +838,10 @@
 
 //        _player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
         _player.delegate = self;
-        [_player prepareToPlay];
-        [_player play];
+//        [_player prepareToPlay];
+//        [_player play];
 //        [self mDefineUpControl:audio.path];
+        [self vcl:[NSURL fileURLWithPath:audio.path]];
         
         [self.playBtn setImage:[NSImage imageNamed:@"statusBarPause"]];
         [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
@@ -844,7 +852,7 @@
         self.audioNameTF.toolTip = audio.title;
         NSLog(@"_player.duration_%f,%f",_player.duration,self.progressSlider.maxValue);
         //show file in finder 打开文件所在文件夹
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[[NSURL fileURLWithPath:audio.path]]];
+        //[[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[[NSURL fileURLWithPath:audio.path]]];
         
 
     }
@@ -930,6 +938,11 @@
 }
 
 
+-(void)vcl:(NSURL *)url{
+    VLCMedia *movie = [VLCMedia mediaWithURL:url];
+    [vclPlayer setMedia:movie];
+    [vclPlayer play];
+}
 
 
 @end

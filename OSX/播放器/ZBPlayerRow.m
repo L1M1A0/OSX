@@ -7,6 +7,7 @@
 //
 
 #import "ZBPlayerRow.h"
+#import "Masonry.h"
 
 @implementation ZBPlayerRow
 
@@ -24,13 +25,12 @@
 
 
 
-
 -(void)creatViewWithLevel:(NSInteger)level{
     NSInteger leftgap = 20;
     NSInteger topGap = 5;
     NSInteger rowHeight = ZBPlayerRowHeight - 5 * 2;
     
-    self.imageV = [[NSImageView alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level, topGap, rowHeight, rowHeight)];
+    self.imageV = [[NSImageView alloc]initWithFrame:NSZeroRect];
     self.imageV.wantsLayer = YES;
     self.imageV.layer.backgroundColor = [NSColor greenColor].CGColor;
     self.imageV.image = [NSImage imageNamed:@"list_hide"];
@@ -38,26 +38,36 @@
     //    self.imageV.target = self;
     //    self.imageV.editable = YES;
     [self addSubview:self.imageV];
+    [self.imageV mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.mas_left).offset(leftgap+leftgap*level);
+        make.top.equalTo(self.mas_top).offset(topGap);
+        make.width.mas_equalTo(rowHeight);
+        make.bottom.equalTo(self.mas_bottom).offset(-topGap);
+    }];
     
-    self.textV = [[NSTextField alloc]initWithFrame:NSMakeRect(leftgap+leftgap*level+rowHeight,topGap*2, 420, rowHeight-topGap*2)];
+    
+    self.textV = [[NSTextField alloc]initWithFrame:NSZeroRect];
     self.textV.textColor = [NSColor whiteColor];
-//    self.textV.wantsLayer = YES;
-//    self.textV.layer.backgroundColor = [NSColor orangeColor].CGColor;
     self.textV.alignment = NSTextAlignmentLeft;
     [self.textV setBezeled:NO];
     [self.textV setDrawsBackground:NO];
     [self.textV setEditable:NO];
-    self.textV.stringValue = @"textView";
+    //    [[self.textV cell] setLineBreakMode:NSLineBreakByCharWrapping];
+    //    [[self.textV cell] setTruncatesLastVisibleLine:YES];
     //    self.textV.wantsLayer = YES;
-    self.textV.backgroundColor = [NSColor cyanColor];
+    //    self.textV.layer.backgroundColor = [NSColor orangeColor].CGColor;
+    //    self.textV.stringValue = @"";
+    //    self.textV.backgroundColor = [NSColor cyanColor];
     [self addSubview:self.textV];
     
-    //    self.wantsLayer = YES;
-    //    if(self.isSelected == YES){
-    //        self.layer.backgroundColor = [NSColor brownColor].CGColor;
-    //    }else{
-    //        self.layer.backgroundColor = [NSColor orangeColor].CGColor;
-    //    }
+    [self.textV mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(topGap*2);
+        make.left.equalTo(self.imageV.mas_right).offset(topGap);
+        make.height.mas_equalTo(rowHeight-topGap*2);
+        make.right.equalTo(self.mas_right).offset(-10);
+    }];
+    
+    
 }
 
 
@@ -86,7 +96,7 @@
 -(void)setModel:(TreeNodeModel *)model{
     _model = model;
     self.textV.stringValue = model.name;
-    self.toolTip = self.textV.stringValue;
+    
 }
 
 -(void)mouseDown:(NSEvent *)event{
@@ -101,5 +111,6 @@
         self.imageV.image = [NSImage imageNamed:@"list_hide"];
     }
 }
+
 
 @end
