@@ -183,8 +183,8 @@
     
     //窗口关闭时退出应用程序 方法1
     //设置了这个代理之后，将不会在AppDelegate中执行方法2,(仅对当前窗口有效？)
-    [NSApp setDelegate:self];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(windowStatusChange) name:NSWindowWillCloseNotification object:self.window];
+//    [NSApp setDelegate:self];
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(windowStatusChange) name:NSWindowWillCloseNotification object:self.window];
     
     //窗口关闭时退出应用程序 方法2 在AppDelegate中设置
     //    - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)application {
@@ -281,9 +281,9 @@
     //-----------------------------New Window-------------------
     [self button:NSMakeRect(250, 350, 200, 50) superView:self.window.contentView title:@"新窗口显示tableview" tag:3 type:NSButtonTypePushOnPushOff];
     
-    [self button:NSMakeRect(250, 400, 70, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:4 type:NSButtonTypePushOnPushOff];
+    [self button:NSMakeRect(250, 380, 100, 50) superView:self.window.contentView title:@"OutlineWCtrl" tag:4 type:NSButtonTypePushOnPushOff];
 
-    [self button:NSMakeRect(250, 420, 100, 50) superView:self.window.contentView title:@"ZBPlayer" tag:5 type:NSButtonTypePushOnPushOff];
+    [self button:NSMakeRect(350, 380, 100, 50) superView:self.window.contentView title:@"ZBPlayer" tag:5 type:NSButtonTypePushOnPushOff];
 
     
 }
@@ -503,11 +503,7 @@
         [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
     }
     
-    NSButton *button = (NSButton *)sender;
-    NSPoint point = button.frame.origin;
-    point.x += button.frame.size.width;
-    point.y = point.y ;
-    [self.myMenu popUpMenuPositioningItem:nil atLocation:point inView:self.window.contentView];
+
 }
 
 
@@ -688,7 +684,7 @@
     //增加左右视图。可以任意加，每加一个，就多一个分栏
     [splitView addSubview:view1];
     [splitView addSubview:view2];
-//    [splitView addSubview:view3];
+    [splitView addSubview:view3];
 
     //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
     
@@ -1007,20 +1003,17 @@
 
 
 
-#pragma mark - NSMenu
-
-- (void)newMenu{
-    NSMenu *menu = [[NSMenu alloc]init];
-    [menu insertItem:[self menuItem:@"1"] atIndex:1];
-    [menu insertItem:[self menuItem:@"2"] atIndex:2];
-    [menu insertItem:[self menuItem:@"3"] atIndex:3];
-    
-    //    [self.window.contentView addSubview:menu];
+#pragma mark - NSMenu (未完成)
+-(void)menununu{
+//    NSButton *button = (NSButton *)sender;
+//    NSPoint point = button.frame.origin;
+//    point.x += button.frame.size.width;
+//    point.y = point.y ;
+//    [self.myMenu popUpMenuPositioningItem:nil atLocation:point inView:self.window.contentView];
 }
-
 -(NSMenu *)myMenu{
     if(!_myMenu){
-        _myMenu = [[NSMenu alloc]init];
+        _myMenu = [[NSMenu alloc]initWithTitle:@"菜单_myMenu"];
         [_myMenu insertItem:[self menuItem:@"1"] atIndex:1];
         [_myMenu insertItem:[self menuItem:@"2"] atIndex:2];
         [_myMenu insertItem:[self menuItem:@"3"] atIndex:3];

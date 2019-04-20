@@ -8,8 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class ZBAudioModel;
+
 @interface TreeNodeModel : NSObject
 
+@property (nonatomic, strong) ZBAudioModel *audio;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSMutableArray *childNodes;
 @property (nonatomic, assign) BOOL isExpand;

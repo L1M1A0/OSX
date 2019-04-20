@@ -97,8 +97,7 @@
 
 #pragma mark - NSSegmentedControl
 -(NSSegmentedControl *)segmentedControl:(NSRect)frame labels:(NSArray *)labels target:(id)target superView:(NSView *)superView{
-    NSSegmentedControl *seg = [[NSSegmentedControl alloc]init];
-    seg = [NSSegmentedControl segmentedControlWithLabels:labels trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(segmentAction:)];
+    NSSegmentedControl *seg = [NSSegmentedControl segmentedControlWithLabels:labels trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(segmentAction:)];
     seg.frame = frame;
     seg.wantsLayer = YES;
     seg.layer.backgroundColor = [NSColor redColor].CGColor;
@@ -172,11 +171,11 @@
     slider.minValue = 0;
     slider.maxValue = 100;
     //当前数值位置
-    slider.integerValue = 58;
+    slider.integerValue = 0;
     //slider.floatValue = 29.22;
     //slider.stringValue = @"40";
     
-    slider.numberOfTickMarks = 10;//标尺分节段数量，将无法设置线条颜色
+//    slider.numberOfTickMarks = 10;//标尺分节段数量，将无法设置线条颜色,且滑动指示器会变成三角模式，0是圆形
     slider.appearance = [NSAppearance currentAppearance];
     slider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
     

@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050EC960226A25E30042CC6A /* ISSoundAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EC95F226A25E30042CC6A /* ISSoundAdditions.m */; };
 		050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* TableViewWCtrl.m */; };
 		050EFCE41EF12C0900172269 /* Save.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE21EF12C0900172269 /* Save.png */; };
 		050EFCE51EF12C0900172269 /* FontSetting.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE31EF12C0900172269 /* FontSetting.png */; };
+		051CB458226AF32C00D39671 /* ZBTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CB457226AF32C00D39671 /* ZBTextFieldCell.m */; };
+		051CB45B226B292800D39671 /* ZBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 051CB45A226B292800D39671 /* ZBSlider.m */; };
 		0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8301ED587CE00D4671F /* AppDelegate.m */; };
 		0522D8341ED587CE00D4671F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8331ED587CE00D4671F /* main.m */; };
 		0522D8461ED589FF00D4671F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0522D8451ED589FF00D4671F /* MainMenu.xib */; };
@@ -69,10 +72,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		050EC95E226A25E30042CC6A /* ISSoundAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISSoundAdditions.h; sourceTree = "<group>"; };
+		050EC95F226A25E30042CC6A /* ISSoundAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISSoundAdditions.m; sourceTree = "<group>"; };
 		050EFCDF1EF1160700172269 /* TableViewWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWCtrl.h; sourceTree = "<group>"; };
 		050EFCE01EF1160700172269 /* TableViewWCtrl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewWCtrl.m; sourceTree = "<group>"; };
 		050EFCE21EF12C0900172269 /* Save.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Save.png; sourceTree = "<group>"; };
 		050EFCE31EF12C0900172269 /* FontSetting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FontSetting.png; sourceTree = "<group>"; };
+		051CB456226AF32C00D39671 /* ZBTextFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBTextFieldCell.h; sourceTree = "<group>"; };
+		051CB457226AF32C00D39671 /* ZBTextFieldCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBTextFieldCell.m; sourceTree = "<group>"; };
+		051CB459226B292800D39671 /* ZBSlider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBSlider.h; sourceTree = "<group>"; };
+		051CB45A226B292800D39671 /* ZBSlider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBSlider.m; sourceTree = "<group>"; };
 		0522D82C1ED587CE00D4671F /* OSX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OSX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0522D82F1ED587CE00D4671F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		0522D8301ED587CE00D4671F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -163,6 +172,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		050EC95D226A25E30042CC6A /* ISSoundAdditions */ = {
+			isa = PBXGroup;
+			children = (
+				050EC95E226A25E30042CC6A /* ISSoundAdditions.h */,
+				050EC95F226A25E30042CC6A /* ISSoundAdditions.m */,
+			);
+			path = ISSoundAdditions;
+			sourceTree = "<group>";
+		};
 		0522D8231ED587CE00D4671F = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +200,7 @@
 		0522D82E1ED587CE00D4671F /* OSX */ = {
 			isa = PBXGroup;
 			children = (
+				050EC95D226A25E30042CC6A /* ISSoundAdditions */,
 				05B5585D202856E1005F7A20 /* Masonry */,
 				0589401B1ED81F36004464E4 /* images */,
 				05B516121ED67F2500A3820F /* OSX.entitlements */,
@@ -253,6 +272,10 @@
 			children = (
 				05B516191ED6DFC800A3820F /* ZBMacOSObject.h */,
 				05B5161A1ED6DFC800A3820F /* ZBMacOSObject.m */,
+				051CB456226AF32C00D39671 /* ZBTextFieldCell.h */,
+				051CB457226AF32C00D39671 /* ZBTextFieldCell.m */,
+				051CB459226B292800D39671 /* ZBSlider.h */,
+				051CB45A226B292800D39671 /* ZBSlider.m */,
 			);
 			path = object;
 			sourceTree = "<group>";
@@ -410,6 +433,8 @@
 				05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */,
 				05B5587F202856E1005F7A20 /* MASConstraint.m in Sources */,
 				05B5587D202856E1005F7A20 /* NSArray+MASAdditions.m in Sources */,
+				051CB458226AF32C00D39671 /* ZBTextFieldCell.m in Sources */,
+				051CB45B226B292800D39671 /* ZBSlider.m in Sources */,
 				050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */,
 				05B5161B1ED6DFC800A3820F /* ZBMacOSObject.m in Sources */,
 				05B55878202856E1005F7A20 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */,
@@ -436,6 +461,7 @@
 				052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */,
 				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 				05BCD48F2059237000068210 /* TreeNodeModel.m in Sources */,
+				050EC960226A25E30042CC6A /* ISSoundAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

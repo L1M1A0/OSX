@@ -15,6 +15,7 @@
 #import "ZBAudioModel.h"
 #import "ZBPlayerSplitView.h"
 #import <VLCKit/VLCKit.h>
+#import "ISSoundAdditions.h"//音量管理
 
 #ifdef DEBUG
 
@@ -23,7 +24,7 @@
 #define NSLog(format, ...)
 #endif
 
-@interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate>
+@interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,VLCMediaPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate>
 {
      VLCMediaPlayer *vclPlayer;
 }
@@ -56,8 +57,7 @@
 #pragma mark - 主功能
 /** 创建列表 */
 @property (nonatomic, strong) NSButton *createListBtn;
-/** 选择文件目录，添加歌曲到列表 */
-@property (nonatomic, strong) NSButton *addAudioBtn;
+
 
 #pragma mark - 主界面
 /** 播放器主活动界面 左边存放歌曲列表，右边显示歌词等其他界面 */
@@ -96,6 +96,10 @@
 #pragma mark - 临时
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 
+/**
+ 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:VCLPlayer
+ */
+@property (nonatomic, assign) BOOL isVCLPlayMode;
 
 
 
@@ -118,6 +122,7 @@
     [self.window setBackgroundColor: self.mainColor];
     
     self.object = [[ZBMacOSObject alloc]init];
+    self.isVCLPlayMode = YES;
     [self initData];
     
     //注：似乎没法使用懒加载，只能手动调用了
@@ -126,9 +131,9 @@
     [self audioListScrollView];
     [self btn];
     [self musicPlayer];
-    //创建是特别卡顿
-    vclPlayer = [[VLCMediaPlayer alloc]init];
+    [self vclPlayer];
     
+
     NSView *view1 = [self viewForSplitView:[NSColor orangeColor]];
     [view1 addSubview:_audioListScrollView];
     [_audioListScrollView  mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -143,10 +148,10 @@
     //增加左右分栏视图,数量任意加
     [_playerMainBoard addSubview:view1];
     [_playerMainBoard addSubview:view2];
-
     
     [_audioListOutlineView reloadData];
 }
+
 
 - (NSView *)viewForSplitView:(NSColor *)color{
     //设置frame的值似乎没什么意义
@@ -162,7 +167,7 @@
 #pragma mark - UI
 
 
-#pragma mark - NSSplitView playerMainBoard
+#pragma mark - playerMainBoard
 /**
  播发器主面板
 
@@ -191,29 +196,12 @@
 //        //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
 //
 //        //    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
-            [_playerMainBoard setPosition:80 ofDividerAtIndex:0];
+            [_playerMainBoard setPosition:100 ofDividerAtIndex:0];
     }
     return _playerMainBoard;
 }
 
-#pragma mark NSSplitViewDelegate
-/** 设置每个栏的最小值，可以根据dividerIndex单独设置 */
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
-    if (dividerIndex == 0) {
-        return 400;
-    }else{
-        return 600;
-    }
 
-}
-/** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
--(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
-    if (dividerIndex == 0) {
-        return 500;
-    }else{
-        return 500;
-    }
-}
 
 -(NSOutlineView *)audioListOutlineView{
     if (!_audioListOutlineView) {
@@ -250,22 +238,26 @@
 }
 
 -(void)btn{
-    self.lastBtn = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreview" alternateImage:@"statusBarPreviewSelected"];
+    self.lastBtn = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreviewSelected" alternateImage:@"statusBarPreview"];
     self.lastBtn = [self border:self.lastBtn];
-    self.playBtn = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlay" alternateImage:@"statusBarPlaySelected"];
+    self.playBtn = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlaySelected" alternateImage:@"statusBarPlay"];
     self.playBtn = [self border:self.playBtn];
-    self.nextBtn = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNext" alternateImage:@"statusBarNextSelected"];
+    self.nextBtn = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNextSelected" alternateImage:@"statusBarNext"];
     self.nextBtn = [self border:self.nextBtn];
     
-    self.addAudioBtn  = [self button:NSMakeRect(170, 15, 40, 40) title:@"导入"   tag:4 image:@"" alternateImage:@""];
-    self.addAudioBtn  = [self border:self.addAudioBtn];
-    self.playModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"随机"   tag:5 image:@"" alternateImage:@""];
+    self.volumeBtn  = [self button:NSMakeRect(170, 15, 40, 40) title:@"音量" tag:4 image:@"volumeSelected" alternateImage:@"volumeSelected"];
+    self.volumeBtn  = [self border:self.volumeBtn];
+    self.playModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"模式" tag:5 image:@"" alternateImage:@""];
     self.playModelBtn = [self border:self.playModelBtn];
 
-    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(270, 15, 450, 3)  superView:self.window.contentView target:self action:@selector(progressAction:)];
-
-    self.audioNameTF = [self textField:NSMakeRect(270, 20, 450, 20) holder:@"歌名" fontsize:12];
-    self.durationTF  = [self textField:NSMakeRect(270, 41, 450, 15) holder:@"时长" fontsize:10];
+    self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(270, 15, 450, 8)  superView:self.window.contentView target:self action:@selector(progressAction:)];
+    self.progressSlider.layer.backgroundColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:0.2].CGColor;
+//    self.progressSlider.numberOfTickMarks = 0;//标尺分节段数量，将无法设置线条颜色,且滑动指示器会变成三角模式
+    self.progressSlider.appearance = [NSAppearance currentAppearance];
+    self.progressSlider.trackFillColor = [NSColor redColor];//跟踪填充颜色，需要先设置appearance
+    
+    self.audioNameTF = [self textField:NSMakeRect(270, 23, 450, 20) holder:@"歌名" fontsize:12];
+    self.durationTF  = [self textField:NSMakeRect(270, 43, 450, 15) holder:@"时长" fontsize:10];
 }
 
 
@@ -317,8 +309,10 @@
         }
         [self startPlaying];
     }else if(sender.tag == 4){
-        [self openPanel];
+        //音量控制
+
     }else if(sender.tag == 5){
+        //播放模式
         self.isRandom = YES;
         u_int32_t  num = (u_int32_t)self.localMusics.count;
         u_int32_t a = arc4random_uniform(num);
@@ -342,9 +336,13 @@
 
     }else{
         //暂停
-        [self.player pause];
-        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlay"]];
-        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
+        if (self.isVCLPlayMode == YES) {
+            [vclPlayer pause];
+        }else{
+            [self.player pause];
+        }
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPlay"]];
         CFRunLoopTimerInvalidate(self.timerForRemainTime);
     }
     
@@ -352,8 +350,17 @@
 
 -(void)progressAction:(NSSlider *)slider{
     NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
-//    textField.stringValue = sender.stringValue;
-    self.player.currentTime = slider.integerValue;
+    if (self.isVCLPlayMode == true) {
+        //秒转毫秒
+        NSNumber *num = [NSNumber numberWithDouble:slider.doubleValue*1000];
+        VLCTime *tmpTime = [VLCTime timeWithNumber:num];
+        [vclPlayer setTime:tmpTime];
+    }else{
+        //AVAudionPlayer
+        self.player.currentTime = slider.integerValue;
+    }
+
+
 }
 
 
@@ -366,11 +373,29 @@
         CGFloat timeInterVal = 1.0;
         __weak __typeof(self) weakSelf = self;
         CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
-            weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
-            NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
-            NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
-            weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
-            
+            if (weakSelf.isVCLPlayMode == true) {
+                NSString *str = [NSString stringWithFormat:@"%@",vclPlayer.media.length.stringValue];
+                NSArray *arr = [str componentsSeparatedByString:@":"];
+                double  duration  = 0;
+                if (arr.count == 2) {
+                    duration = [arr[0] doubleValue] * 60 + [arr[1] doubleValue];
+                }else if (arr.count == 3){
+                    duration = [arr[0] doubleValue] * 60 * 60 + [arr[1] doubleValue] * 60 + [arr[2] doubleValue];
+                }else{
+                    //正常情况下不会出现这样的情况
+                    duration = [arr[0] doubleValue];
+                }
+                
+                self.progressSlider.maxValue = duration;
+                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+
+            }else {
+                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+                NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
+                NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
+                weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
+                
+            }
         });
         
         _timerForRemainTime = timer;
@@ -378,36 +403,8 @@
     }
 }
 
--(NSString *)countTime:(float)duration{
-    int h = duration/60/60;//时
-    int m = duration/60;//分
-    int s = (int)duration % 60;//n秒
-    NSString *time = [NSString stringWithFormat:@"%@ : %@",[self fill0:m],[self fill0:s]];
-    if (h > 0) {
-        time = [NSString stringWithFormat:@"%@ : %@",[self fill0:h],time];
-    }
-    return time;
-    
-}
-
--(NSString *)fill0:(int)number{
-    if (number < 10) {
-        return [NSString stringWithFormat:@"0%d",number];
-    }else{
-        return [NSString stringWithFormat:@"%d",number];
-    }
-}
 
 
-/**
- 修改播放进度
-
- @param timer <#timer description#>
- */
--(void)progressChange:(id)timer{
-    NSLog(@"timer_%@",timer);
-    self.progressSlider.stringValue = [NSString stringWithFormat:@"%f",self.progressSlider.doubleValue + 1.0];
-}
 
 -(NSTextField *)textField:(NSRect)frame holder:(NSString *)holder fontsize:(CGFloat)size{
     NSTextField *tf = [[NSTextField alloc]initWithFrame:frame];
@@ -428,7 +425,36 @@
 }
 
 //8********************************
+#pragma mark -  NSSplitViewDelegate
+/** 设置每个栏的最小值，可以根据dividerIndex单独设置 */
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
+    if (dividerIndex == 0) {
+        return 400;
+    }else{
+        return 600;
+    }
+    
+}
+/** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
+-(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
+    if (dividerIndex == 0) {
+        return 400;
+    }else{
+        return 600;
+    }
+}
 
+
+/**
+ 在缩放splitView的时候，控制指定DividerAtIndex代表的View的宽和高。
+ 此处，不随着splitView的尺寸变化而变化DividerAtIndex==0的viewc的尺寸
+ @param oldSize 原来的尺寸，
+ */
+- (void)splitView:(NSSplitView *)splitView resizeSubviewsWithOldSize:(NSSize)oldSize {
+    CGFloat oldWidth = splitView.arrangedSubviews.firstObject.frame.size.width;
+    [splitView adjustSubviews];
+    [splitView setPosition:oldWidth ofDividerAtIndex:0];
+}
 #pragma mark - 数据源
 -(void)initData{
     self.treeModel = [[TreeNodeModel alloc]init];
@@ -439,6 +465,7 @@
     for(int i = 0; i< self.localMusics.count; i++){
         ZBAudioModel *audio = self.localMusics[i];
         TreeNodeModel *childNode = [self node:audio.title level:1];
+        childNode.audio = audio;
         [rootNode1.childNodes addObject:childNode];
     }
     [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
@@ -450,6 +477,34 @@
     nod.isExpand = NO;
     nod.nodeLevel = level;
     return nod;
+}
+
+
+
+/**
+ 将时间(单位：秒)转化为时分秒。如：115 -> 01:55
+ */
+-(NSString *)countTime:(float)duration{
+    int h = duration/60/60;//时
+    int m = duration/60;//分,可能有问题 (duration/60)%60
+    int s = (int)duration % 60;//n秒
+    NSString *time = [NSString stringWithFormat:@"%@ : %@",[self fill0:m],[self fill0:s]];
+    if (h > 0) {
+        time = [NSString stringWithFormat:@"%@ : %@",[self fill0:h],time];
+    }
+    return time;
+    
+}
+
+/**
+ 对小与10的数字补 @"0"，如：3 -> 03
+ */
+-(NSString *)fill0:(int)number{
+    if (number < 10) {
+        return [NSString stringWithFormat:@"0%d",number];
+    }else{
+        return [NSString stringWithFormat:@"%d",number];
+    }
 }
 
 
@@ -516,6 +571,7 @@
             rowView.identifier = idet;
         }
         rowView.model = nodeModel;
+        rowView.delegate = self;
         return rowView;
     }else{
         ZBPlayerSection *rowView = [outlineView makeViewWithIdentifier:idet owner:self];
@@ -524,6 +580,7 @@
             rowView = [[ZBPlayerSection alloc]initWithLevel:nodeModel.nodeLevel];
             rowView.identifier = idet;
         }
+        rowView.delegate = self;
         rowView.model = nodeModel;
         return rowView;
     }
@@ -531,14 +588,13 @@
 
 //4.实现代理方法,绑定数据到节点视图
 -(NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item{
-    
     NSView *result  =  [outlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    //可以通过这个代理填充数据，也可以通过NSTableRowView（可以自定义）中的drawRect:方法赋值。注：此处需要注意子控件的类型
     NSArray *subviews = [result subviews];
-    //    NSImageView *imageView = subviews[0];
+    //NSImageView *imageView = subviews[0];
     NSTextField *field = subviews[1];
     TreeNodeModel *model = item;
     field.stringValue = model.name;
-    
     return result;
 }
 
@@ -554,33 +610,33 @@
 
 
 //“5.节点选择的变化事件通知
-//
 //实现代理方法 outlineViewSelectionDidChange获取到选择节点后的通知
-
 -(void)outlineViewSelectionDidChange:(NSNotification *)notification{
-    //-(void)outlineViewSelectionIsChanging:(NSNotification *)notification{
     NSOutlineView *treeView = notification.object;
     NSInteger row = [treeView selectedRow];
     TreeNodeModel *model = (TreeNodeModel*)[treeView itemAtRow:row];
-    BOOL isExpand = [treeView isItemExpanded:model];
-    if(isExpand == YES){
-        model.isExpand = NO;
-        [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
-    }else{
-        model.isExpand = YES;
-        [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
-    }
-    
+
     //    NSIndexSet *indexset = [treeView selectedRowIndexes];
     //    NSInteger inlevel = treeView.indentationPerLevel;
     //    NSIndexSet *hidenrowIndexSets = [treeView hiddenRowIndexes];
-    
+
     //获取当前item的层级序号
     NSInteger levelForRow  = [treeView levelForRow:row];
     NSInteger levelForItem = [treeView levelForItem:model];
     NSInteger childIndexForItem = [treeView childIndexForItem:model];
-    NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld，isItemExpanded=%d",row,model.name,levelForRow,levelForItem,childIndexForItem,isExpand);
-    if (levelForRow == 1) {
+    NSLog(@"row=%ld，name=%@，levelForRow=%ld，levelForItem=%ld，childIndexForItem=%ld",row,model.name,levelForRow,levelForItem,childIndexForItem);
+    if(levelForRow == 0){
+        //根列表，展开 or 关闭列表
+        BOOL isExpand = [treeView isItemExpanded:model];
+        if(isExpand == YES){
+            model.isExpand = NO;
+            [treeView collapseItem:model collapseChildren:NO];//“collapseChildren 参数表示是否收起所有的子节点。”
+        }else{
+            model.isExpand = YES;
+            [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
+        }
+    }else if (levelForRow == 1) {
+        //列表第一层 播放
         if(self.currentTrackIndex != childIndexForItem){
             self.currentTrackIndex = childIndexForItem;
             self.isPlaying = YES;
@@ -588,13 +644,36 @@
             NSLog(@"正在播放：%@",model.name);
         }
     }
-
-    
 }
 
+- (void)outlineViewSelectionIsChanging:(NSNotification *)notification{
 
+}
 
+#pragma mark - ZBPlayerRowDelegate
+-(void)playerRow:(ZBPlayerRow *)playerRow didSelectRowForModel:(TreeNodeModel *)model{
+    
+    NSLog(@"ZBPlayerRow__%@",model.name);
+    NSInteger childIndexForItem = [self.audioListOutlineView childIndexForItem:model];
+    if (model.nodeLevel == 1) {
+        //列表第一层 播放
+        if(self.currentTrackIndex != childIndexForItem){
+            self.currentTrackIndex = childIndexForItem;
+            self.isPlaying = YES;
+        }else{
+            NSLog(@"正在播放：%@",model.name);
+        }
+    }
+}
 
+-(void)playerRowMoreBtn:(ZBPlayerRow *)playerRow{
+    //show file in finder 打开文件所在文件夹
+    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[[NSURL fileURLWithPath:playerRow.model.audio.path]]];
+}
+#pragma mark - ZBPlayerSectionDelegate
+-(void)playerSectionMoreBtn:(ZBPlayerSection *)playerSection{
+    [self openPanel];
+}
 
 #pragma mark - 面板：NSOpenPanel 读取电脑文件 获取文件名，路径
 - (void)openPanel{
@@ -610,16 +689,13 @@
         if(result==NSFileHandlingPanelOKButton){
             NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
             [_localMusics addObjectsFromArray:fileURLs];
-            for(NSURL *url in fileURLs) {
-                NSError *error;
-                NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
-                if(!error){
-                    
-                    
-                }else{
-                    
-                }
-            }
+//            for(NSURL *url in fileURLs) {
+//                NSError *error;
+//                NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
+//                if(!error){
+//                }else{
+//                }
+//            }
             
             self.localMusicBasePath = [fileURLs.firstObject path];
             [self loacalMusicInPath];//更新列表
@@ -778,19 +854,31 @@
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
-    //切歌
     if (flag) {
-        if (self.localMusics == nil || self.localMusics.count == 0) {
-            if (self.currentTrackIndex < [self.musicFileNames count] - 1) {
-                self.currentTrackIndex ++;
-                [self startPlaying];
-            }
+        [self changeAudio];
+    }
+}
+
+
+/** 切歌 */
+- (void)changeAudio{
+    //切歌
+    if (self.localMusics == nil || self.localMusics.count == 0) {
+        if (self.currentTrackIndex < [self.musicFileNames count] - 1) {
+            self.currentTrackIndex ++;
+            [self startPlaying];
+        }
+    }else{
+        if (self.isRandom == YES) {
+            u_int32_t  num = (u_int32_t)self.localMusics.count;
+            u_int32_t a = arc4random_uniform(num);
+            self.currentTrackIndex = a;
         }else{
             if (self.currentTrackIndex < [self.localMusics count] - 1) {
                 self.currentTrackIndex ++;
-                [self startPlaying];
             }
         }
+        [self startPlaying];
     }
 }
 
@@ -826,34 +914,31 @@
          
          */
         
-        if (self.isRandom == YES) {
-            u_int32_t  num = (u_int32_t)self.localMusics.count;
-            u_int32_t a = arc4random_uniform(num);
-            self.currentTrackIndex = a;
-        }
-        NSError *error =  nil;
         ZBAudioModel *audio = [self.localMusics objectAtIndex:self.currentTrackIndex];
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
-        NSLog(@"已选中 %ld 个音频文件,正在播放：%@，error__%@",self.localMusics.count,audio.title,error);
-
-//        _player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
-        _player.delegate = self;
-//        [_player prepareToPlay];
-//        [_player play];
-//        [self mDefineUpControl:audio.path];
-        [self vcl:[NSURL fileURLWithPath:audio.path]];
+        NSError *error =  nil;
         
-        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPause"]];
-        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
-        self.progressSlider.maxValue = _player.duration;
+        if([audio.extension isEqualToString:@"mp3"] || [audio.extension isEqualToString:@"flac"] || [audio.extension isEqualToString:@"wav"] || [audio.extension isEqualToString:@"aac"] || [audio.extension isEqualToString:@"m4a"] ){
+            self.isVCLPlayMode = false;
+            //_player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
+            _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
+            _player.delegate = self;
+            [_player prepareToPlay];
+            [_player play];
+            self.progressSlider.maxValue = _player.duration;
+        }else{
+            self.isVCLPlayMode = true;
+            VLCMedia *movie = [VLCMedia mediaWithURL:[NSURL fileURLWithPath:audio.path]];
+            [vclPlayer setMedia:movie];
+            [vclPlayer play];
+        }
+        NSLog(@"已选中 %ld 个音频文件,正在播放：%@，error__%@",self.localMusics.count,audio.title,error);
         self.progressSlider.integerValue = 0;
         [self runLoopTimerForRemainTime];
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPauseSelected"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPause"]];
         self.audioNameTF.stringValue = audio.title;
         self.audioNameTF.toolTip = audio.title;
-        NSLog(@"_player.duration_%f,%f",_player.duration,self.progressSlider.maxValue);
-        //show file in finder 打开文件所在文件夹
-        //[[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[[NSURL fileURLWithPath:audio.path]]];
-        
+        //[self mDefineUpControl:audio.path];
 
     }
 }
@@ -932,17 +1017,71 @@
     }
 }
 
-#pragma mark - 其他获取本地文件的方式
--(void)loadFieldInBundle{
+
+#pragma mark - VCLKit
+- (void)vclPlayer{
+    //创建是特别卡顿
     
+    //初始化列表的时候卡顿
+//    dispatch_queue_t queue = dispatch_queue_create("net.bujige.testQueue", DISPATCH_QUEUE_CONCURRENT);
+//    dispatch_async(queue, ^{
+//        // 追加任务1
+//        vclPlayer = [[VLCMediaPlayer alloc]init];
+//        [vclPlayer setDelegate:self];
+//
+//    });
+    vclPlayer = [[VLCMediaPlayer alloc]init];
+    [vclPlayer setDelegate:self];
+    [self addNotification];
+//    CGFloat currentSound = [NSSound systemVolume];
 }
 
 
--(void)vcl:(NSURL *)url{
-    VLCMedia *movie = [VLCMedia mediaWithURL:url];
-    [vclPlayer setMedia:movie];
-    [vclPlayer play];
+
+-(void)addNotification{
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerStateChanged:) name:VLCMediaPlayerStateChanged object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerTimeChanged:) name:VLCMediaPlayerTimeChanged object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerTitleChanged:) name:VLCMediaPlayerTitleChanged object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerChapterChanged:) name:VLCMediaPlayerChapterChanged object:nil];
+//    //观察窗口拉伸
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(screenResize) name:NSWindowDidResizeNotification object:nil];
+//    //即将进入全屏
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterFull:) name:NSWindowWillEnterFullScreenNotification object:nil];
+//    //即将推出全屏
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willExitFull:) name:NSWindowWillExitFullScreenNotification object:nil];
+//    //已经推出全屏
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didExitFull:) name:NSWindowDidExitFullScreenNotification object:nil];
+//    //NSWindowDidMiniaturizeNotification
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didMiniaturize:) name:NSWindowDidMiniaturizeNotification object:nil];
+//    //窗口即将关闭
+//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willClose:) name:NSWindowWillCloseNotification object:nil];
 }
+
+#pragma mark - VLCMediaPlayerDelegate
+- (void)mediaPlayerStateChanged:(NSNotification *)aNotification{
+//    [vclPlayer pause];
+    NSLog(@"mediaPlayerStateChanged_%@",aNotification);
+
+
+}
+- (void)mediaPlayerTimeChanged:(NSNotification *)aNotification{
+//    NSLog(@"mediaPlayerTimeChanged_%@",aNotification);
+    //,vclPlayer.remainingTime
+//    NSLog(@"%@,%@,%d,%@",vclPlayer.time.stringValue,vclPlayer.time.value,vclPlayer.time.intValue,vclPlayer.time.verboseStringValue);
+    self.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",vclPlayer.time,vclPlayer.media.length.stringValue];
+    if ([vclPlayer.time.stringValue isEqualTo:vclPlayer.media.length.stringValue]) {
+        [self changeAudio];
+    }
+}
+- (void)mediaPlayerTitleChanged:(NSNotification *)aNotification{
+    NSLog(@"mediaPlayerTitleChanged_%@",aNotification);
+
+}
+- (void)mediaPlayerChapterChanged:(NSNotification *)aNotification{
+    NSLog(@"mediaPlayerTitleChanged_%@",aNotification);
+
+}
+
 
 
 @end

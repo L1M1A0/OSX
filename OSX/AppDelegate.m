@@ -35,15 +35,13 @@
 
 /**
  “关闭 window 时终止应用”
- 
- 摘录来自: @剑指人心. “MacDev”。 iBooks.
 
  @param application <#application description#>
  @return 保证当关闭最后一个window或者关闭应用唯一的一个window时应用自动退出。
  */
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)application {
-    NSLog(@"最后一个窗口被关闭之后，终止应用");
-    return YES;
+    NSLog(@"最后一个窗口被关闭之后，是否终止应用");
+    return NO;
 }
 
 
