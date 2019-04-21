@@ -16,6 +16,7 @@
 #import "ZBPlayerSplitView.h"
 #import <VLCKit/VLCKit.h>
 #import "ISSoundAdditions.h"//音量管理
+#import "ZBSliderViewController.h"
 
 #ifdef DEBUG
 
@@ -26,7 +27,7 @@
 
 @interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,VLCMediaPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate>
 {
-     VLCMediaPlayer *vclPlayer;
+    VLCMediaPlayer *vclPlayer;
 }
 @property (nonatomic, strong) ZBMacOSObject *object;
 
@@ -53,6 +54,8 @@
 @property (nonatomic, strong) NSButton *playModelBtn;
 /** 音量按钮 */
 @property (nonatomic, strong) NSButton *volumeBtn;
+/** 音量窗口 */
+@property (nonatomic, strong) NSPopover *volumePopover;
 
 #pragma mark - 主功能
 /** 创建列表 */
@@ -93,6 +96,7 @@
 @property (nonatomic, assign) CFRunLoopTimerRef timerForRemainTime;
 
 
+
 #pragma mark - 临时
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 
@@ -129,10 +133,11 @@
     [self playerMainBoard];
     [self audioListOutlineView];
     [self audioListScrollView];
-    [self btn];
     [self musicPlayer];
+    [self controllBar];
     [self vclPlayer];
-    
+    [self addNotification];
+
 
     NSView *view1 = [self viewForSplitView:[NSColor orangeColor]];
     [view1 addSubview:_audioListScrollView];
@@ -237,7 +242,7 @@
     return _audioListScrollView;
 }
 
--(void)btn{
+-(void)controllBar{
     self.lastBtn = [self button:NSMakeRect(10, 15, 40, 40) title:@"上一曲" tag:1 image:@"statusBarPreviewSelected" alternateImage:@"statusBarPreview"];
     self.lastBtn = [self border:self.lastBtn];
     self.playBtn = [self button:NSMakeRect(60, 10, 50, 50) title:@"播放"   tag:2 image:@"statusBarPlaySelected" alternateImage:@"statusBarPlay"];
@@ -247,6 +252,8 @@
     
     self.volumeBtn  = [self button:NSMakeRect(170, 15, 40, 40) title:@"音量" tag:4 image:@"volumeSelected" alternateImage:@"volumeSelected"];
     self.volumeBtn  = [self border:self.volumeBtn];
+    [self volumePopover];//音量窗口
+    
     self.playModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"模式" tag:5 image:@"" alternateImage:@""];
     self.playModelBtn = [self border:self.playModelBtn];
 
@@ -310,7 +317,7 @@
         [self startPlaying];
     }else if(sender.tag == 4){
         //音量控制
-
+        [self.volumePopover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxY];
     }else if(sender.tag == 5){
         //播放模式
         self.isRandom = YES;
@@ -364,44 +371,6 @@
 }
 
 
-/**
- 设置定时器，暂时不知道怎么暂停
- */
--(void)runLoopTimerForRemainTime{
-    if(!_timerForRemainTime){
-
-        CGFloat timeInterVal = 1.0;
-        __weak __typeof(self) weakSelf = self;
-        CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
-            if (weakSelf.isVCLPlayMode == true) {
-                NSString *str = [NSString stringWithFormat:@"%@",vclPlayer.media.length.stringValue];
-                NSArray *arr = [str componentsSeparatedByString:@":"];
-                double  duration  = 0;
-                if (arr.count == 2) {
-                    duration = [arr[0] doubleValue] * 60 + [arr[1] doubleValue];
-                }else if (arr.count == 3){
-                    duration = [arr[0] doubleValue] * 60 * 60 + [arr[1] doubleValue] * 60 + [arr[2] doubleValue];
-                }else{
-                    //正常情况下不会出现这样的情况
-                    duration = [arr[0] doubleValue];
-                }
-                
-                self.progressSlider.maxValue = duration;
-                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
-
-            }else {
-                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
-                NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
-                NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
-                weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
-                
-            }
-        });
-        
-        _timerForRemainTime = timer;
-        CFRunLoopAddTimer(CFRunLoopGetCurrent(), _timerForRemainTime, kCFRunLoopCommonModes);
-    }
-}
 
 
 
@@ -423,6 +392,71 @@
     [self.window.contentView addSubview:tf];
     return tf;
 }
+
+-(NSPopover *)volumePopover{
+    if(!_volumePopover){
+        //NSPopoverBehaviorApplicationDefined:NSPopover的关闭需要App自己负责控制
+        //NSPopoverBehaviorTransient:只要点击到NSPopover显示的窗口之外就自动关闭
+        //NSPopoverBehaviorSemitransient:,只要点击到NSPopover显示的窗口之外就自动关闭,但是点击到当前App 窗口之外不会关闭。
+        //xib
+        //PopoverVCtrl *vc = [[PopoverVCtrl alloc]initWithNibName:@"PopoverVCtrl" bundle:nil];
+        //纯代码
+        ZBSliderViewController *vc = [[ZBSliderViewController alloc]init];
+        vc.defaltVolume = _player.volume;
+        _volumePopover = [[NSPopover alloc]init];
+        _volumePopover.contentViewController = vc;
+        _volumePopover.behavior = NSPopoverBehaviorTransient;
+        _volumePopover.animates = YES;
+        _volumePopover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
+        //[_popover close];
+
+    }
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(volumeSliderIsChanging:) name:@"volumeSliderIsChanging" object:nil];
+    return _volumePopover;
+}
+
+
+/** 修改音量*/
+-(void)volumeSliderIsChanging:(NSNotification *)noti{
+//    NSLog(@"volumeSliderIsChanging:%@",noti);
+    //[self.player setVolume:sender.floatValue/100];
+    self.player.volume = [noti.object[@"stringValue"] floatValue]/100;
+    vclPlayer.audio.volume =  [noti.object[@"stringValue"] intValue];
+}
+
+#pragma mark - 计时器
+
+/**
+ 设置定时器，暂时不知道怎么暂停
+ */
+-(void)runLoopTimerForRemainTime{
+    if(!_timerForRemainTime){
+        CGFloat timeInterVal = 1.0;
+        __weak __typeof(self) weakSelf = self;
+        CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
+            if (weakSelf.isVCLPlayMode == true) {
+                self.progressSlider.maxValue = [self countDuration:vclPlayer.media.length.stringValue];
+                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+                
+            }else {
+                weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
+                NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
+                NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
+                weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
+                
+            }
+        });
+        
+        _timerForRemainTime = timer;
+        CFRunLoopAddTimer(CFRunLoopGetCurrent(), _timerForRemainTime, kCFRunLoopCommonModes);
+    }
+    
+   
+}
+
+
+
 
 //8********************************
 #pragma mark -  NSSplitViewDelegate
@@ -480,13 +514,26 @@
 }
 
 
+-(float)countDuration:(NSString *)time{
+    NSArray *arr = [time componentsSeparatedByString:@":"];
+    double  duration  = 0;
+    if (arr.count == 2) {
+        duration = [arr[0] doubleValue] * 60 + [arr[1] doubleValue];
+    }else if (arr.count == 3){
+        duration = [arr[0] doubleValue] * 60 * 60 + [arr[1] doubleValue] * 60 + [arr[2] doubleValue];
+    }else{
+        //正常情况下不会出现这样的情况
+        duration = [arr[0] doubleValue];
+    }
+    return duration;
+}
 
 /**
  将时间(单位：秒)转化为时分秒。如：115 -> 01:55
  */
 -(NSString *)countTime:(float)duration{
     int h = duration/60/60;//时
-    int m = duration/60;//分,可能有问题 (duration/60)%60
+    int m = (int)(duration/60)%60;//分,可能有问题 (duration/60)%60
     int s = (int)duration % 60;//n秒
     NSString *time = [NSString stringWithFormat:@"%@ : %@",[self fill0:m],[self fill0:s]];
     if (h > 0) {
@@ -557,6 +604,8 @@
     BOOL result = model.childNodes.count > 0 ? YES : NO;
     return result;
 }
+
+#pragma mark - NSOutlineViewDelegate
 
 -(NSTableRowView *)outlineView:(NSOutlineView *)outlineView rowViewForItem:(id)item{
     TreeNodeModel *nodeModel = item;
@@ -739,7 +788,7 @@
     [self initData];
     [self.audioListOutlineView reloadData];
     
-    //[self.player setVolume:sender.floatValue/100];
+
 }
 
 
@@ -919,6 +968,7 @@
         
         if([audio.extension isEqualToString:@"mp3"] || [audio.extension isEqualToString:@"flac"] || [audio.extension isEqualToString:@"wav"] || [audio.extension isEqualToString:@"aac"] || [audio.extension isEqualToString:@"m4a"] ){
             self.isVCLPlayMode = false;
+            [vclPlayer pause];
             //_player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
             _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
             _player.delegate = self;
@@ -927,6 +977,8 @@
             self.progressSlider.maxValue = _player.duration;
         }else{
             self.isVCLPlayMode = true;
+            [self.player pause];
+            
             VLCMedia *movie = [VLCMedia mediaWithURL:[NSURL fileURLWithPath:audio.path]];
             [vclPlayer setMedia:movie];
             [vclPlayer play];
@@ -1032,54 +1084,55 @@
 //    });
     vclPlayer = [[VLCMediaPlayer alloc]init];
     [vclPlayer setDelegate:self];
-    [self addNotification];
 //    CGFloat currentSound = [NSSound systemVolume];
 }
 
 
 
--(void)addNotification{
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerStateChanged:) name:VLCMediaPlayerStateChanged object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerTimeChanged:) name:VLCMediaPlayerTimeChanged object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerTitleChanged:) name:VLCMediaPlayerTitleChanged object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(mediaPlayerChapterChanged:) name:VLCMediaPlayerChapterChanged object:nil];
-//    //观察窗口拉伸
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(screenResize) name:NSWindowDidResizeNotification object:nil];
-//    //即将进入全屏
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterFull:) name:NSWindowWillEnterFullScreenNotification object:nil];
-//    //即将推出全屏
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willExitFull:) name:NSWindowWillExitFullScreenNotification object:nil];
-//    //已经推出全屏
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didExitFull:) name:NSWindowDidExitFullScreenNotification object:nil];
-//    //NSWindowDidMiniaturizeNotification
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didMiniaturize:) name:NSWindowDidMiniaturizeNotification object:nil];
-//    //窗口即将关闭
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willClose:) name:NSWindowWillCloseNotification object:nil];
-}
-
 #pragma mark - VLCMediaPlayerDelegate
 - (void)mediaPlayerStateChanged:(NSNotification *)aNotification{
-//    [vclPlayer pause];
-    NSLog(@"mediaPlayerStateChanged_%@",aNotification);
-
-
+    NSLog(@"mediaPlayerStateChanged_%@,%@",aNotification,VLCMediaPlayerStateToString(vclPlayer.state));
 }
 - (void)mediaPlayerTimeChanged:(NSNotification *)aNotification{
 //    NSLog(@"mediaPlayerTimeChanged_%@",aNotification);
     //,vclPlayer.remainingTime
 //    NSLog(@"%@,%@,%d,%@",vclPlayer.time.stringValue,vclPlayer.time.value,vclPlayer.time.intValue,vclPlayer.time.verboseStringValue);
-    self.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",vclPlayer.time,vclPlayer.media.length.stringValue];
-    if ([vclPlayer.time.stringValue isEqualTo:vclPlayer.media.length.stringValue]) {
+    self.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",vclPlayer.time.stringValue,vclPlayer.media.length.stringValue];
+    //出错：有些歌在最后几秒就停了
+//    if ([vclPlayer.time.stringValue isEqualTo:vclPlayer.media.length.stringValue]) {
+//        [self changeAudio];
+//    }
+    //解决有些歌在最后几秒就停了（解码出错），思路：剩余时长2秒的时候，手动切歌
+    double all = [self countDuration:vclPlayer.media.length.stringValue];
+    double cur = [self countDuration:vclPlayer.time.stringValue];
+    if (all - cur < 1.5) {
+        NSLog(@"%f,%f,%f",all,cur,all-cur);
         [self changeAudio];
     }
 }
-- (void)mediaPlayerTitleChanged:(NSNotification *)aNotification{
-    NSLog(@"mediaPlayerTitleChanged_%@",aNotification);
 
-}
-- (void)mediaPlayerChapterChanged:(NSNotification *)aNotification{
-    NSLog(@"mediaPlayerTitleChanged_%@",aNotification);
 
+
+
+#pragma mark - 监听窗口变化
+
+/**
+ 监听窗口变化
+ */
+-(void)addNotification{
+    
+    //    //观察窗口拉伸
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(screenResize) name:NSWindowDidResizeNotification object:nil];
+    //    //即将进入全屏
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willEnterFull:) name:NSWindowWillEnterFullScreenNotification object:nil];
+    //    //即将推出全屏
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willExitFull:) name:NSWindowWillExitFullScreenNotification object:nil];
+    //    //已经推出全屏
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didExitFull:) name:NSWindowDidExitFullScreenNotification object:nil];
+    //    //NSWindowDidMiniaturizeNotification
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didMiniaturize:) name:NSWindowDidMiniaturizeNotification object:nil];
+    //    //窗口即将关闭
+    //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willClose:) name:NSWindowWillCloseNotification object:nil];
 }
 
 

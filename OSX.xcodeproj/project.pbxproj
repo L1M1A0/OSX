@@ -21,6 +21,7 @@
 		052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */; };
 		052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */; };
 		053B533222599D2D00AA82C6 /* ZBPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 053B533122599D2D00AA82C6 /* ZBPlayer.m */; };
+		057CA2B7226CA3280004688B /* ZBSliderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 057CA2B6226CA3280004688B /* ZBSliderViewController.m */; };
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		05A2DA152056565400B539E4 /* screen.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA142056565300B539E4 /* screen.jpg */; };
 		05A2DA17205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */; };
@@ -98,6 +99,8 @@
 		052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopoverVCtrl.xib; sourceTree = "<group>"; };
 		053B533022599D2D00AA82C6 /* ZBPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayer.h; sourceTree = "<group>"; };
 		053B533122599D2D00AA82C6 /* ZBPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayer.m; sourceTree = "<group>"; };
+		057CA2B5226CA3280004688B /* ZBSliderViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBSliderViewController.h; sourceTree = "<group>"; };
+		057CA2B6226CA3280004688B /* ZBSliderViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBSliderViewController.m; sourceTree = "<group>"; };
 		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
 		05A2DA142056565300B539E4 /* screen.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = screen.jpg; sourceTree = "<group>"; };
 		05A2DA16205657E500B539E4 /* 松本晃彦 - 栄の活躍.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "松本晃彦 - 栄の活躍.mp3"; sourceTree = "<group>"; };
@@ -248,6 +251,8 @@
 				05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */,
 				05F55C6622661BEB003F4CE5 /* ZBPlayerSplitView.h */,
 				05F55C6722661BEB003F4CE5 /* ZBPlayerSplitView.m */,
+				057CA2B5226CA3280004688B /* ZBSliderViewController.h */,
+				057CA2B6226CA3280004688B /* ZBSliderViewController.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -450,6 +455,7 @@
 				05BCD48C2058FE5400068210 /* OutlineTableRowView.m in Sources */,
 				05F55C6822661BEB003F4CE5 /* ZBPlayerSplitView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
+				057CA2B7226CA3280004688B /* ZBSliderViewController.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
 				05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */,
 				05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */,
