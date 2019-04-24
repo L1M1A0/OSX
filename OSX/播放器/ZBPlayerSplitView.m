@@ -17,14 +17,18 @@
 }
 
 - (void)drawDividerInRect:(NSRect)rect{
-//    NSRect selectionRect = NSMakeRect(rect.origin.x, rect.origin.y, 20, rect.size.height);//NSInsetRect(rect, 1, 1);
+    NSLog(@"DividerInRect——%f",rect.size.width);
+//    NSRect re1 = NSMakeRect(rect.origin.x, rect.origin.y, 50, rect.size.height);
+//    NSRect selectionRect = NSInsetRect(re1, 1, 1);
     
     [[NSColor colorWithWhite:0.9 alpha:1] setStroke];
     [[NSColor colorWithCalibratedRed:0x22/255.0 green:0x22/255.0 blue:0x22/255.0 alpha:0xFF/255.0] setFill];
-    
+//    [[NSColor redColor] setFill];
+
     NSBezierPath *path = [NSBezierPath bezierPathWithRect:rect];
     [path fill];
     [path stroke];
 }
+
 
 @end

@@ -199,9 +199,8 @@
 //        [_playerMainBoard addSubview:view1];
 //        [_playerMainBoard addSubview:view2];
 //        //    [splitView insertArrangedSubview:[self viewForSplitView:[NSColor orangeColor]] atIndex:1];
-//
-//        //    [splitView drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
-            [_playerMainBoard setPosition:100 ofDividerAtIndex:0];
+//            [_playerMainBoard drawDividerInRect:NSMakeRect(80, 0, 50, 50)];
+        [_playerMainBoard setPosition:100 ofDividerAtIndex:1];
     }
     return _playerMainBoard;
 }
@@ -294,10 +293,15 @@
        
     }else if(sender.tag == 1){
         //上一曲
-        if (self.currentTrackIndex == 0) {
-            self.currentTrackIndex = self.localMusics.count;
+        
+        if(self.isRandom == YES){
+            [self randomNum];
         }else{
-            self.currentTrackIndex--;
+            if (self.currentTrackIndex == 0) {
+                self.currentTrackIndex = self.localMusics.count;
+            }else{
+                self.currentTrackIndex--;
+            }
         }
         [self startPlaying];
     }else if(sender.tag == 2){
@@ -306,14 +310,18 @@
         }else{
             [self setIsPlaying:NO];
         }
-        
     }else if(sender.tag == 3){
         //下一曲
-        if (self.currentTrackIndex == self.localMusics.count) {
-            self.currentTrackIndex = 0;
+        if(self.isRandom == YES){
+            [self randomNum];
         }else{
-            self.currentTrackIndex++;
+            if (self.currentTrackIndex == self.localMusics.count) {
+                self.currentTrackIndex = 0;
+            }else{
+                self.currentTrackIndex++;
+            }
         }
+      
         [self startPlaying];
     }else if(sender.tag == 4){
         //音量控制
@@ -321,13 +329,13 @@
     }else if(sender.tag == 5){
         //播放模式
         self.isRandom = YES;
-        u_int32_t  num = (u_int32_t)self.localMusics.count;
-        u_int32_t a = arc4random_uniform(num);
-        self.currentTrackIndex = a;
-        [self startPlaying];
-//        u_int32_t arc4random_uniform();
     }
-    
+}
+
+-(void)randomNum{
+    u_int32_t  num = (u_int32_t)self.localMusics.count;
+    u_int32_t a = arc4random_uniform(num);
+    self.currentTrackIndex = a;
 }
 
 
@@ -340,7 +348,6 @@
             self.currentTrackIndex = 0;
         }
         [self startPlaying];
-
     }else{
         //暂停
         if (self.isVCLPlayMode == YES) {
@@ -395,12 +402,6 @@
 
 -(NSPopover *)volumePopover{
     if(!_volumePopover){
-        //NSPopoverBehaviorApplicationDefined:NSPopover的关闭需要App自己负责控制
-        //NSPopoverBehaviorTransient:只要点击到NSPopover显示的窗口之外就自动关闭
-        //NSPopoverBehaviorSemitransient:,只要点击到NSPopover显示的窗口之外就自动关闭,但是点击到当前App 窗口之外不会关闭。
-        //xib
-        //PopoverVCtrl *vc = [[PopoverVCtrl alloc]initWithNibName:@"PopoverVCtrl" bundle:nil];
-        //纯代码
         ZBSliderViewController *vc = [[ZBSliderViewController alloc]init];
         vc.defaltVolume = _player.volume;
         _volumePopover = [[NSPopover alloc]init];
@@ -409,9 +410,7 @@
         _volumePopover.animates = YES;
         _volumePopover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
         //[_popover close];
-
     }
-    
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(volumeSliderIsChanging:) name:@"volumeSliderIsChanging" object:nil];
     return _volumePopover;
 }
@@ -420,7 +419,6 @@
 /** 修改音量*/
 -(void)volumeSliderIsChanging:(NSNotification *)noti{
 //    NSLog(@"volumeSliderIsChanging:%@",noti);
-    //[self.player setVolume:sender.floatValue/100];
     self.player.volume = [noti.object[@"stringValue"] floatValue]/100;
     vclPlayer.audio.volume =  [noti.object[@"stringValue"] intValue];
 }
@@ -431,6 +429,13 @@
  设置定时器，暂时不知道怎么暂停
  */
 -(void)runLoopTimerForRemainTime{
+    
+    
+    if(_timerForRemainTime){
+        CFRunLoopTimerInvalidate(self.timerForRemainTime);
+        _timerForRemainTime = nil;
+    }
+    
     if(!_timerForRemainTime){
         CGFloat timeInterVal = 1.0;
         __weak __typeof(self) weakSelf = self;
@@ -444,19 +449,12 @@
                 NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
                 NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
                 weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
-                
             }
         });
-        
         _timerForRemainTime = timer;
         CFRunLoopAddTimer(CFRunLoopGetCurrent(), _timerForRemainTime, kCFRunLoopCommonModes);
     }
-    
-   
 }
-
-
-
 
 //8********************************
 #pragma mark -  NSSplitViewDelegate
@@ -467,7 +465,6 @@
     }else{
         return 600;
     }
-    
 }
 /** 设置每个栏的最大值，可以根据dividerIndex单独设置 */
 -(CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex{
@@ -540,7 +537,6 @@
         time = [NSString stringWithFormat:@"%@ : %@",[self fill0:h],time];
     }
     return time;
-    
 }
 
 /**
@@ -553,9 +549,6 @@
         return [NSString stringWithFormat:@"%d",number];
     }
 }
-
-
-
 
 //3.实现数据源协议
 #pragma mark - NSOutlineViewDataSource
@@ -752,7 +745,7 @@
             [self.audioListOutlineView reloadData];
             
             //NSFileManager
-            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,self.localMusicBasePath);
+            NSLog(@"获取本地文件的路径：%@,%@",fileURLs,self.localMusicBasePath);
         }
     }];
     

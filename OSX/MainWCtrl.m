@@ -417,7 +417,6 @@
     //普通label
     //label.stringValue = @"Label";
     
-    
     //富文本label
     NSString *text = @"please visit http://www.apple.com";
     NSMutableAttributedString *astr = [[NSMutableAttributedString alloc]initWithString:text];
@@ -458,17 +457,13 @@
 
 #pragma mark NSSearchField action
 -(void)searchButtonClicked:(NSSearchField *)sender{
-    
     NSSearchField *searchField = sender;
-    NSString *content = searchField.stringValue;
-    NSLog(@"content %@",content);
+    NSLog(@"content %@",searchField.stringValue);
 }
 
 -(void)cancelButtonClicked:(NSSearchField *)sender{
-    
     NSSearchField *searchField = sender;
-    NSString *content = searchField.stringValue;
-    NSLog(@"content %@",content);
+    NSLog(@"content %@",searchField.stringValue);
 }
 
 
@@ -574,14 +569,11 @@
 
 -(void)comboBoxSelectionDidChange:(NSNotification *)notification{
     NSComboBox *comboBox = notification.object;
-    NSInteger selectedIndex = comboBox.indexOfSelectedItem;
-    
-    NSLog(@"comboBoxSelectionDidChange selected item %@",comboBoxItemValue[selectedIndex]);
+    NSLog(@"comboBoxSelectionDidChange selected item %@",comboBoxItemValue[comboBox.indexOfSelectedItem]);
 }
 -(void)comboBoxSelectionIsChanging:(NSNotification *)notification{
     NSComboBox *comboBox = notification.object;
-    NSInteger selectedIndex = comboBox.indexOfSelectedItem;
-    NSLog(@"comboBoxSelectionIsChanging selected item %@",comboBoxItemValue[selectedIndex]);
+    NSLog(@"comboBoxSelectionIsChanging selected item %@",comboBoxItemValue[comboBox.indexOfSelectedItem]);
 }
 
 #pragma mark - NSSlider
@@ -834,10 +826,8 @@
                 }
             }
             
-            NSString *pa = [fileURLs.firstObject path];
-
 //            NSFileManager
-            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,pa);
+            NSLog(@"获取本地文件的路径：%@,,%@",fileURLs,[fileURLs.firstObject path]);
         }
     }];
     
