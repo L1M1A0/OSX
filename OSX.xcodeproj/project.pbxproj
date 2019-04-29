@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050144C92277545C004A06BD /* ZBDataObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 050144C82277545C004A06BD /* ZBDataObject.m */; };
 		050EC960226A25E30042CC6A /* ISSoundAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EC95F226A25E30042CC6A /* ISSoundAdditions.m */; };
 		050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* TableViewWCtrl.m */; };
 		050EFCE41EF12C0900172269 /* Save.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE21EF12C0900172269 /* Save.png */; };
@@ -73,6 +74,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		050144C72277545C004A06BD /* ZBDataObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBDataObject.h; sourceTree = "<group>"; };
+		050144C82277545C004A06BD /* ZBDataObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBDataObject.m; sourceTree = "<group>"; };
 		050EC95E226A25E30042CC6A /* ISSoundAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISSoundAdditions.h; sourceTree = "<group>"; };
 		050EC95F226A25E30042CC6A /* ISSoundAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISSoundAdditions.m; sourceTree = "<group>"; };
 		050EFCDF1EF1160700172269 /* TableViewWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWCtrl.h; sourceTree = "<group>"; };
@@ -253,6 +256,8 @@
 				05F55C6722661BEB003F4CE5 /* ZBPlayerSplitView.m */,
 				057CA2B5226CA3280004688B /* ZBSliderViewController.h */,
 				057CA2B6226CA3280004688B /* ZBSliderViewController.m */,
+				050144C72277545C004A06BD /* ZBDataObject.h */,
+				050144C82277545C004A06BD /* ZBDataObject.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -457,6 +462,7 @@
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				057CA2B7226CA3280004688B /* ZBSliderViewController.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
+				050144C92277545C004A06BD /* ZBDataObject.m in Sources */,
 				05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */,
 				05B55888202AF7A1005F7A20 /* BSTableCellView.m in Sources */,
 				05B5587E202856E1005F7A20 /* View+MASAdditions.m in Sources */,

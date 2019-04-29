@@ -9,6 +9,7 @@
 #import "ZBPlayer.h"
 #import <AVFoundation/AVFoundation.h>
 #import "Masonry.h"
+#import "ZBDataObject.h"
 #import "ZBMacOSObject.h"
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
@@ -30,6 +31,7 @@
     VLCMediaPlayer *vclPlayer;
 }
 @property (nonatomic, strong) ZBMacOSObject *object;
+@property (nonatomic, strong) ZBDataObject *dataObject;
 
 #pragma mark - 常用功能
 /** 上一曲 */
@@ -126,6 +128,7 @@
     [self.window setBackgroundColor: self.mainColor];
     
     self.object = [[ZBMacOSObject alloc]init];
+    self.dataObject = [[ZBDataObject alloc]init];
     self.isVCLPlayMode = YES;
     [self initData];
     
@@ -441,13 +444,13 @@
         __weak __typeof(self) weakSelf = self;
         CFRunLoopTimerRef timer = CFRunLoopTimerCreateWithHandler(kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + timeInterVal, timeInterVal, 0, 0, ^(CFRunLoopTimerRef timer) {
             if (weakSelf.isVCLPlayMode == true) {
-                self.progressSlider.maxValue = [self countDuration:vclPlayer.media.length.stringValue];
+                self.progressSlider.maxValue = [weakSelf.dataObject timeToDuration:vclPlayer.media.length.stringValue];
                 weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
                 
             }else {
                 weakSelf.progressSlider.stringValue = [NSString stringWithFormat:@"%f",weakSelf.progressSlider.doubleValue + 1.0];
-                NSString *allTime = [weakSelf countTime:weakSelf.player.duration];
-                NSString *remaining = [weakSelf countTime:weakSelf.progressSlider.doubleValue];
+                NSString *allTime = [weakSelf.dataObject durationToTime:weakSelf.player.duration];
+                NSString *remaining = [weakSelf.dataObject durationToTime:weakSelf.progressSlider.doubleValue];
                 weakSelf.durationTF.stringValue = [NSString stringWithFormat:@"%@ / %@",remaining,allTime];
             }
         });
@@ -510,45 +513,6 @@
     return nod;
 }
 
-
--(float)countDuration:(NSString *)time{
-    NSArray *arr = [time componentsSeparatedByString:@":"];
-    double  duration  = 0;
-    if (arr.count == 2) {
-        duration = [arr[0] doubleValue] * 60 + [arr[1] doubleValue];
-    }else if (arr.count == 3){
-        duration = [arr[0] doubleValue] * 60 * 60 + [arr[1] doubleValue] * 60 + [arr[2] doubleValue];
-    }else{
-        //正常情况下不会出现这样的情况
-        duration = [arr[0] doubleValue];
-    }
-    return duration;
-}
-
-/**
- 将时间(单位：秒)转化为时分秒。如：115 -> 01:55
- */
--(NSString *)countTime:(float)duration{
-    int h = duration/60/60;//时
-    int m = (int)(duration/60)%60;//分,可能有问题 (duration/60)%60
-    int s = (int)duration % 60;//n秒
-    NSString *time = [NSString stringWithFormat:@"%@ : %@",[self fill0:m],[self fill0:s]];
-    if (h > 0) {
-        time = [NSString stringWithFormat:@"%@ : %@",[self fill0:h],time];
-    }
-    return time;
-}
-
-/**
- 对小与10的数字补 @"0"，如：3 -> 03
- */
--(NSString *)fill0:(int)number{
-    if (number < 10) {
-        return [NSString stringWithFormat:@"0%d",number];
-    }else{
-        return [NSString stringWithFormat:@"%d",number];
-    }
-}
 
 //3.实现数据源协议
 #pragma mark - NSOutlineViewDataSource
@@ -727,6 +691,7 @@
     openDlg.allowedFileTypes = @[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"wma",@"ape",@"ogg",@"alac"];//---“允许的文件名后缀”
     openDlg.treatsFilePackagesAsDirectories = YES;
     //openDlg.URL = @"";////“保存用户选择的文件/文件夹路径path”
+    __weak ZBPlayer * weakSelf = self;
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
         if(result==NSFileHandlingPanelOKButton){
             NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
@@ -739,13 +704,15 @@
 //                }
 //            }
             
-            self.localMusicBasePath = [fileURLs.firstObject path];
-            [self loacalMusicInPath];//更新列表
-            [self initData];
-            [self.audioListOutlineView reloadData];
+            weakSelf.localMusicBasePath = [fileURLs.firstObject path];
+            [weakSelf loacalMusicInPath];//更新列表
+//            weakSelf.localMusics = [weakSelf defaultSort:weakSelf.localMusics];
+            weakSelf.localMusics = [weakSelf.dataObject localSort:weakSelf.localMusics];
+            [weakSelf initData];
+            [weakSelf.audioListOutlineView reloadData];
             
             //NSFileManager
-            NSLog(@"获取本地文件的路径：%@,%@",fileURLs,self.localMusicBasePath);
+            NSLog(@"获取本地文件的路径：%@,%@",fileURLs,weakSelf.localMusicBasePath);
         }
     }];
     
@@ -1096,8 +1063,8 @@
 //        [self changeAudio];
 //    }
     //解决有些歌在最后几秒就停了（解码出错），思路：剩余时长2秒的时候，手动切歌
-    double all = [self countDuration:vclPlayer.media.length.stringValue];
-    double cur = [self countDuration:vclPlayer.time.stringValue];
+    double all = [self.dataObject timeToDuration:vclPlayer.media.length.stringValue];
+    double cur = [self.dataObject timeToDuration:vclPlayer.time.stringValue];
     if (all - cur < 1.5) {
         NSLog(@"%f,%f,%f",all,cur,all-cur);
         [self changeAudio];
