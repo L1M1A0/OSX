@@ -485,6 +485,9 @@
             
             NSLog(@"alert_returnCode_%ld",returnCode);
         }];
+    }else if (sender.tag == 2){
+        [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
+        [self myMenu];
     }else if (sender.tag == 3){//打开新的窗口
         [self showNewWindow:self.tableView.window];
     }else if (sender.tag == 4){
@@ -495,10 +498,8 @@
         [self showNewWindow:self.zbPlayer.window];
     }
     else{
-        [self.popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxX];
     }
     
-
 }
 
 
@@ -993,31 +994,59 @@
 
 
 
-#pragma mark - NSMenu (未完成)
--(void)menununu{
-//    NSButton *button = (NSButton *)sender;
-//    NSPoint point = button.frame.origin;
-//    point.x += button.frame.size.width;
-//    point.y = point.y ;
-//    [self.myMenu popUpMenuPositioningItem:nil atLocation:point inView:self.window.contentView];
-}
+#pragma mark - NSMenu
 -(NSMenu *)myMenu{
+    if(_myMenu){
+        _myMenu = nil;
+    }
+    
     if(!_myMenu){
         _myMenu = [[NSMenu alloc]initWithTitle:@"菜单_myMenu"];
-        [_myMenu insertItem:[self menuItem:@"1"] atIndex:1];
-        [_myMenu insertItem:[self menuItem:@"2"] atIndex:2];
-        [_myMenu insertItem:[self menuItem:@"3"] atIndex:3];
+
+        //自定义的NSMenuItem
+        NSView *vie = [[NSView alloc]initWithFrame:NSMakeRect(10, 10, 100, 80)];
+        vie.wantsLayer =YES;
+        vie.layer.backgroundColor = [NSColor redColor].CGColor;
+        NSMenuItem *item3 = [[NSMenuItem alloc]init];
+        item3.title = @"Item 3";
+        item3.view = vie;
+        item3.target = self;
+        item3.action = @selector(menuItemAction:);
+        item3.alternate = YES;
+        
+        [_myMenu insertItemWithTitle:@"Item 1"action:@selector(menuItemAction:) keyEquivalent:@"11111"atIndex:0];
+        [_myMenu insertItemWithTitle:@"Item 2"action:@selector(menuItemAction:) keyEquivalent:@"22222"atIndex:1];
+        [_myMenu insertItem:item3 atIndex:2];
+        //可以监听鼠标右键的event, 就可以在鼠标点击的地方显示menu
+        NSEvent *ev = [[NSEvent alloc]init];
+        [NSMenu popUpContextMenu:_myMenu withEvent:ev forView:self.window.contentView];
+        
+        
+        //在顶部状态栏显示
+        unichar arrowKey = 'r';
+        NSString *refresh = [NSString stringWithCharacters:&arrowKey length:1];
+
+        unichar arrowKey2 = 'o';
+        NSString *homePage = [NSString stringWithCharacters:&arrowKey2 length:1];
+
+        unichar arrowKey3 = 27;
+        NSString *esc = [NSString stringWithCharacters:&arrowKey3 length:1];
+
+        NSMenuItem *item= [NSApp.mainMenu insertItemWithTitle:@"111" action:nil keyEquivalent:@"" atIndex:1];
+        NSMenu *submenu=[[NSMenu alloc] initWithTitle:@"ww"];
+        item.submenu=submenu;
+        [submenu addItemWithTitle:@"1" action:@selector(menuItemAction:) keyEquivalent:homePage];//返回首页
+        [submenu addItemWithTitle:@"2" action:@selector(menuItemAction:) keyEquivalent:refresh];//刷新
+        [submenu addItemWithTitle:@"3" action:@selector(menuItemAction:) keyEquivalent:esc];//exit
     }
     return _myMenu;
 }
 
-- (NSMenuItem *)menuItem:(NSString *)title{
-    NSMenuItem *item = [[NSMenuItem alloc]initWithTitle:title action:@selector(menuItemAction:) keyEquivalent:@""];
-    return item;
-}
 -(void)menuItemAction:(NSMenuItem *)sender{
-    
+    NSLog(@"_____%@",sender.title);
+
 }
+
 
 
 #pragma mark - NSWindowController &  ZBPlayer - 新窗口

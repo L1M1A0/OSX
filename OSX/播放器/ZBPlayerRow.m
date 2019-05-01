@@ -151,8 +151,41 @@
 
 
 -(void)rightMouseDown:(NSEvent *)event{
-    NSLog(@"按下了鼠标右键");
+//    NSLog(@"按下了鼠标右键");
+    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@"Contextual Menu"];
+//    NSArray *arr = @[@"初始列表",@"新增列表",@"更新本组",@"删除本组",@"当前播放",@"搜索音乐",@"定位文件"];
+    NSArray *arr = @[kMenuItemInitializeList,kMenuItemInsertSection,kMenuItemUpdateSection,
+                     kMenuItemDeleteSection,kMenuItemLocatePlaying,kMenuItemSearchMusic,kMenuItemShowInFinder];
+
+    for (int i = 0; i < arr.count; i++) {
+        [theMenu insertItem:[self menuItem:arr[i] tag:i] atIndex:i];
+    }
+    //自定义的NSMenuItem
+//    NSView *vie = [[NSView alloc]initWithFrame:NSMakeRect(10, 10, 100, 80)];
+//    vie.wantsLayer = YES;
+//    vie.layer.backgroundColor = [NSColor redColor].CGColor;
+//    NSMenuItem *item3 = [[NSMenuItem alloc]init];
+//    item3.title = @"Item 3";
+//    item3.view = vie;
+//    item3.target = self;
+//    item3.action = @selector(beep:);
+//    [theMenu insertItem:item3 atIndex:2];
+    [NSMenu popUpContextMenu:theMenu withEvent:event forView:self];
 }
+- (NSMenuItem *)menuItem:(NSString *)title tag:(NSInteger)tag{
+    //keyEquivalent 快捷键
+    NSMenuItem *item = [[NSMenuItem alloc]initWithTitle:title action:@selector(menuItemAction:) keyEquivalent:@""];
+    item.tag = tag;
+    return item;
+}
+
+-(void)menuItemAction:(NSMenuItem *)menuItem{
+    NSLog(@"点击了菜单：%@,%ld,%@",menuItem.title,menuItem.tag,menuItem.keyEquivalent);
+    if (self.delegate) {
+        [self.delegate playerRow:self menuItem:menuItem];
+    }
+}
+
 -(void)mouseDown:(NSEvent *)event{
     NSLog(@"按下了鼠标左键");
     if(self.delegate){
