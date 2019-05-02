@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ZBAudioModel : NSObject
+@interface ZBAudioModel : NSObject//<NSCoding>
 /**
  音频文件名字
  */

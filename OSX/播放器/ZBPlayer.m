@@ -14,6 +14,7 @@
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
 #import "ZBAudioModel.h"
+#import "ZBAudioDB.h"
 #import "ZBPlayerSplitView.h"
 #import <VLCKit/VLCKit.h>
 #import "ISSoundAdditions.h"//音量管理
@@ -25,6 +26,8 @@
 #else
 #define NSLog(format, ...)
 #endif
+
+#define KTreeModelForMusic @"KTreeModelForMusicList"
 
 @interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,VLCMediaPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate>
 {
@@ -87,8 +90,6 @@
 @property (nonatomic, assign) NSInteger currentTrackSectionIndex;
 /** 当前播放的歌曲在总列表中的index*/
 @property (nonatomic, assign) NSInteger currentTrackRowIndex;
-/** 本地音乐基础路径 */
-@property (nonatomic, copy) NSString *localMusicBasePath;
 /** 是否是随机播放 */
 @property (nonatomic, assign) BOOL isRandom;
 /** 是否正在播放  */
@@ -296,6 +297,7 @@
 -(void)btnAction:(NSButton *)sender{
     if(sender.tag == 0){
        
+        
     }else if(sender.tag == 1){
         //上一曲
         if(self.isRandom == YES){
@@ -499,18 +501,23 @@
 }
 #pragma mark - 数据源
 -(void)initData{
+//    ZBAudioDB * dataBase = [ZBAudioDB shareFMDataBase];
+//    [dataBase qunueCreatPeopleTable];
+//    NSArray *arr = [dataBase qunueGetPeople];
+    
     self.treeModel = [[TreeNodeModel alloc]init];
     //根节点
     TreeNodeModel *rootNode1 = [self node:@"播放列表" level:0 superLevel:-1];
-    
     //2级节点
-//    for(int i = 0; i< self.localMusics.count; i++){
-//        ZBAudioModel *audio = self.localMusics[i];
-//        TreeNodeModel *childNode = [self node:audio.title level:1 superLevel:0];
-//        childNode.audio = audio;
-//        [rootNode1.childNodes addObject:childNode];
+//    if(self.treeModel.childNodes== nil){
+//        self.treeModel.childNodes = [NSMutableArray array];
+//        self.treeModel.name = @"";
+//        self.treeModel.isExpand = NO;
 //    }
     [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
+    
+
+
 }
 
 -(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level superLevel:(NSInteger)superLevel{
@@ -521,6 +528,7 @@
     nod.superLevel = superLevel;
     return nod;
 }
+
 
 
 //3.实现数据源协议
@@ -750,6 +758,11 @@
             }
             
             weakSelf.treeModel = [[TreeNodeModel alloc]init];
+//            if(weakSelf.treeModel.childNodes== nil){
+//                weakSelf.treeModel.childNodes = [NSMutableArray array];
+//                weakSelf.treeModel.name = @"";
+//                weakSelf.treeModel.isExpand = NO;
+//            }
             //2级节点
             for(int i = 0; i< weakSelf.localMusics.count; i++){
                 NSMutableArray *audios = weakSelf.localMusics[i];
@@ -765,6 +778,7 @@
                     childNode.audio = audio;
                     childNode.sectionIndex = i;
                     childNode.rowIndex     = j;
+//                    childNode.childNodes = [NSMutableArray array];
                     [rootNode1.childNodes addObject:childNode];
                 }
                 
@@ -772,8 +786,11 @@
             }
             [weakSelf.audioListOutlineView reloadData];
             
-            //NSFileManager
-            NSLog(@"获取本地文件的路径：%@,%@",fileURLs,weakSelf.localMusicBasePath);
+//            ZBAudioDB * dataBase = [ZBAudioDB shareFMDataBase];
+//            [dataBase qunueCreatPeopleTable];
+//            [dataBase qunueInsertPeople:self.treeModel];
+            NSLog(@"获取本地文件的路径：%@",fileURLs);
+
         }
     }];
     
@@ -807,7 +824,9 @@
     self.currentTrackRowIndex = 0;
 //    [self loacalMusicInPath];
 //    [self initData];
-//    [self.audioListOutlineView reloadData];
+    if(self.treeModel){
+        [self.audioListOutlineView reloadData];
+    }
     
 
 }
