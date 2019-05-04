@@ -55,9 +55,7 @@
     slider.action = @selector(sliderAction:);
     self.slider = slider;
     [self.view addSubview:self.slider];
-    
 
-    
 }
 
 -(void)sliderAction:(NSSlider *)sender{

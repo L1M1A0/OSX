@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		050144C92277545C004A06BD /* ZBDataObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 050144C82277545C004A06BD /* ZBDataObject.m */; };
+		050C8B39227D9163000B548B /* ZBPlaybackModelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 050C8B38227D9163000B548B /* ZBPlaybackModelViewController.m */; };
 		050EC960226A25E30042CC6A /* ISSoundAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EC95F226A25E30042CC6A /* ISSoundAdditions.m */; };
 		050EFCE11EF1160700172269 /* TableViewWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 050EFCE01EF1160700172269 /* TableViewWCtrl.m */; };
 		050EFCE41EF12C0900172269 /* Save.png in Resources */ = {isa = PBXBuildFile; fileRef = 050EFCE21EF12C0900172269 /* Save.png */; };
@@ -82,6 +83,8 @@
 /* Begin PBXFileReference section */
 		050144C72277545C004A06BD /* ZBDataObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBDataObject.h; sourceTree = "<group>"; };
 		050144C82277545C004A06BD /* ZBDataObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBDataObject.m; sourceTree = "<group>"; };
+		050C8B37227D9163000B548B /* ZBPlaybackModelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlaybackModelViewController.h; sourceTree = "<group>"; };
+		050C8B38227D9163000B548B /* ZBPlaybackModelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlaybackModelViewController.m; sourceTree = "<group>"; };
 		050EC95E226A25E30042CC6A /* ISSoundAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISSoundAdditions.h; sourceTree = "<group>"; };
 		050EC95F226A25E30042CC6A /* ISSoundAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISSoundAdditions.m; sourceTree = "<group>"; };
 		050EFCDF1EF1160700172269 /* TableViewWCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewWCtrl.h; sourceTree = "<group>"; };
@@ -280,6 +283,8 @@
 				050144C82277545C004A06BD /* ZBDataObject.m */,
 				05FA0F9F22799F11002D5E5F /* ZBAudioDB.h */,
 				05FA0FA022799F11002D5E5F /* ZBAudioDB.m */,
+				050C8B37227D9163000B548B /* ZBPlaybackModelViewController.h */,
+				050C8B38227D9163000B548B /* ZBPlaybackModelViewController.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -516,6 +521,7 @@
 				0522D8311ED587CE00D4671F /* AppDelegate.m in Sources */,
 				05B55879202856E1005F7A20 /* ViewController+MASAdditions.m in Sources */,
 				05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */,
+				050C8B39227D9163000B548B /* ZBPlaybackModelViewController.m in Sources */,
 				052954E41EEA7956005FDDCD /* PopoverViewController.m in Sources */,
 				05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */,
 				05BCD48F2059237000068210 /* TreeNodeModel.m in Sources */,

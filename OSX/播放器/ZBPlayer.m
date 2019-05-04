@@ -19,6 +19,7 @@
 #import <VLCKit/VLCKit.h>
 #import "ISSoundAdditions.h"//音量管理
 #import "ZBSliderViewController.h"
+#import "ZBPlaybackModelViewController.h"
 
 #ifdef DEBUG
 
@@ -56,7 +57,9 @@
 /** 歌词按钮 */
 @property (nonatomic, strong) NSButton *lyricBtn;
 /** 播放循环模式：列表循环，单曲循环，随机播放，跨列表播放 */
-@property (nonatomic, strong) NSButton *playModelBtn;
+@property (nonatomic, strong) NSButton *playbackModelBtn;
+/** 播放模式选择窗口 */
+@property (nonatomic, strong) NSPopover *playbackModelPopover;
 /** 音量按钮 */
 @property (nonatomic, strong) NSButton *volumeBtn;
 /** 音量窗口 */
@@ -78,10 +81,14 @@
 
 
 #pragma mark - 数据
-/** 所有的音频路径(注：暂时只支持一个列表) */
+/** 工程项目中音频文件 */
+@property (nonatomic, strong) NSArray *musicInObjectBundle;
+/** 所有的音频，用于获取本地初始音频数组*/
 @property (nonatomic, strong) NSMutableArray *localMusics;
-/** 音频的名称 */
-@property (nonatomic, strong) NSArray *musicFileNames;
+/** 本地路径音频数据，对localMusics进行加工包装，真正用于播放的数据 */
+@property (nonatomic, strong) TreeNodeModel *treeModel;
+/** 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:VCLPlayer */
+@property (nonatomic, assign) BOOL isVCLPlayMode;
 
 #pragma mark - 播放器控制
 /** 播发器 */
@@ -90,25 +97,18 @@
 @property (nonatomic, assign) NSInteger currentTrackSectionIndex;
 /** 当前播放的歌曲在总列表中的index*/
 @property (nonatomic, assign) NSInteger currentTrackRowIndex;
-/** 是否是随机播放 */
-@property (nonatomic, assign) BOOL isRandom;
 /** 是否正在播放  */
 @property (nonatomic, assign) BOOL isPlaying;
+/** 播放模式 是否是随机播放 优先级 */
+@property (nonatomic, assign) BOOL isPlaybackModelRandom;
+/** 播放模式 是否允许自动切换列表 优先级 */
+@property (nonatomic, assign) BOOL isPlaybackModelSwitchList;
+/** 播放模式 是否单曲循环 优先级最高 */
+@property (nonatomic, assign) BOOL isPlaybackModelSingleRepeat;
 
 /** 主色调 */
 @property (nonatomic, strong) NSColor *mainColor;
-@property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) CFRunLoopTimerRef timerForRemainTime;
-
-
-
-#pragma mark - 临时
-@property (nonatomic, strong) TreeNodeModel *treeModel;
-
-/**
- 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:VCLPlayer
- */
-@property (nonatomic, assign) BOOL isVCLPlayMode;
 
 
 
@@ -178,7 +178,7 @@
 #pragma mark - UI
 
 
-#pragma mark - playerMainBoard
+#pragma mark playerMainBoard
 /**
  播发器主面板
 
@@ -259,8 +259,10 @@
     self.volumeBtn  = [self border:self.volumeBtn];
     [self volumePopover];//音量窗口
     
-    self.playModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"模式" tag:5 image:@"" alternateImage:@""];
-    self.playModelBtn = [self border:self.playModelBtn];
+    self.playbackModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"播放模式" tag:5 image:@"" alternateImage:@""];
+    self.playbackModelBtn = [self border:self.playbackModelBtn];
+    [self.playbackModelBtn setTitle:@"顺序"];
+    [self playbackModelPopover];
 
     self.progressSlider = [self.object slider:NSSliderTypeLinear frame:NSMakeRect(270, 15, 450, 8)  superView:self.window.contentView target:self action:@selector(progressAction:)];
     self.progressSlider.layer.backgroundColor = [NSColor colorWithRed:1 green:1 blue:1 alpha:0.2].CGColor;
@@ -300,16 +302,7 @@
         
     }else if(sender.tag == 1){
         //上一曲
-        if(self.isRandom == YES){
-            [self randomNum];
-        }else{
-            if (self.currentTrackRowIndex== 0) {
-                self.currentTrackRowIndex = [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count];
-            }else{
-                self.currentTrackRowIndex--;
-            }
-        }
-        [self startPlaying];
+        [self changeAudio:NO];
     }else if(sender.tag == 2){
         if(self.isPlaying == NO){
             [self setIsPlaying:YES];
@@ -318,65 +311,18 @@
         }
     }else if(sender.tag == 3){
         //下一曲
-        if(self.isRandom == YES){
-            [self randomNum];
-        }else{
-            if (self.currentTrackRowIndex == [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count]) {
-                self.currentTrackRowIndex = 0;
-            }else{
-                self.currentTrackRowIndex++;
-            }
-        }
-      
-        [self startPlaying];
+        [self changeAudio:YES];
     }else if(sender.tag == 4){
         //音量控制
         [self.volumePopover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxY];
     }else if(sender.tag == 5){
         //播放模式
-        self.isRandom = YES;
+//        self.isPlaybackModelRandom = YES;
+        [self.playbackModelPopover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSRectEdgeMaxY];
     }
 }
 
--(void)randomNum{
-    u_int32_t sectionCount = (u_int32_t)self.treeModel.childNodes.count;
-    u_int32_t section = arc4random_uniform(sectionCount);
-    self.currentTrackSectionIndex = section;
-    
-    u_int32_t childsCount = (u_int32_t)[[self.treeModel.childNodes[section] childNodes] count];
-    u_int32_t row = arc4random_uniform(childsCount);
-    self.currentTrackRowIndex = row;
-}
 
-
-
--(void)setIsPlaying:(BOOL)isPlaying{
-    _isPlaying = isPlaying;
-    if(isPlaying == YES){
-        //播放
-        if (self.currentTrackRowIndex > [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count] || !self.currentTrackRowIndex) {
-            self.currentTrackRowIndex = 0;
-        }
-        [self startPlaying];
-    }else{
-        //暂停
-        if (self.isVCLPlayMode == YES) {
-            [vclPlayer pause];
-            if(self.player && self.player.isPlaying == true){
-                [self.player pause];
-            }
-        }else{
-            [self.player pause];
-            if(vclPlayer && vclPlayer.isPlaying == true){
-                [vclPlayer pause];
-            }
-        }
-        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
-        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPlay"]];
-        CFRunLoopTimerInvalidate(self.timerForRemainTime);
-    }
-    
-}
 
 -(void)progressAction:(NSSlider *)slider{
     NSLog(@"sliderValue_%ld,%f,%@",slider.integerValue,slider.floatValue,slider.stringValue);
@@ -413,6 +359,8 @@
     return tf;
 }
 
+#pragma mark 音量控制
+
 -(NSPopover *)volumePopover{
     if(!_volumePopover){
         ZBSliderViewController *vc = [[ZBSliderViewController alloc]init];
@@ -428,12 +376,97 @@
     return _volumePopover;
 }
 
-
 /** 修改音量*/
 -(void)volumeSliderIsChanging:(NSNotification *)noti{
 //    NSLog(@"volumeSliderIsChanging:%@",noti);
     self.player.volume = [noti.object[@"stringValue"] floatValue]/100;
     vclPlayer.audio.volume =  [noti.object[@"stringValue"] intValue];
+}
+
+#pragma mark 播放模式
+-(NSPopover *)playbackModelPopover{
+    if(!_playbackModelPopover){
+        ZBPlaybackModelViewController *vc = [[ZBPlaybackModelViewController alloc]init];
+        _playbackModelPopover = [[NSPopover alloc]init];
+        _playbackModelPopover.contentViewController = vc;
+        _playbackModelPopover.behavior = NSPopoverBehaviorTransient;
+        _playbackModelPopover.animates = YES;
+        _playbackModelPopover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
+    }
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(playModelChanging:) name:@"playbackModelChanging" object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(playModelSwitchList:) name:@"playbackModelSwitchList" object:nil];
+    return _playbackModelPopover;
+}
+
+-(void)playModelChanging:(NSNotification *)noti{
+    NSNumber *tag = noti.object[@"playbackModel"];
+    if ([tag isEqual:@(0)]) {
+        NSLog(@"isCrossList_noti_随机播放_%@",tag);
+        self.isPlaybackModelRandom = YES;
+        self.isPlaybackModelSingleRepeat = NO;
+        [self.playbackModelBtn setTitle:@"随机"];
+    }else if ([tag isEqual:@(1)]){
+        NSLog(@"isCrossList_noti_循序播放_%@",tag);
+        self.isPlaybackModelRandom = NO;
+        self.isPlaybackModelSingleRepeat = NO;
+        [self.playbackModelBtn setTitle:@"顺序"];
+    }else if ([tag isEqual:@(2)]){
+        NSLog(@"isCrossList_noti_单曲循环_%@",tag);
+        [self.playbackModelBtn setTitle:@"单曲"];
+        self.isPlaybackModelSingleRepeat = YES;
+    }
+}
+-(void)playModelSwitchList:(NSNotification *)noti{
+    NSNumber *tag = noti.object[@"isSwitchList"];
+    if ([tag isEqual:@(0)]) {
+        NSLog(@"isSwitchList_noti_不允许跨列表_%@",tag);
+        self.isPlaybackModelSwitchList = NO;
+    }else if ([tag isEqual:@(1)]){
+        NSLog(@"isSwitchList_noti_允许跨列表_%@",tag);
+        self.isPlaybackModelSwitchList = YES;
+    }
+    
+}
+
+/** 随机播放 下一首音轨随机计算*/
+-(void)randomNum{
+    //允许自动切换列表的时候才改变currentTrackSectionIndex的值
+    if(self.isPlaybackModelSwitchList == YES){
+        u_int32_t sectionCount = (u_int32_t)self.treeModel.childNodes.count;
+        u_int32_t section = arc4random_uniform(sectionCount);
+        self.currentTrackSectionIndex = section;
+    }
+    u_int32_t childsCount = (u_int32_t)[[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count];
+    u_int32_t row = arc4random_uniform(childsCount);
+    self.currentTrackRowIndex = row;
+}
+
+/** 是否播放 */
+-(void)setIsPlaying:(BOOL)isPlaying{
+    _isPlaying = isPlaying;
+    if(isPlaying == YES){
+        //播放
+        if (self.currentTrackRowIndex > [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count] || !self.currentTrackRowIndex) {
+            self.currentTrackRowIndex = 0;
+        }
+        [self startPlaying];
+    }else{
+        //暂停
+        if (self.isVCLPlayMode == YES) {
+            [vclPlayer pause];
+            if(self.player && self.player.isPlaying == true){
+                [self.player pause];
+            }
+        }else{
+            [self.player pause];
+            if(vclPlayer && vclPlayer.isPlaying == true){
+                [vclPlayer pause];
+            }
+        }
+        [self.playBtn setImage:[NSImage imageNamed:@"statusBarPlaySelected"]];
+        [self.playBtn setAlternateImage:[NSImage imageNamed:@"statusBarPlay"]];
+        CFRunLoopTimerInvalidate(self.timerForRemainTime);
+    }
 }
 
 #pragma mark - 计时器
@@ -820,7 +853,7 @@
     // 5 准备播放
     [self.player prepareToPlay];
     
-    self.musicFileNames = @[@"松本晃彦 - 栄の活躍"];
+    self.musicInObjectBundle = @[@"松本晃彦 - 栄の活躍"];
     self.currentTrackRowIndex = 0;
 //    [self loacalMusicInPath];
 //    [self initData];
@@ -943,28 +976,61 @@
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
     if (flag) {
-        [self changeAudio];
+        [self changeAudio:YES];
     }
 }
 
 
-/** 切歌 */
-- (void)changeAudio{
+/** 切歌  isNext：是否是下一首歌*/
+- (void)changeAudio:(BOOL)isNext{
     //切歌
     if (self.treeModel == nil || self.treeModel.childNodes.count == 0) {
-        if (self.currentTrackRowIndex < [self.musicFileNames count] - 1) {
+        if (self.currentTrackRowIndex < [self.musicInObjectBundle count] - 1) {
             self.currentTrackRowIndex ++;
             [self startPlaying];
         }
     }else{
-        if (self.isRandom == YES) {
-            [self randomNum];
+        if (self.isPlaybackModelSingleRepeat == YES) {
+            //单曲循环，不切换音频索引
+            [self startPlaying];
         }else{
-            if (self.currentTrackRowIndex < [self.treeModel.childNodes[self.currentTrackSectionIndex] count] - 1) {
-                self.currentTrackRowIndex ++;
+            if (self.isPlaybackModelRandom == YES) {
+                //随机播放，并判断是否需要切换列表
+                [self randomNum];
+            }else{
+                //下一首歌
+                if(isNext == YES){
+                    if(self.isPlaybackModelSwitchList == YES){
+                        //循序播放，自动切换列表
+                        if (self.currentTrackRowIndex + 1 >= [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count]) {
+                            if (self.currentTrackSectionIndex + 1 >= self.treeModel.childNodes.count) {
+                                self.currentTrackSectionIndex = 0;
+                            }else{
+                                self.currentTrackSectionIndex = self.currentTrackSectionIndex + 1;
+                            }
+                            self.currentTrackRowIndex = 0;
+                        }else{
+                            self.currentTrackRowIndex = self.currentTrackRowIndex + 1;
+                        }
+                    }else{
+                        //循序播放，不切换列表
+                        if (self.currentTrackRowIndex + 1 >= [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count]) {
+                            self.currentTrackRowIndex = 0;
+                        }else{
+                            self.currentTrackRowIndex = self.currentTrackRowIndex + 1;
+                        }
+                    }
+                }else{
+                    //上一首(不支持切换列表，以后考虑支持记忆前面播放的一首歌)
+                    if (self.currentTrackRowIndex - 1 < 0) {
+                        self.currentTrackRowIndex = 0;
+                    }else{
+                        self.currentTrackRowIndex = self.currentTrackRowIndex - 1;
+                    }
+                }
             }
+            [self startPlaying];
         }
-        [self startPlaying];
     }
 }
 
@@ -976,7 +1042,7 @@
     }
     //播放工程目录下的文件
     if (self.treeModel == nil || self.treeModel.childNodes.count == 0) {
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicFileNames  objectAtIndex:self.currentTrackRowIndex]] ofType:@"mp3"]] error:NULL];
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicInObjectBundle objectAtIndex:self.currentTrackRowIndex]] ofType:@"mp3"]] error:NULL];
         _player.delegate = self;
         [_player play];
     }else{
@@ -1126,7 +1192,7 @@
 
 
 
-#pragma mark - VLCMediaPlayerDelegate
+#pragma mark VLCMediaPlayerDelegate
 - (void)mediaPlayerStateChanged:(NSNotification *)aNotification{
     NSLog(@"mediaPlayerStateChanged_%@,%@",aNotification,VLCMediaPlayerStateToString(vclPlayer.state));
 }
@@ -1144,7 +1210,7 @@
     double cur = [self.dataObject timeToDuration:vclPlayer.time.stringValue];
     if (all - cur < 1.5) {
         NSLog(@"%f,%f,%f",all,cur,all-cur);
-        [self changeAudio];
+        [self changeAudio:YES];
     }
 }
 
