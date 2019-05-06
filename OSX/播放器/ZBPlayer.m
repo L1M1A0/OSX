@@ -20,6 +20,7 @@
 #import "ISSoundAdditions.h"//音量管理
 #import "ZBSliderViewController.h"
 #import "ZBPlaybackModelViewController.h"
+#import "AFNetworking.h"
 
 #ifdef DEBUG
 
@@ -692,11 +693,21 @@
             [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
         }
     }else if (levelForRow == 1) {
+       
+        
         //列表第一层 播放
         if(self.currentTrackRowIndex != childIndexForItem){
+            //如果切换了列表，收起旧列表，展开当前歌曲所在列表
+            if(self.currentTrackSectionIndex != model.sectionIndex){
+//                [self.treeModel.childNodes[self.currentTrackSectionIndex] setIsExpand:NO];
+//                [self.treeModel.childNodes[model.sectionIndex] setIsExpand:YES];
+                [treeView collapseItem:self.treeModel.childNodes[self.currentTrackSectionIndex] collapseChildren:NO];
+                [treeView expandItem:self.treeModel.childNodes[model.sectionIndex] expandChildren:NO];
+            }
             self.currentTrackSectionIndex = model.sectionIndex;
             self.currentTrackRowIndex = childIndexForItem;
             self.isPlaying = YES;
+//            [self.audioListOutlineView reloadData];
         }else{
             NSLog(@"正在播放：%@",model.name);
         }
@@ -1065,6 +1076,8 @@
          #endif
          
          */
+        
+        
         TreeNodeModel *model = (TreeNodeModel *)[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes][self.currentTrackRowIndex];
         ZBAudioModel *audio = [model audio];
         NSError *error =  nil;
@@ -1094,6 +1107,7 @@
         self.audioNameTF.stringValue = audio.title;
         self.audioNameTF.toolTip = audio.title;
         //[self mDefineUpControl:audio.path];
+        [self kugouApiSearchMusic:audio.title];
 
     }
 }
@@ -1237,6 +1251,52 @@
     //    //窗口即将关闭
     //    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(willClose:) name:NSWindowWillCloseNotification object:nil];
 }
+
+#pragma mark - 歌词
+
+
+/**
+ 查询歌曲，获取hash
+ */
+- (void)kugouApiSearchMusic:(NSString *)keyword{
+    AFHTTPSessionManager *ma = [AFHTTPSessionManager manager];
+    ma.requestSerializer = [AFJSONRequestSerializer serializer];
+    ma.responseSerializer = [AFJSONResponseSerializer serializer];
+    ma.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+    NSString *url = [NSString stringWithFormat:@"http://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=%@&page=1&pagesize=20&showtype=1",keyword];
+
+    url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    __weak ZBPlayer * weakSelf = self;
+    [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"searchMusicFromKugou：%@",responseObject);
+        NSArray *ar = responseObject[@"data"][@"info"];
+        if (ar.count > 0) {
+            [weakSelf kugouApiSearchKrc:ar[0][@"hash"]];
+        }
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"searchMusicFromKugouError：%@",error);
+    }];
+}
+
+- (void)kugouApiSearchKrc:(NSString *)hash{
+    AFHTTPSessionManager *ma = [AFHTTPSessionManager manager];
+    ma.requestSerializer = [AFJSONRequestSerializer serializer];
+    ma.responseSerializer = [AFJSONResponseSerializer serializer];
+    ma.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+    NSString *url = [NSString stringWithFormat:@"http://www.kugou.com/yy/index.php?r=play/getdata&hash=%@",hash];
+    url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"searchKRCFromKugou：%@",responseObject);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"searchKRCFromKugouError：%@",error);
+    }];
+}
+
 
 
 
