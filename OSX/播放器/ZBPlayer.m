@@ -14,6 +14,7 @@
 #import "ZBPlayerSection.h"
 #import "ZBPlayerRow.h"
 #import "ZBAudioModel.h"
+#import "ZBAudioObject.h"
 #import "ZBAudioDB.h"
 #import "ZBPlayerSplitView.h"
 #import <VLCKit/VLCKit.h>
@@ -65,7 +66,7 @@
 @property (nonatomic, strong) NSButton *volumeBtn;
 /** 音量窗口 */
 @property (nonatomic, strong) NSPopover *volumePopover;
-
+@property (nonatomic, strong) NSTextView *lrcTextView;
 #pragma mark - 主功能
 /** 创建列表 */
 @property (nonatomic, strong) NSButton *createListBtn;
@@ -155,11 +156,32 @@
         make.right.equalTo(view1.mas_right).with.offset(0);
     }];
     
-    NSView *view2 = [self viewForSplitView:self.mainColor];
+  
+
+    NSScrollView *textScrollView = [[NSScrollView alloc]initWithFrame:CGRectMake(0, 0, 500, 500)];
+//    [textScrollView setBorderType:NSNoBorder];
+    [textScrollView setHasVerticalScroller:YES];
+    [textScrollView setHasHorizontalScroller:YES];
+    [textScrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     
+    self.lrcTextView = [[NSTextView alloc]initWithFrame:NSMakeRect(0, 0, 400, 500)];
+    self.lrcTextView.wantsLayer = YES;
+    self.lrcTextView.layer.backgroundColor = [NSColor greenColor].CGColor;
+    [self.lrcTextView setMinSize:NSMakeSize(0.0, textScrollView.frame.size.height - 80)];
+    [self.lrcTextView setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+    [self.lrcTextView setVerticallyResizable:YES];
+    [self.lrcTextView setHorizontallyResizable:YES];
+    [self.lrcTextView setAutoresizingMask:NSViewWidthSizable];
+    [[self.lrcTextView textContainer]setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+    [[self.lrcTextView textContainer]setWidthTracksTextView:YES];
+    [self.lrcTextView setFont:[NSFont fontWithName:@"PingFang-SC-Regular" size:17.0]];
+    [self.lrcTextView setEditable:NO];
+    
+    [textScrollView setDocumentView:self.lrcTextView];
+
     //增加左右分栏视图,数量任意加
     [_playerMainBoard addSubview:view1];
-    [_playerMainBoard addSubview:view2];
+    [_playerMainBoard addSubview:textScrollView];
     
     [_audioListOutlineView reloadData];
 }
@@ -535,23 +557,10 @@
 }
 #pragma mark - 数据源
 -(void)initData{
-//    ZBAudioDB * dataBase = [ZBAudioDB shareFMDataBase];
-//    [dataBase qunueCreatPeopleTable];
-//    NSArray *arr = [dataBase qunueGetPeople];
-    
     self.treeModel = [[TreeNodeModel alloc]init];
     //根节点
-    TreeNodeModel *rootNode1 = [self node:@"播放列表" level:0 superLevel:-1];
-    //2级节点
-//    if(self.treeModel.childNodes== nil){
-//        self.treeModel.childNodes = [NSMutableArray array];
-//        self.treeModel.name = @"";
-//        self.treeModel.isExpand = NO;
-//    }
+    TreeNodeModel *rootNode1 = [self node:@"默认列表" level:0 superLevel:-1];
     [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
-    
-
-
 }
 
 -(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level superLevel:(NSInteger)superLevel{
@@ -563,16 +572,13 @@
     return nod;
 }
 
-
-
 //3.实现数据源协议
 #pragma mark - NSOutlineViewDataSource
 -(NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item{
     //当item为空时表示根节点.
     if(!item){
         return [self.treeModel.childNodes count];
-    }
-    else{
+    } else{
         TreeNodeModel *nodeModel = item;
         return [nodeModel.childNodes count];
     }
@@ -582,8 +588,7 @@
 -(id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item{
     if(!item){
         return self.treeModel.childNodes[index];
-    }
-    else{
+    }else{
         TreeNodeModel *nodeModel = item;
         return nodeModel.childNodes[index];
     }
@@ -595,8 +600,6 @@
     if(!item){
         return [self.treeModel.childNodes count] > 0 ? YES : NO;
     } else {
-        //        TreeNodeModel *model = (TreeNodeModel *)item;
-        //        BOOL result = model.childNodes.count > 0;
         return [self checkItem:item];
     }
 }
@@ -694,20 +697,19 @@
         }
     }else if (levelForRow == 1) {
        
-        
         //列表第一层 播放
         if(self.currentTrackRowIndex != childIndexForItem){
             //如果切换了列表，收起旧列表，展开当前歌曲所在列表
             if(self.currentTrackSectionIndex != model.sectionIndex){
-//                [self.treeModel.childNodes[self.currentTrackSectionIndex] setIsExpand:NO];
-//                [self.treeModel.childNodes[model.sectionIndex] setIsExpand:YES];
+                [self.treeModel.childNodes[self.currentTrackSectionIndex] setIsExpand:NO];
+                [self.treeModel.childNodes[model.sectionIndex] setIsExpand:YES];
                 [treeView collapseItem:self.treeModel.childNodes[self.currentTrackSectionIndex] collapseChildren:NO];
                 [treeView expandItem:self.treeModel.childNodes[model.sectionIndex] expandChildren:NO];
             }
             self.currentTrackSectionIndex = model.sectionIndex;
             self.currentTrackRowIndex = childIndexForItem;
             self.isPlaying = YES;
-//            [self.audioListOutlineView reloadData];
+            [self.audioListOutlineView reloadData];
         }else{
             NSLog(@"正在播放：%@",model.name);
         }
@@ -792,21 +794,19 @@
                 }
             }
             
-            
 //            NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
             weakSelf.localMusics = [NSMutableArray array];
             for (int i = 0; i < sectionTitles.count; i++) {
                 NSMutableArray *arr = [NSMutableArray array];
                 [weakSelf.localMusics addObject:arr];
-                [weakSelf loacalMusicInPath:baseUrls[i] index:i count:sectionTitles.count];//更新列表
+                //更新列表
+                ZBAudioObject *ado = [[ZBAudioObject alloc]init];
+                [ado audioInPath:baseUrls[i]];
+                [weakSelf.localMusics[i] addObjectsFromArray:ado.audios];
             }
-            
+
             weakSelf.treeModel = [[TreeNodeModel alloc]init];
-//            if(weakSelf.treeModel.childNodes== nil){
-//                weakSelf.treeModel.childNodes = [NSMutableArray array];
-//                weakSelf.treeModel.name = @"";
-//                weakSelf.treeModel.isExpand = NO;
-//            }
+
             //2级节点
             for(int i = 0; i< weakSelf.localMusics.count; i++){
                 NSMutableArray *audios = weakSelf.localMusics[i];
@@ -825,25 +825,17 @@
 //                    childNode.childNodes = [NSMutableArray array];
                     [rootNode1.childNodes addObject:childNode];
                 }
-                
                 [weakSelf.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
             }
             [weakSelf.audioListOutlineView reloadData];
-            
-//            ZBAudioDB * dataBase = [ZBAudioDB shareFMDataBase];
-//            [dataBase qunueCreatPeopleTable];
-//            [dataBase qunueInsertPeople:self.treeModel];
             NSLog(@"获取本地文件的路径：%@",fileURLs);
-
         }
     }];
-    
 }
 
 #pragma mark - 音乐
 
 -(void)musicPlayer{
-    
     
     //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
     //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
@@ -866,7 +858,6 @@
     
     self.musicInObjectBundle = @[@"松本晃彦 - 栄の活躍"];
     self.currentTrackRowIndex = 0;
-//    [self loacalMusicInPath];
 //    [self initData];
     if(self.treeModel){
         [self.audioListOutlineView reloadData];
@@ -875,117 +866,7 @@
 
 }
 
-
-/**
- 通过路径 获取本地音乐（实现获取子文件中的文件）
- */
--(void)loacalMusicInPath:(NSString *)sourcePath index:(NSInteger)index count:(NSInteger)count{
-    
-    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
-//    NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
-    //遍历文件夹，包括子文件夹中的文件。直至遍历完所有文件。此处嵌套了10层，嵌套层级越深，获取的目录层级越深。
-    [self enumerateAudio:sourcePath folder:@"" index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-        if (isFolder == YES) {
-            [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                if (isFolder == YES) {
-                    [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                        if (isFolder == YES) {
-                            [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                if (isFolder == YES) {
-                                    [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                        if (isFolder == YES) {
-                                            [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                if (isFolder == YES) {
-                                                    [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                        if (isFolder == YES) {
-                                                            [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                if (isFolder == YES) {
-                                                                    [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                        if (isFolder == YES) {
-                                                                            [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                                if (isFolder == YES) {
-                                                                                    [self enumerateAudio:basePath folder:folder index:index block:^(BOOL isFolder, NSString *basePath, NSString *folder) {
-                                                                                        if (isFolder == YES) {
-                                                                                            
-                                                                                        }
-                                                                                    }];
-                                                                                }
-                                                                            }];
-                                                                        }
-                                                                    }];
-                                                                }
-                                                            }];
-                                                        }
-                                                    }];
-                                                }
-                                            }];
-                                        }
-                                    }];
-                                }
-                            }];
-                        }
-                    }];
-                }
-            }];
-        }
-    }];
-}
-
--(BOOL)isAudioFormat:(NSString *)format{
-    //@[@"mp3",@"flac",@"wav",@"aac",@"m4a",@"wma",@"ape",@"ogg",@"alac"]
-    //暂时不支持以下格式，建议用ffmpeg、vlc、mpv的第三方： [format isEqualToString:@"wma"] || [format isEqualToString:@"ape"] || [format isEqualToString:@"ogg"] || [format isEqualToString:@"alac"] 
-    if ([format isEqualToString:@"mp3"] || [format isEqualToString:@"flac"] || [format isEqualToString:@"wav"] || [format isEqualToString:@"aac"] || [format isEqualToString:@"m4a"] || [format isEqualToString:@"wma"] || [format isEqualToString:@"ape"] || [format isEqualToString:@"ogg"] || [format isEqualToString:@"alac"]) {
-        return YES;
-    }else{
-        return NO;
-    }
-}
-
-
-/**
- 根据文件基础路径，遍历该路径下的文件
-
- @param basePath 基础路径
- @param folder  子文件夹名字，可以是空字符串：@"",
- @param block  isFolder：是否是文件夹。basePath：当前基础路径。folder：子文件夹名字
- */
--(void)enumerateAudio:(NSString *)basePath folder:(NSString *)folder index:(NSInteger)index block:(void(^)(BOOL isFolder,NSString *basePath,NSString *folder))block{
-    //Objective-C get list of files and subfolders in a directory 获取某路径下的所有文件，包括子文件夹中的所有文件https://stackoverflow.com/questions/19925276/objective-c-get-list-of-files-and-subfolders-in-a-directory
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager] ;
-    NSString *newPath = [NSString stringWithFormat:@"%@/%@",basePath,folder];
-    NSArray  *newDirs = [fileManager contentsOfDirectoryAtPath:newPath error:NULL];
-    [newDirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *filename = (NSString *)obj;
-        NSString *extension = [[filename pathExtension] lowercaseString];//文件格式
-        if ([self isAudioFormat:extension]  == YES) {
-            
-            //路径解码比较耗时间
-            NSString *filePath = [newPath stringByAppendingPathComponent:filename];
-            if([filePath containsString:@"file://"]){
-                //去除file://
-                filePath = [filePath substringFromIndex:7];
-            }
-            //url编码 解码路劲（重要）
-            filePath = [filePath stringByRemovingPercentEncoding];
-            
-            NSLog(@"正在导入：%@",filename);
-            ZBAudioModel *model = [[ZBAudioModel alloc]init];
-            model.title = filename;
-            model.path = filePath;
-            model.extension = extension;
-            //拼接路径
-            [self.localMusics[index] addObject:model];
-        }else if(extension.length == 0){
-            //如果是文件夹，那就继续遍历子文件夹中的
-            block(YES,newPath,obj);
-        }
-    }];
-}
-
-
-- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
-{
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag{
     if (flag) {
         [self changeAudio:YES];
     }
@@ -1076,15 +957,13 @@
          #endif
          
          */
-        
-        
         TreeNodeModel *model = (TreeNodeModel *)[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes][self.currentTrackRowIndex];
         ZBAudioModel *audio = [model audio];
         NSError *error =  nil;
-        
-        if([audio.extension isEqualToString:@"mp3"] || [audio.extension isEqualToString:@"flac"] || [audio.extension isEqualToString:@"wav"] || [audio.extension isEqualToString:@"aac"] || [audio.extension isEqualToString:@"m4a"] ){
+        ZBAudioObject *abo = [[ZBAudioObject alloc]init];
+        if([abo isAVAudioPlayerMode:audio.extension] == YES){
             self.isVCLPlayMode = false;
-            [vclPlayer pause];
+            [vclPlayer stop];
             //_player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
             _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
             _player.delegate = self;
@@ -1093,7 +972,7 @@
             self.progressSlider.maxValue = _player.duration;
         }else{
             self.isVCLPlayMode = true;
-            [self.player pause];
+            [self.player stop];
             
             VLCMedia *movie = [VLCMedia mediaWithURL:[NSURL fileURLWithPath:audio.path]];
             [vclPlayer setMedia:movie];
@@ -1288,10 +1167,12 @@
     ma.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
     NSString *url = [NSString stringWithFormat:@"http://www.kugou.com/yy/index.php?r=play/getdata&hash=%@",hash];
     url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    __weak ZBPlayer * weakSelf = self;
     [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"searchKRCFromKugou：%@",responseObject);
+        weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"lyrics"]];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"searchKRCFromKugouError：%@",error);
     }];

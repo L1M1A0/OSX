@@ -69,6 +69,7 @@
 		05BCD496205A58A000068210 /* arrow_gray_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 05BCD494205A589F00068210 /* arrow_gray_right.png */; };
 		05BCD499205BAA5200068210 /* OutlineIndexModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCD498205BAA5200068210 /* OutlineIndexModel.m */; };
 		05C720721EE6A9270076DC50 /* MainWCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 0522D8481ED58AF700D4671F /* MainWCtrl.m */; };
+		05CE1A2522831A3000B924BC /* ZBAudioObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 05CE1A2422831A3000B924BC /* ZBAudioObject.m */; };
 		05D904151EE017A700239BB7 /* docx.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D904141EE017A700239BB7 /* docx.png */; };
 		05ECA6F5225D5DC5005648FF /* ZBAudioModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */; };
 		05EFBBFA225A44E5003F58A4 /* ZBPlayerSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EFBBF9225A44E5003F58A4 /* ZBPlayerSection.m */; };
@@ -215,6 +216,8 @@
 		05BCD494205A589F00068210 /* arrow_gray_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_gray_right.png; sourceTree = "<group>"; };
 		05BCD497205BAA5200068210 /* OutlineIndexModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutlineIndexModel.h; sourceTree = "<group>"; };
 		05BCD498205BAA5200068210 /* OutlineIndexModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutlineIndexModel.m; sourceTree = "<group>"; };
+		05CE1A2322831A3000B924BC /* ZBAudioObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioObject.h; sourceTree = "<group>"; };
+		05CE1A2422831A3000B924BC /* ZBAudioObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBAudioObject.m; sourceTree = "<group>"; };
 		05D904141EE017A700239BB7 /* docx.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = docx.png; sourceTree = "<group>"; };
 		05ECA6F3225D5DC5005648FF /* ZBAudioModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBAudioModel.h; sourceTree = "<group>"; };
 		05ECA6F4225D5DC5005648FF /* ZBAudioModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBAudioModel.m; sourceTree = "<group>"; };
@@ -397,6 +400,8 @@
 				050C8B38227D9163000B548B /* ZBPlaybackModelViewController.m */,
 				0506BCD922806CA6008B73EF /* ZBKrc.h */,
 				0506BCDA22806CA6008B73EF /* ZBKrc.m */,
+				05CE1A2322831A3000B924BC /* ZBAudioObject.h */,
+				05CE1A2422831A3000B924BC /* ZBAudioObject.m */,
 			);
 			path = "播放器";
 			sourceTree = "<group>";
@@ -622,6 +627,7 @@
 				05FA0FB022799FA7002D5E5F /* FMDatabase.m in Sources */,
 				05B5587F202856E1005F7A20 /* MASConstraint.m in Sources */,
 				0506BCDB22806CA6008B73EF /* ZBKrc.m in Sources */,
+				05CE1A2522831A3000B924BC /* ZBAudioObject.m in Sources */,
 				05B5587D202856E1005F7A20 /* NSArray+MASAdditions.m in Sources */,
 				0506B7DE22806BAD008B73EF /* AFNetworkActivityIndicatorManager.m in Sources */,
 				051CB458226AF32C00D39671 /* ZBTextFieldCell.m in Sources */,
