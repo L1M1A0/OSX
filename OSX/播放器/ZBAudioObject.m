@@ -8,6 +8,7 @@
 
 #import "ZBAudioObject.h"
 #import "ZBAudioModel.h"
+#import "FHFileManager.h"
 
 
 @implementation ZBAudioObject
@@ -158,5 +159,20 @@
     }
 }
 
+/**
+ 获取本地列表 在初始化播放列表之后，保存列表路径到本地，用于初始化程序的时候可以初始化列表
+ 
+ @return 播放列表
+ */
++ (NSMutableArray *)getPlayList {
+    return [FHFileManager unarchiverAtPath:kPATH_DOCUMENT fileName:@"ZBAudioList" encodeObjectKey:@"ZBAudioListKey"];
+}
+
+/**
+ 保存播放列表到本地
+ */
++ (void)savePlayList:(NSMutableArray *)list {
+    [FHFileManager archiverAtPath:kPATH_DOCUMENT fileName:@"ZBAudioList" object:list encodeObjectKey:@"ZBAudioListKey"];
+}
 
 @end

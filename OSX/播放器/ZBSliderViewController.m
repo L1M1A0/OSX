@@ -59,13 +59,8 @@
 }
 
 -(void)sliderAction:(NSSlider *)sender{
-//    [self slider:^(NSString * _Nonnull value) {
-//
-//    }];
-    
     NSLog(@"sliderAction:%@",sender.stringValue);//volumeSliderIsChanging
     [[NSNotificationCenter defaultCenter]postNotificationName:@"volumeSliderIsChanging" object:@{@"stringValue":sender.stringValue}];
-
 }
 
 @end

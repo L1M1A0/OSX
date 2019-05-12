@@ -39,6 +39,7 @@
 		052954E81EEA7C40005FDDCD /* PopoverVCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 052954E61EEA7C40005FDDCD /* PopoverVCtrl.m */; };
 		052954E91EEA7C40005FDDCD /* PopoverVCtrl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */; };
 		053B533222599D2D00AA82C6 /* ZBPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 053B533122599D2D00AA82C6 /* ZBPlayer.m */; };
+		053D21D62284833800F3200B /* FHFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 053D21D52284833700F3200B /* FHFileManager.m */; };
 		057CA2B7226CA3280004688B /* ZBSliderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 057CA2B6226CA3280004688B /* ZBSliderViewController.m */; };
 		058940211ED81F74004464E4 /* titleBar.png in Resources */ = {isa = PBXBuildFile; fileRef = 058940201ED81F74004464E4 /* titleBar.png */; };
 		05A2DA152056565400B539E4 /* screen.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 05A2DA142056565300B539E4 /* screen.jpg */; };
@@ -164,6 +165,8 @@
 		052954E71EEA7C40005FDDCD /* PopoverVCtrl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopoverVCtrl.xib; sourceTree = "<group>"; };
 		053B533022599D2D00AA82C6 /* ZBPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBPlayer.h; sourceTree = "<group>"; };
 		053B533122599D2D00AA82C6 /* ZBPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBPlayer.m; sourceTree = "<group>"; };
+		053D21D42284833700F3200B /* FHFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FHFileManager.h; sourceTree = "<group>"; };
+		053D21D52284833700F3200B /* FHFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FHFileManager.m; sourceTree = "<group>"; };
 		057CA2B5226CA3280004688B /* ZBSliderViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZBSliderViewController.h; sourceTree = "<group>"; };
 		057CA2B6226CA3280004688B /* ZBSliderViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZBSliderViewController.m; sourceTree = "<group>"; };
 		058940201ED81F74004464E4 /* titleBar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = titleBar.png; sourceTree = "<group>"; };
@@ -340,6 +343,7 @@
 		0522D82E1ED587CE00D4671F /* OSX */ = {
 			isa = PBXGroup;
 			children = (
+				053D21D32284833700F3200B /* FHFileManager */,
 				0506B7B722806BAD008B73EF /* AFNetworking */,
 				05FA0FA222799FA7002D5E5F /* fmdb */,
 				050EC95D226A25E30042CC6A /* ISSoundAdditions */,
@@ -404,6 +408,15 @@
 				05CE1A2422831A3000B924BC /* ZBAudioObject.m */,
 			);
 			path = "播放器";
+			sourceTree = "<group>";
+		};
+		053D21D32284833700F3200B /* FHFileManager */ = {
+			isa = PBXGroup;
+			children = (
+				053D21D42284833700F3200B /* FHFileManager.h */,
+				053D21D52284833700F3200B /* FHFileManager.m */,
+			);
+			path = FHFileManager;
 			sourceTree = "<group>";
 		};
 		0589401B1ED81F36004464E4 /* images */ = {
@@ -657,6 +670,7 @@
 				05F55C6822661BEB003F4CE5 /* ZBPlayerSplitView.m in Sources */,
 				05B5587B202856E1005F7A20 /* MASConstraintMaker.m in Sources */,
 				057CA2B7226CA3280004688B /* ZBSliderViewController.m in Sources */,
+				053D21D62284833800F3200B /* FHFileManager.m in Sources */,
 				05B5587C202856E1005F7A20 /* MASLayoutConstraint.m in Sources */,
 				050144C92277545C004A06BD /* ZBDataObject.m in Sources */,
 				0506B7E022806BAD008B73EF /* UIButton+AFNetworking.m in Sources */,

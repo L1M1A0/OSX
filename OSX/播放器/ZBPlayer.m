@@ -30,7 +30,8 @@
 #define NSLog(format, ...)
 #endif
 
-#define KTreeModelForMusic @"KTreeModelForMusicList"
+#define kListNamesKey @"kListNamesKey"//存数组转字符串，播放列表路径
+
 
 @interface ZBPlayer ()<NSSplitViewDelegate,NSOutlineViewDelegate,NSOutlineViewDataSource,AVAudioPlayerDelegate,VLCMediaPlayerDelegate,ZBPlayerSectionDelegate,ZBPlayerRowDelegate>
 {
@@ -66,6 +67,8 @@
 @property (nonatomic, strong) NSButton *volumeBtn;
 /** 音量窗口 */
 @property (nonatomic, strong) NSPopover *volumePopover;
+/**当前音量*/
+@property (nonatomic, strong) NSString *volumeString;
 @property (nonatomic, strong) NSTextView *lrcTextView;
 #pragma mark - 主功能
 /** 创建列表 */
@@ -83,10 +86,6 @@
 
 
 #pragma mark - 数据
-/** 工程项目中音频文件 */
-@property (nonatomic, strong) NSArray *musicInObjectBundle;
-/** 所有的音频，用于获取本地初始音频数组*/
-@property (nonatomic, strong) NSMutableArray *localMusics;
 /** 本地路径音频数据，对localMusics进行加工包装，真正用于播放的数据 */
 @property (nonatomic, strong) TreeNodeModel *treeModel;
 /** 是否是使用VCL框架播放模式，0：AVAudioPlayer，1:VCLPlayer */
@@ -96,9 +95,13 @@
 /** 播发器 */
 @property (nonatomic, strong) AVAudioPlayer *player;
 /** 当前播放的歌曲在总列表中的index*/
-@property (nonatomic, assign) NSInteger currentTrackSectionIndex;
-/** 当前播放的歌曲在总列表中的index*/
-@property (nonatomic, assign) NSInteger currentTrackRowIndex;
+@property (nonatomic, assign) NSInteger currentSection;
+/** 当前播放的歌曲在所在列表中的index*/
+@property (nonatomic, assign) NSInteger currentRow;
+/** 上一次播放的歌曲在总列表中的index*/
+@property (nonatomic, assign) NSInteger lastSection;
+/** 上一次播放的歌曲在所在列表中的index*/
+@property (nonatomic, assign) NSInteger lastRow;
 /** 是否正在播放  */
 @property (nonatomic, assign) BOOL isPlaying;
 /** 播放模式 是否是随机播放 优先级 */
@@ -141,7 +144,6 @@
     [self playerMainBoard];
     [self audioListOutlineView];
     [self audioListScrollView];
-    [self musicPlayer];
     [self controllBar];
     [self vclPlayer];
     [self addNotification];
@@ -278,8 +280,9 @@
     self.nextBtn = [self button:NSMakeRect(120, 15, 40, 40) title:@"下一曲" tag:3 image:@"statusBarNextSelected" alternateImage:@"statusBarNext"];
     self.nextBtn = [self border:self.nextBtn];
     
-    self.volumeBtn  = [self button:NSMakeRect(170, 15, 40, 40) title:@"音量" tag:4 image:@"volumeSelected" alternateImage:@"volumeSelected"];
-    self.volumeBtn  = [self border:self.volumeBtn];
+    self.volumeString = @"50";//默认音量
+    self.volumeBtn    = [self button:NSMakeRect(170, 15, 40, 40) title:@"音量" tag:4 image:@"volumeSelected" alternateImage:@"volumeSelected"];
+    self.volumeBtn    = [self border:self.volumeBtn];
     [self volumePopover];//音量窗口
     
     self.playbackModelBtn = [self button:NSMakeRect(220, 15, 40, 40) title:@"播放模式" tag:5 image:@"" alternateImage:@""];
@@ -373,11 +376,6 @@
     [tf setEditable:NO];
     tf.font = [NSFont systemFontOfSize:size];
     tf.placeholderString = holder;
-
-//    tf.wantsLayer = YES;
-//    tf.layer.backgroundColor = [NSColor orangeColor].CGColor;
-//    tf.stringValue = @"textView";
-
     [self.window.contentView addSubview:tf];
     return tf;
 }
@@ -387,7 +385,7 @@
 -(NSPopover *)volumePopover{
     if(!_volumePopover){
         ZBSliderViewController *vc = [[ZBSliderViewController alloc]init];
-        vc.defaltVolume = _player.volume;
+        vc.defaltVolume = [self.volumeString floatValue]/100;//_player.volume;
         _volumePopover = [[NSPopover alloc]init];
         _volumePopover.contentViewController = vc;
         _volumePopover.behavior = NSPopoverBehaviorTransient;
@@ -402,8 +400,9 @@
 /** 修改音量*/
 -(void)volumeSliderIsChanging:(NSNotification *)noti{
 //    NSLog(@"volumeSliderIsChanging:%@",noti);
-    self.player.volume = [noti.object[@"stringValue"] floatValue]/100;
-    vclPlayer.audio.volume =  [noti.object[@"stringValue"] intValue];
+    self.volumeString      = noti.object[@"stringValue"];
+    self.player.volume     = [self.volumeString floatValue]/100;
+    vclPlayer.audio.volume = [self.volumeString intValue];
 }
 
 #pragma mark 播放模式
@@ -453,15 +452,15 @@
 
 /** 随机播放 下一首音轨随机计算*/
 -(void)randomNum{
-    //允许自动切换列表的时候才改变currentTrackSectionIndex的值
+    //允许自动切换列表的时候才改变currentSection的值
     if(self.isPlaybackModelSwitchList == YES){
         u_int32_t sectionCount = (u_int32_t)self.treeModel.childNodes.count;
         u_int32_t section = arc4random_uniform(sectionCount);
-        self.currentTrackSectionIndex = section;
+        self.currentSection = section;
     }
-    u_int32_t childsCount = (u_int32_t)[[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count];
+    u_int32_t childsCount = (u_int32_t)[[self.treeModel.childNodes[self.currentSection] childNodes] count];
     u_int32_t row = arc4random_uniform(childsCount);
-    self.currentTrackRowIndex = row;
+    self.currentRow = row;
 }
 
 /** 是否播放 */
@@ -469,8 +468,8 @@
     _isPlaying = isPlaying;
     if(isPlaying == YES){
         //播放
-        if (self.currentTrackRowIndex > [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count] || !self.currentTrackRowIndex) {
-            self.currentTrackRowIndex = 0;
+        if (self.currentRow > [[self.treeModel.childNodes[self.currentSection] childNodes] count] || !self.currentRow) {
+            self.currentRow = 0;
         }
         [self startPlaying];
     }else{
@@ -555,22 +554,7 @@
     [splitView adjustSubviews];
     [splitView setPosition:oldWidth ofDividerAtIndex:0];
 }
-#pragma mark - 数据源
--(void)initData{
-    self.treeModel = [[TreeNodeModel alloc]init];
-    //根节点
-    TreeNodeModel *rootNode1 = [self node:@"默认列表" level:0 superLevel:-1];
-    [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
-}
 
--(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level superLevel:(NSInteger)superLevel{
-    TreeNodeModel *nod = [[TreeNodeModel alloc]init];
-    nod.name = text;
-    nod.isExpand = NO;
-    nod.nodeLevel = level;
-    nod.superLevel = superLevel;
-    return nod;
-}
 
 //3.实现数据源协议
 #pragma mark - NSOutlineViewDataSource
@@ -695,30 +679,54 @@
             model.isExpand = YES;
             [treeView expandItem:model expandChildren:NO];//“expandChildren 参数表示是否展开所有的子节点。”
         }
+//        self.lastSection    = self.currentSection;
+//        self.currentSection = model.sectionIndex;
+//        [self reloadSectionStaus];
     }else if (levelForRow == 1) {
        
         //列表第一层 播放
-        if(self.currentTrackRowIndex != childIndexForItem){
-            //如果切换了列表，收起旧列表，展开当前歌曲所在列表
-            if(self.currentTrackSectionIndex != model.sectionIndex){
-                [self.treeModel.childNodes[self.currentTrackSectionIndex] setIsExpand:NO];
-                [self.treeModel.childNodes[model.sectionIndex] setIsExpand:YES];
-                [treeView collapseItem:self.treeModel.childNodes[self.currentTrackSectionIndex] collapseChildren:NO];
-                [treeView expandItem:self.treeModel.childNodes[model.sectionIndex] expandChildren:NO];
-            }
-            self.currentTrackSectionIndex = model.sectionIndex;
-            self.currentTrackRowIndex = childIndexForItem;
+        if (
+            //self.currentSection != self.lastSection ||
+            self.currentRow != childIndexForItem ||
+//            (self.currentSection == self.lastSection && self.currentRow != childIndexForItem) ||
+            (self.currentRow == childIndexForItem && self.currentSection != self.lastSection)
+            ){
+            //记录上一次播放的位置
+            self.lastSection = self.currentSection;
+            self.lastRow     = self.currentRow;
+            
+            //更新播放位置
+            self.currentSection = model.sectionIndex;
+            self.currentRow = childIndexForItem;
             self.isPlaying = YES;
-            [self.audioListOutlineView reloadData];
+            NSLog(@"点击row:%ld , section:%ld",childIndexForItem,model.sectionIndex);
         }else{
-            NSLog(@"正在播放：%@",model.name);
+            NSLog(@"点击row,正在播放：%@",model.name);
         }
     }
 }
+-(void)reloadSectionStaus{
+    //如果切换了列表，收起旧列表，展开当前歌曲所在列表
+    if(self.currentSection != self.lastSection){
+        //[self.treeModel.childNodes[self.currentSection] setIsExpand:YES];
+        //[self.treeModel.childNodes[self.lastSection] setIsExpand:NO];
+        [self.audioListOutlineView collapseItem:self.treeModel.childNodes[self.lastSection]  collapseChildren:YES];
+        [self.audioListOutlineView expandItem:self.treeModel.childNodes[self.currentSection] expandChildren:YES];
+    }
+    NSLog(@"currSec:%ld,lastSecc:%ld,currRowc:%ld,lastRowc:%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow);
+    //[self.audioListOutlineView reloadData];
+    //页面滚动到当前row
+    [self.audioListOutlineView scrollRowToVisible:self.currentRow+self.currentSection+5];
+    
+}
+
 
 - (void)outlineViewSelectionIsChanging:(NSNotification *)notification{
 
 }
+
+
+
 
 #pragma mark - ZBPlayerRowDelegate
 -(void)playerRow:(ZBPlayerRow *)playerRow didSelectRowForModel:(TreeNodeModel *)model{
@@ -727,8 +735,8 @@
     NSInteger childIndexForItem = [self.audioListOutlineView childIndexForItem:model];
     if (model.nodeLevel == 1) {
         //列表第一层 播放
-        if(self.currentTrackRowIndex != childIndexForItem){
-            self.currentTrackRowIndex = childIndexForItem;
+        if(self.currentRow != childIndexForItem){
+            self.currentRow = childIndexForItem;
             self.isPlaying = YES;
         }else{
             NSLog(@"正在播放：%@",model.name);
@@ -737,11 +745,11 @@
 }
 -(void)playerRow:(ZBPlayerRow *)playerRow menuItem:(NSMenuItem *)menuItem{
     if ([menuItem.title isEqualToString:kMenuItemInitializeList]) {//初始列表
-        
+        [self openPanel];
     }else if ([menuItem.title isEqualToString:kMenuItemInsertSection]) {//新增列表
         
     }else if ([menuItem.title isEqualToString:kMenuItemUpdateSection]) {//更新本组
-        [self openPanel];
+        
     }else if ([menuItem.title isEqualToString:kMenuItemDeleteSection]) {//删除本组
         
     }else if ([menuItem.title isEqualToString:kMenuItemLocatePlaying]) {//当前播放
@@ -775,67 +783,95 @@
     [openDlg beginWithCompletionHandler: ^(NSInteger result){
         if(result==NSFileHandlingPanelOKButton){
             NSArray *fileURLs = [openDlg URLs];//“保存用户选择的文件/文件夹路径path”
-            NSMutableArray *baseUrls = [NSMutableArray array];
-            NSMutableArray *sectionTitles = [NSMutableArray array];
-            for(NSURL *url in fileURLs) {
-                NSError *error;
-                NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
-                NSString *filePath = [[NSString stringWithFormat:@"%@",url] stringByRemovingPercentEncoding];
-                NSLog(@"string & path_%@,%@,%d",string,filePath,url.isFileURL);
-                NSArray *ar = [filePath componentsSeparatedByString:@"/"];
-                if([ar.lastObject isEqualToString:@""]){
-                    NSLog(@"folderName_%@",ar[ar.count - 2]);
-                    [baseUrls addObject:url.path];
-                    [sectionTitles addObject:ar[ar.count-2]];
-                }
-                
-                if(!error){
-                }else{
-                }
-            }
-            
-//            NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
-            weakSelf.localMusics = [NSMutableArray array];
-            for (int i = 0; i < sectionTitles.count; i++) {
-                NSMutableArray *arr = [NSMutableArray array];
-                [weakSelf.localMusics addObject:arr];
-                //更新列表
-                ZBAudioObject *ado = [[ZBAudioObject alloc]init];
-                [ado audioInPath:baseUrls[i]];
-                [weakSelf.localMusics[i] addObjectsFromArray:ado.audios];
-            }
-
-            weakSelf.treeModel = [[TreeNodeModel alloc]init];
-
-            //2级节点
-            for(int i = 0; i< weakSelf.localMusics.count; i++){
-                NSMutableArray *audios = weakSelf.localMusics[i];
-                //根节点
-                TreeNodeModel *rootNode1 = [weakSelf node:[NSString stringWithFormat:@"%@ [%ld]",sectionTitles[i],audios.count] level:0 superLevel:-1];
-
-                //排序
-                //NSMutableArray *sortAudios = [weakSelf defaultSort:audios];
-                NSMutableArray *sortAudios = [weakSelf.dataObject localSort:audios];
-                for(int j = 0; j < [sortAudios count]; j++){
-                    ZBAudioModel *audio = sortAudios[j];
-                    TreeNodeModel *childNode = [weakSelf node:audio.title level:1 superLevel:0];
-                    childNode.audio = audio;
-                    childNode.sectionIndex = i;
-                    childNode.rowIndex     = j;
-//                    childNode.childNodes = [NSMutableArray array];
-                    [rootNode1.childNodes addObject:childNode];
-                }
-                [weakSelf.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
-            }
-            [weakSelf.audioListOutlineView reloadData];
             NSLog(@"获取本地文件的路径：%@",fileURLs);
+            [weakSelf localFiles:[NSMutableArray arrayWithArray:fileURLs]];
         }
     }];
 }
 
+#pragma mark - 数据源
+-(void)initData{
+    self.currentRow = 0;
+    //获取缓存在本地的列表路径
+    NSMutableArray *arr =  [ZBAudioObject getPlayList];
+    if (arr.count > 0) {
+        [self localFiles:arr];
+    }else{
+        self.treeModel = [[TreeNodeModel alloc]init];
+        //根节点
+        TreeNodeModel *rootNode1 = [self node:@"默认列表" level:0 superLevel:-1];
+        [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
+    }
+}
+
+-(TreeNodeModel *)node:(NSString *)text level:(NSInteger)level superLevel:(NSInteger)superLevel{
+    TreeNodeModel *nod = [[TreeNodeModel alloc]init];
+    nod.name = text;
+    nod.isExpand = NO;
+    nod.nodeLevel = level;
+    nod.superLevel = superLevel;
+    return nod;
+}
+
+/**
+ 根据路径数组，分别读取本地路径下的文件
+
+ @param fileURLs <#fileURLs description#>
+ */
+-(void)localFiles:(NSMutableArray *)fileURLs{
+    [ZBAudioObject savePlayList:fileURLs];
+    NSMutableArray *baseUrls = [NSMutableArray array];
+    NSMutableArray *sectionTitles = [NSMutableArray array];
+    for(NSURL *url in fileURLs) {
+        //NSString *string = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
+        NSString *filePath = [[NSString stringWithFormat:@"%@",url] stringByRemovingPercentEncoding];
+        NSArray *ar = [filePath componentsSeparatedByString:@"/"];
+        if([ar.lastObject isEqualToString:@""]){
+            NSLog(@"folderName：%@，filePath：%@",ar[ar.count - 2],filePath);
+            [baseUrls addObject:url.path];
+            [sectionTitles addObject:ar[ar.count-2]];
+        }
+    }
+    //NSString *sourcePath = self.localMusicBasePath.length == 0 ? @"/Volumes/mac biao/music/日系/" : [NSString stringWithFormat:@"%@/",self.localMusicBasePath];
+    //dispatch_queue_t que = dispatch_queue_create("rer", DISPATCH_QUEUE_CONCURRENT);
+    NSMutableArray *localMusics = [NSMutableArray array];
+    for (int i = 0; i < sectionTitles.count; i++) {
+        NSMutableArray *arr = [NSMutableArray array];
+        [localMusics addObject:arr];
+        //dispatch_async(que, ^{
+        //更新列表
+        ZBAudioObject *ado = [[ZBAudioObject alloc]init];
+        [ado audioInPath:baseUrls[i]];
+        [localMusics[i] addObjectsFromArray:ado.audios];
+        //});
+    }
+    self.treeModel = [[TreeNodeModel alloc]init];
+    
+    //2级节点
+    for(int i = 0; i< localMusics.count; i++){
+        NSMutableArray *audios = localMusics[i];
+        //根节点
+        TreeNodeModel *rootNode1 = [self node:[NSString stringWithFormat:@"%@ [%ld]",sectionTitles[i],audios.count] level:0 superLevel:-1];
+        
+        //排序
+        //NSMutableArray *sortAudios = [weakSelf defaultSort:audios];
+        NSMutableArray *sortAudios = [self.dataObject localSort:audios];
+        for(int j = 0; j < [sortAudios count]; j++){
+            ZBAudioModel *audio = sortAudios[j];
+            TreeNodeModel *childNode = [self node:audio.title level:1 superLevel:0];
+            childNode.audio = audio;
+            childNode.sectionIndex = i;
+            childNode.rowIndex     = j;
+            [rootNode1.childNodes addObject:childNode];
+        }
+        [self.treeModel.childNodes addObjectsFromArray:@[rootNode1]];
+    }
+    [self.audioListOutlineView reloadData];
+}
+
 #pragma mark - 音乐
 
--(void)musicPlayer{
+-(void)musicInBundle{
     
     //    NSURL *playUrl = [NSURL URLWithString:@"http://baobab.wdjcdn.com/14573563182394.mp4"];
     //    self.player = [[AVPlayer alloc] initWithURL:playUrl];
@@ -856,14 +892,8 @@
     // 5 准备播放
     [self.player prepareToPlay];
     
-    self.musicInObjectBundle = @[@"松本晃彦 - 栄の活躍"];
-    self.currentTrackRowIndex = 0;
-//    [self initData];
-    if(self.treeModel){
-        [self.audioListOutlineView reloadData];
-    }
-    
-
+    self.player.delegate = self;
+    [self.player play];
 }
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag{
@@ -875,13 +905,16 @@
 
 /** 切歌  isNext：是否是下一首歌*/
 - (void)changeAudio:(BOOL)isNext{
+
     //切歌
     if (self.treeModel == nil || self.treeModel.childNodes.count == 0) {
-        if (self.currentTrackRowIndex < [self.musicInObjectBundle count] - 1) {
-            self.currentTrackRowIndex ++;
-            [self startPlaying];
-        }
+        [self musicInBundle];
     }else{
+        
+        //记录上一次播放的位置
+        self.lastSection = self.currentSection;
+        self.lastRow     = self.currentRow;
+        
         if (self.isPlaybackModelSingleRepeat == YES) {
             //单曲循环，不切换音频索引
             [self startPlaying];
@@ -894,30 +927,30 @@
                 if(isNext == YES){
                     if(self.isPlaybackModelSwitchList == YES){
                         //循序播放，自动切换列表
-                        if (self.currentTrackRowIndex + 1 >= [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count]) {
-                            if (self.currentTrackSectionIndex + 1 >= self.treeModel.childNodes.count) {
-                                self.currentTrackSectionIndex = 0;
+                        if (self.currentRow + 1 >= [[self.treeModel.childNodes[self.currentSection] childNodes] count]) {
+                            if (self.currentSection + 1 >= self.treeModel.childNodes.count) {
+                                self.currentSection = 0;
                             }else{
-                                self.currentTrackSectionIndex = self.currentTrackSectionIndex + 1;
+                                self.currentSection = self.currentSection + 1;
                             }
-                            self.currentTrackRowIndex = 0;
+                            self.currentRow = 0;
                         }else{
-                            self.currentTrackRowIndex = self.currentTrackRowIndex + 1;
+                            self.currentRow = self.currentRow + 1;
                         }
                     }else{
                         //循序播放，不切换列表
-                        if (self.currentTrackRowIndex + 1 >= [[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes] count]) {
-                            self.currentTrackRowIndex = 0;
+                        if (self.currentRow + 1 >= [[self.treeModel.childNodes[self.currentSection] childNodes] count]) {
+                            self.currentRow = 0;
                         }else{
-                            self.currentTrackRowIndex = self.currentTrackRowIndex + 1;
+                            self.currentRow = self.currentRow + 1;
                         }
                     }
                 }else{
                     //上一首(不支持切换列表，以后考虑支持记忆前面播放的一首歌)
-                    if (self.currentTrackRowIndex - 1 < 0) {
-                        self.currentTrackRowIndex = 0;
+                    if (self.currentRow - 1 < 0) {
+                        self.currentRow = 0;
                     }else{
-                        self.currentTrackRowIndex = self.currentTrackRowIndex - 1;
+                        self.currentRow = self.currentRow - 1;
                     }
                 }
             }
@@ -934,9 +967,7 @@
     }
     //播放工程目录下的文件
     if (self.treeModel == nil || self.treeModel.childNodes.count == 0) {
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSString alloc] initWithString:[self.musicInObjectBundle objectAtIndex:self.currentTrackRowIndex]] ofType:@"mp3"]] error:NULL];
-        _player.delegate = self;
-        [_player play];
+        [self musicInBundle];
     }else{
         
 #pragma mark 播放本地音乐
@@ -957,16 +988,18 @@
          #endif
          
          */
-        TreeNodeModel *model = (TreeNodeModel *)[self.treeModel.childNodes[self.currentTrackSectionIndex] childNodes][self.currentTrackRowIndex];
+        TreeNodeModel *model = (TreeNodeModel *)[self.treeModel.childNodes[self.currentSection] childNodes][self.currentRow];
         ZBAudioModel *audio = [model audio];
         NSError *error =  nil;
         ZBAudioObject *abo = [[ZBAudioObject alloc]init];
         if([abo isAVAudioPlayerMode:audio.extension] == YES){
             self.isVCLPlayMode = false;
             [vclPlayer stop];
+            
             //_player = [[AVAudioPlayer alloc] initWithData:self.audioData fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
             _player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:audio.path] error:&error];
             _player.delegate = self;
+            [_player setVolume: [self.volumeString floatValue] / 100];
             [_player prepareToPlay];
             [_player play];
             self.progressSlider.maxValue = _player.duration;
@@ -987,7 +1020,7 @@
         self.audioNameTF.toolTip = audio.title;
         //[self mDefineUpControl:audio.path];
         [self kugouApiSearchMusic:audio.title];
-
+        [self reloadSectionStaus];
     }
 }
 
@@ -1035,7 +1068,6 @@
                 //                NSData *data=[dict objectForKey:@"data"];
                 //                image=[NSImage imageWithData:data];//图片
             }
-            
         }
     }
     savePath = filePath;
@@ -1079,6 +1111,7 @@
 //
 //    });
     vclPlayer = [[VLCMediaPlayer alloc]init];
+    vclPlayer.audio.volume = [self.volumeString intValue];
     [vclPlayer setDelegate:self];
 //    CGFloat currentSound = [NSSound systemVolume];
 }
@@ -1149,7 +1182,7 @@
     [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"searchMusicFromKugou：%@",responseObject);
+//        NSLog(@"searchMusicFromKugou：%@",responseObject);
         NSArray *ar = responseObject[@"data"][@"info"];
         if (ar.count > 0) {
             [weakSelf kugouApiSearchKrc:ar[0][@"hash"]];
@@ -1171,8 +1204,15 @@
     [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"searchKRCFromKugou：%@",responseObject);
-        weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"lyrics"]];
+//        NSLog(@"searchKRCFromKugou：%@",responseObject);
+        if([responseObject[@"data"] count]>0){
+            weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"lyrics"]];
+        }else{
+
+            NSString *d = [NSString stringWithFormat:@"currentSection：%ld，lastSection：%ld,currentRow：%ld,lastRow：%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow];
+            weakSelf.lrcTextView.string = [NSString stringWithFormat:@"歌词下载失败：err_code: %ld\n%@",[responseObject[@"err_code"] integerValue],d];
+        }
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"searchKRCFromKugouError：%@",error);
     }];
