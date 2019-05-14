@@ -22,6 +22,7 @@
 #import "ZBSliderViewController.h"
 #import "ZBPlaybackModelViewController.h"
 #import "AFNetworking.h"
+//#import <objc/runtime.h>
 
 #ifdef DEBUG
 
@@ -705,20 +706,7 @@
         }
     }
 }
--(void)reloadSectionStaus{
-    //如果切换了列表，收起旧列表，展开当前歌曲所在列表
-    if(self.currentSection != self.lastSection){
-        //[self.treeModel.childNodes[self.currentSection] setIsExpand:YES];
-        //[self.treeModel.childNodes[self.lastSection] setIsExpand:NO];
-        [self.audioListOutlineView collapseItem:self.treeModel.childNodes[self.lastSection]  collapseChildren:YES];
-        [self.audioListOutlineView expandItem:self.treeModel.childNodes[self.currentSection] expandChildren:YES];
-    }
-    NSLog(@"currSec:%ld,lastSecc:%ld,currRowc:%ld,lastRowc:%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow);
-    //[self.audioListOutlineView reloadData];
-    //页面滚动到当前row
-    [self.audioListOutlineView scrollRowToVisible:self.currentRow+self.currentSection+5];
-    
-}
+
 
 
 - (void)outlineViewSelectionIsChanging:(NSNotification *)notification{
@@ -753,7 +741,7 @@
     }else if ([menuItem.title isEqualToString:kMenuItemDeleteSection]) {//删除本组
         
     }else if ([menuItem.title isEqualToString:kMenuItemLocatePlaying]) {//当前播放
-        
+        [self reloadSectionStaus];
     }else if ([menuItem.title isEqualToString:kMenuItemSearchMusic])  {//搜索音乐
         
     }else if ([menuItem.title isEqualToString:kMenuItemShowInFinder]) {//定位文件
@@ -1019,11 +1007,25 @@
         self.audioNameTF.stringValue = audio.title;
         self.audioNameTF.toolTip = audio.title;
         //[self mDefineUpControl:audio.path];
-        [self kugouApiSearchMusic:audio.title];
+//        [self kugouApiSearchMusic:audio.title];
+        [self QQApiSearchMusic:audio.title];
         [self reloadSectionStaus];
     }
 }
-
+-(void)reloadSectionStaus{
+    //如果切换了列表，收起旧列表，展开当前歌曲所在列表
+    if(self.currentSection != self.lastSection){
+        //[self.treeModel.childNodes[self.currentSection] setIsExpand:YES];
+        //[self.treeModel.childNodes[self.lastSection] setIsExpand:NO];
+        [self.audioListOutlineView collapseItem:self.treeModel.childNodes[self.lastSection]  collapseChildren:YES];
+        [self.audioListOutlineView expandItem:self.treeModel.childNodes[self.currentSection] expandChildren:YES];
+    }
+    NSLog(@"currSec:%ld,lastSecc:%ld,currRowc:%ld,lastRowc:%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow);
+    //[self.audioListOutlineView reloadData];
+    //页面滚动到当前row
+    [self.audioListOutlineView scrollRowToVisible:self.currentRow+self.currentSection+5];
+    
+}
 
 
 #pragma mark 获取音频文件的元数据 ID3
@@ -1165,12 +1167,109 @@
 }
 
 #pragma mark - 歌词
+/**
+ 分析歌名中的歌手
+ @param audioName 歌名
+ @return 歌手数组
+ */
+- (NSArray *)singers:(NSString *)audioName{
+    
+    NSMutableArray *singles = [NSMutableArray array];
+    //前半段
+    NSArray *arr1 = [audioName componentsSeparatedByString:@" -"];
+    if(arr1.count == 1){
+        arr1 = [audioName componentsSeparatedByString:@"-"];
+    }
+    NSString *name = arr1.count > 1 ? arr1[0] : audioName;
+    [singles addObject:name];
+    
+    
+    //附加歌名
+    NSArray *arr2 = [audioName componentsSeparatedByString:@"- "];
+    NSString *title = arr2.count > 1 ? arr2[1] : audioName;
+    NSString *key = [title substringToIndex:title.length - 4];
+    key = [key stringByReplacingOccurrencesOfString:@" " withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"." withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"：" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@":" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"、" withString:@"&"];
+    key = [key stringByReplacingOccurrencesOfString:@"（" withString:@"&"];
+    key = [key stringByReplacingOccurrencesOfString:@"[" withString:@"&"];
+    key = [key stringByReplacingOccurrencesOfString:@"【" withString:@"&"];
+    key = [key stringByReplacingOccurrencesOfString:@")" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"）" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"]" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"】" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"(by" withString:@"&by"];
 
 
+    //冴えない彼女-2C112- DOUBLE RAINBOW DREAMS（by：澤村・スペンサー・英梨々&大西沙織&霞ヶ丘詩羽&茅野愛衣.mp3
+    NSInteger oldL = key.length;
+    key = [self keyword:key separatkey:@"&by" is0:NO];
+    key = [key localizedLowercaseString];
+    key = [key stringByReplacingOccurrencesOfString:@"cv" withString:@""];
+    key = [key stringByReplacingOccurrencesOfString:@"(" withString:@"&"];
+
+    if([key containsString:@"&"]){//多个歌手
+        NSArray *mults = [key componentsSeparatedByString:@"&"];
+        [singles addObjectsFromArray:mults];
+    }else if (oldL > key.length){
+        [singles addObject:key];
+    }
+    
+    //去除重复
+    NSArray *result = [singles valueForKeyPath:@"@distinctUnionOfObjects.self"];
+    NSMutableArray *lastArr = [NSMutableArray array];
+    for (int i = 0; i < result.count; i++) {
+        if(![result[i] isEqualToString:@""] || [result[i] length] > 0){
+            [lastArr addObject:result[i]];
+        }
+    }
+    return [lastArr mutableCopy];
+}
+/** 歌名处理 */
+-(NSString *)keyword:(NSString *)keyword{
+    NSArray *arr1 = [keyword componentsSeparatedByString:@" -"];
+    if(arr1.count == 1){
+        arr1 = [keyword componentsSeparatedByString:@"-"];
+    }
+    NSArray *arr2 = [keyword componentsSeparatedByString:@"- "];
+    NSString *name = arr1.count > 1 ? arr1[0] : keyword;
+    NSString *title = arr2.count > 1 ? arr2[1] : keyword;
+    NSString *key = @"";
+    if (arr1.count < 2  || arr2.count < 2 ) {
+        key = keyword;
+    }else{
+        key = [NSString stringWithFormat:@"%@ - %@",name,title];
+    }
+    key = [key substringToIndex:key.length - 4];
+    NSString *point = [key substringFromIndex:key.length-1];
+    key = [point isEqualToString:@"."] ? [key substringToIndex:key.length - 1] : key;
+    key = [key stringByReplacingOccurrencesOfString:@"（" withString:@"("];
+    key = [key stringByReplacingOccurrencesOfString:@"[" withString:@"("];
+    key = [key stringByReplacingOccurrencesOfString:@"【" withString:@"("];
+    key = [self keyword:key separatkey:@"(by"  is0:YES];
+    return key;
+}
+
+/** 去除歌名后半段的 注释关键词，返回歌名 */
+-(NSString *)keyword:(NSString *)keyword separatkey:(NSString*)separatkey is0:(BOOL)is0{
+    keyword = [keyword localizedLowercaseString];
+    if([keyword containsString:separatkey]){
+        if(is0 == YES){
+            return  [keyword componentsSeparatedByString:separatkey][0];
+        }else{
+            return  [keyword componentsSeparatedByString:separatkey][1];
+        }
+    }else{
+        return keyword;
+    }
+}
 /**
  查询歌曲，获取hash
  */
 - (void)kugouApiSearchMusic:(NSString *)keyword{
+    keyword = [self keyword:keyword];
     AFHTTPSessionManager *ma = [AFHTTPSessionManager manager];
     ma.requestSerializer = [AFJSONRequestSerializer serializer];
     ma.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -1195,16 +1294,17 @@
 
 - (void)kugouApiSearchKrc:(NSString *)hash{
     AFHTTPSessionManager *ma = [AFHTTPSessionManager manager];
-    ma.requestSerializer = [AFJSONRequestSerializer serializer];
+//    ma.requestSerializer = [AFJSONRequestSerializer serializer];
     ma.responseSerializer = [AFJSONResponseSerializer serializer];
     ma.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+//    http://www.kugou.com/yy/index.php?r=play/getdata&hash=67f4b520ee80d68959f4bf8a213f6774
     NSString *url = [NSString stringWithFormat:@"http://www.kugou.com/yy/index.php?r=play/getdata&hash=%@",hash];
     url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     __weak ZBPlayer * weakSelf = self;
     [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        NSLog(@"searchKRCFromKugou：%@",responseObject);
+        NSLog(@"searchKRCFromKugou：%@",responseObject);
         if([responseObject[@"data"] count]>0){
             weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"lyrics"]];
         }else{
@@ -1218,6 +1318,123 @@
     }];
 }
 
+
+/**
+ 查询歌曲，获取hash
+ */
+- (void)QQApiSearchMusic:(NSString *)keyword{
+    
+    NSArray *singers = [self singers:keyword];
+    keyword = [self keyword:keyword];
+    
+    AFHTTPSessionManager *ma = [AFHTTPSessionManager manager];
+    ma.requestSerializer = [AFJSONRequestSerializer serializer];
+    ma.responseSerializer = [AFJSONResponseSerializer serializer];
+    ma.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html", nil];
+    NSString *url = [NSString stringWithFormat:@"https://api.bzqll.com/music/tencent/search?key=579621905&s=%@&limit=100&offset=0&type=lrc",keyword];
+    
+    url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    __weak ZBPlayer * weakSelf = self;
+    [ma GET:url parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"QQApiSearchMusic：%@",responseObject);
+        NSArray *ar = responseObject[@"data"];
+        
+        //对比失误率较高，应该允许选择
+        NSString *songName = [keyword componentsSeparatedByString:@"- "][1];
+        NSMutableArray *arr = [NSMutableArray array];
+        for (int i = 0; i < ar.count; i++){
+            NSDictionary *dic = ar[i];
+            NSArray *dicSingers = dic[@"singer"];
+            BOOL isSameSinger   = NO;
+            for (int j = 0; j < dicSingers.count; j++) {
+                NSDictionary *dicj = dicSingers[j];
+                NSString *js = [NSString stringWithFormat:@"%@",dicj[@"name"]];
+                for (int k = 0; k < singers.count; k++) {
+                    NSString *ks = [NSString stringWithFormat:@"%@",singers[k]];
+                    if ([ks isEqualToString:js]) {
+                        isSameSinger = YES;
+                    }
+                }
+            }
+            
+            NSString *dicSong = dic[@"songname"];
+            BOOL isSameSong   = NO;
+            songName = [songName localizedLowercaseString];
+            dicSong = [dicSong localizedLowercaseString];
+            songName = [songName stringByReplacingOccurrencesOfString:@" " withString:@""];
+            dicSong = [dicSong stringByReplacingOccurrencesOfString:@" " withString:@""];
+            if([songName isEqualToString:dicSong]){
+                isSameSong = YES;
+            }else if (songName.length == dicSong.length){
+                isSameSong = YES;
+            }
+            //
+            if(isSameSong == YES && isSameSinger == YES){
+                [arr addObject:dic];
+            }
+                
+//            float pe = [self likePercent:songName OrString:dicSong];
+            NSLog(@"当前：%@，\n字段：%@",songName,dicSong);
+        }
+        
+        if (arr.count > 0) {
+            NSString *str = [NSString stringWithFormat:@"%@",arr[0][@"content"]];
+            str = [str stringByReplacingOccurrencesOfString:@"<em>" withString:@""];
+            str = [str stringByReplacingOccurrencesOfString:@"</em>" withString:@""];
+            str = [str stringByReplacingOccurrencesOfString:@"\\n" withString:@"\n"];
+            str = [str stringByReplacingOccurrencesOfString:@"\n " withString:@"\n"];
+            weakSelf.lrcTextView.string = [NSString stringWithFormat:@"%@",str];
+        }else{
+            
+            NSString *d = [NSString stringWithFormat:@"currentSection：%ld，lastSection：%ld,currentRow：%ld,lastRow：%ld",self.currentSection,self.lastSection,self.currentRow,self.lastRow];
+            weakSelf.lrcTextView.string = [NSString stringWithFormat:@"歌词下载失败：err_code: %ld\n%@",[responseObject[@"err_code"] integerValue],d];
+        }
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"searchMusicFromKugouError：%@",error);
+    }];
+}
+
+//- (float)likePercent:(NSString *)target OrString:(NSString *)orString{
+//
+//    int n = (int)orString.length;
+//    int m = (int)target.length;
+//    if (m == 0) return n;
+//    if (n == 0) return m;
+//    //Construct a matrix, need C99 support
+//
+//    int matrix[n + 1][m + 1];
+//    memset(&matrix[0], 0, m+1);
+//    for(int i=1; i<=n; i++) {
+//        memset(&matrix[i], 0, m+1);
+//        matrix[i][0]=i;
+//    }
+//    for(int i=1; i<=m; i++) {
+//        matrix[0][i]=i;
+//    }
+//    for(int i=1;i<=n;i++) {
+//        unichar si = [orString characterAtIndex:i-1];
+//        for(int j=1;j<=m;j++){
+//
+//            unichar dj = [target characterAtIndex:j-1];
+//            int cost;
+//            if(si==dj){
+//                cost=0;
+//            }
+//            else{
+//                cost=1;
+//            }
+//            const int above=matrix[i-1][j]+1;
+//            const int left=matrix[i][j-1]+1;
+//            const int diag=matrix[i-1][j-1]+cost;
+//            matrix[i][j]=min(above,min(left,diag));
+//        }
+//    }
+//    return 100.0 - 100.0*matrix[n][m]/target.length;
+//
+//}
 
 
 

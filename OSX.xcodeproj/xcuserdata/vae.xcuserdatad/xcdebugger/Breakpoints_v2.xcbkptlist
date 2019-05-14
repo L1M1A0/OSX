@@ -20,60 +20,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "579366671.996868"
+            timestampString = "579462334.003365"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1018"
-            endingLineNumber = "1018"
-            landmarkName = "-startPlaying"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "579366671.997407"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "994"
-            endingLineNumber = "994"
-            landmarkName = "-startPlaying"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "579366671.997753"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1000"
-            endingLineNumber = "1000"
-            landmarkName = "-startPlaying"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "OSX/&#x64ad;&#x653e;&#x5668;/ZBPlayer.m"
-            timestampString = "579366671.998068"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1010"
-            endingLineNumber = "1010"
-            landmarkName = "-startPlaying"
+            startingLineNumber = "1020"
+            endingLineNumber = "1020"
+            landmarkName = "-reloadSectionStaus"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
