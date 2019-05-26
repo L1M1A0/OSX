@@ -59,7 +59,7 @@
 }
 
 -(void)sliderAction:(NSSlider *)sender{
-    NSLog(@"sliderAction:%@",sender.stringValue);//volumeSliderIsChanging
+//    NSLog(@"sliderAction:%@",sender.stringValue);//volumeSliderIsChanging
     [[NSNotificationCenter defaultCenter]postNotificationName:@"volumeSliderIsChanging" object:@{@"stringValue":sender.stringValue}];
 }
 

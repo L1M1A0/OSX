@@ -533,7 +533,6 @@
 				BA731C7B77A9832DCD244ADA /* Pods-OSX.debug.xcconfig */,
 				5385AF9D6B47270853E3F810 /* Pods-OSX.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};

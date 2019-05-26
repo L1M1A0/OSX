@@ -1122,7 +1122,7 @@
 
 #pragma mark VLCMediaPlayerDelegate
 - (void)mediaPlayerStateChanged:(NSNotification *)aNotification{
-    NSLog(@"mediaPlayerStateChanged_%@,%@",aNotification,VLCMediaPlayerStateToString(vclPlayer.state));
+    //NSLog(@"mediaPlayerStateChanged_%@,%@",aNotification,VLCMediaPlayerStateToString(vclPlayer.state));
 }
 - (void)mediaPlayerTimeChanged:(NSNotification *)aNotification{
 //    NSLog(@"mediaPlayerTimeChanged_%@",aNotification);
